@@ -1,7 +1,10 @@
 import express from "express";
 import doenv from "dotenv";
+import DBconnection from "./config/db.ts";
 
 doenv.config();
+await DBconnection();
+
 
 const app: express.Application = express();
 const PORT = 3000;
