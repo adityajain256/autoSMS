@@ -1,21 +1,20 @@
 import express from "express";
 import doenv from "dotenv";
 import DBconnection from "./config/db.ts";
+import authRouter from "./route/authRoute.ts";
 
 doenv.config();
 await DBconnection();
 
 
 const app: express.Application = express();
-const PORT = 3000;
+
 
 // Middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use("/api/auth", authRouter);
 
-// Routes
-app.get("/", (req: express.Request, res: express.Response) => {
-  res.send("Server is running 🚀");
-});
 
-// Start server
+
 export default app;
