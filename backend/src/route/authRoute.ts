@@ -1,7 +1,10 @@
-// POST   /api/auth/register        // Register CA/Staff
-// POST   /api/auth/login           // Login
-// POST   /api/auth/logout          // Logout
-// GET    /api/auth/me 
+// POST   /api/auth/register         // Register CA/Staff
+// POST   /api/auth/login            // Login
+// POST   /api/auth/logout           // Logout
+// GET    /api/auth/me               // Get current user profile 
+// GET   /api/auth/get-staff         // Get all staff (admin only)
+// PATCH  /api/auth/update-profile   // Update profile (CA/Staff)
+
 
 import express from "express";
 import { getProfile, getStaff, loginUser, register_staff, registerAdmin, updateProfile } from "../controller/authController.ts";
