@@ -9,6 +9,7 @@
 import express from "express";
 import { getProfile, getStaff, loginUser, register_staff, registerAdmin, updateProfile } from "../controller/authController.ts";
 import authMiddleware from "../middleware/auth.middlware.ts";
+
 const authRouter = express.Router();
 
 authRouter.use(authMiddleware);

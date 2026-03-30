@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-on-surface antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer utilities {
+  .sms-gradient {
+    @apply bg-gradient-to-br from-primary to-primary-container;
+  }
+  .glass-panel {
+    @apply bg-surface-container-lowest/70 backdrop-blur-md shadow-ambient;
+  }
+  /* The "Ghost Border" from Stitch design system at 20% opacity */
+  .ghost-border {
+    border: 1px solid theme('colors.outline-variant' / 20%);
+  }
+}
