@@ -6,7 +6,7 @@ import express from "express";
 
 
 export const registerAdmin = async (req: express.Request, res: express.Response) => {
-    const { adminName, password, role, phoneNumber } = req.body;
+    const { adminName, password, role, phoneNumber, address } = req.body;
 
     const re: string = validators.validatePassword(password);
     if(validators.validatePhoneNumber(phoneNumber) === false){
@@ -27,13 +27,15 @@ export const registerAdmin = async (req: express.Request, res: express.Response)
             return res.status(400).json({message: "Admin with this username already exists."});
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const token = jwt.sign({ adminName, phoneNumber, role }, process.env.JWT_SECRET || "adityajain256@")
+        const jwtSecret = process.env.JWT_SECRET;
+        if (!jwtSecret) throw new Error("JWT_SECRET environment variable is not set");
+        const token = jwt.sign({ adminName, phoneNumber, role }, jwtSecret);
 
-        const newAdmin = await Admin.create({ adminName, password: hashedPassword, role });
-
+        const newAdmin = await Admin.create({ adminName, password: hashedPassword, role, phoneNumber: phoneNumber, address: address });
 
         return res.status(201).json({message: "Admin registered successfully.", token });
     } catch (error) {
+        console.error("Error registering admin:", error);
         return res.status(500).json({message: "An error occurred while registering the admin."});
     }
 }
@@ -42,9 +44,11 @@ export const registerAdmin = async (req: express.Request, res: express.Response)
 export const register_staff = async (req: express.Request, res: express.Response) => {
 
     if(!(req as any).user || (req as any).user.role !== "admin"){
+        // Debug log removed for production safety
         return res.status(403).json({message: "Forbidden: Only admins can register staff."});
     }
-    const { staffName, password, role, phoneNumber } = req.body;
+
+    const { staffName, password, role, phoneNumber, address } = req.body;
 
     const re: string = validators.validatePassword(password);
 
@@ -64,11 +68,12 @@ export const register_staff = async (req: express.Request, res: express.Response
         }
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newAdmin = await Admin.create({ adminName: staffName, password: hashedPassword, role, phoneNumber });
+        const newAdmin = await Admin.create({ adminName: staffName, password: hashedPassword, role, phoneNumber: phoneNumber, address: address });
 
         return res.status(201).json({message: `${staffName} registered successfully.`});
     } catch (error) {
-        return res.status(500).json({message: "An error occurred while registering the admin."});
+        console.error("Error registering staff:", error);
+        return res.status(500).json({message: "An error occurred while registering the staff."});
     }
 }
 
@@ -87,7 +92,9 @@ export const loginUser = async (req: express.Request, res: express.Response) => 
             return res.status(401).json({message: "Invalid credentials."});
         }
 
-        const token = jwt.sign({ adminName: admin.adminName, phoneNumber: admin.phoneNumber, role: admin.role }, process.env.JWT_SECRET || "adityajain256@");
+        const jwtSecret = process.env.JWT_SECRET;
+        if (!jwtSecret) throw new Error("JWT_SECRET environment variable is not set");
+        const token = jwt.sign({ adminName: admin.adminName, phoneNumber: admin.phoneNumber, role: admin.role }, jwtSecret);
         return res.status(200).json({message: "Login successful.", token });
     } catch (error) {
         return res.status(500).json({message: "An error occurred while logging in."});
@@ -95,7 +102,7 @@ export const loginUser = async (req: express.Request, res: express.Response) => 
 }
 
 export const updateProfile = async (req: express.Request, res: express.Response) => {
-    const { phoneNumber, password } = req.body;
+    const { phoneNumber, password, adminName, address } = req.body;
     if(validators.validatePhoneNumber(phoneNumber) === false){
         return res.status(400).json({message: "Invalid phone number format."});
     }
@@ -109,11 +116,13 @@ export const updateProfile = async (req: express.Request, res: express.Response)
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         
-        const admin = await Admin.findOneAndUpdate({ phoneNumber }, { password: hashedPassword }, { new: true });
+        const admin = await Admin.findOneAndUpdate({ phoneNumber }, { password: hashedPassword, adminName, address }, { new: true });
         if (!admin) {
             return res.status(404).json({message: "user not found."});
         }
-        const token = jwt.sign({ adminName: admin.adminName, phoneNumber: admin.phoneNumber, role: admin.role }, process.env.JWT_SECRET || "adityajain256@");
+        const jwtSecret = process.env.JWT_SECRET;
+        if (!jwtSecret) throw new Error("JWT_SECRET environment variable is not set");
+        const token = jwt.sign({ adminName: admin.adminName, phoneNumber: admin.phoneNumber, role: admin.role }, jwtSecret);
         return res.status(200).json({message: "Profile updated successfully.", token });
     } catch (error) {
         return res.status(500).json({message: "An error occurred while updating the profile."});
@@ -155,3 +164,4 @@ export const getStaff = async (req: express.Request, res: express.Response) => {
         return res.status(500).json({message: "An error occurred while fetching staff members."});
     }
 }  
+

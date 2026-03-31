@@ -21,6 +21,8 @@ const userSchema = new mongoose.Schema({
         unique: true,
         match: [/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Please use a valid GST number."], 
     },
+    // PII: address field, do not log, encrypt at rest in future, restrict access, add retention/deletion/audit
+    address: { type: String, /* TODO: encrypt at rest, restrict access, add retention/deletion, audit access */ },
     totalAmount: { type: Number, default: 0},
 }, { timestamps: true });
 
