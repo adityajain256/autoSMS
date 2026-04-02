@@ -8,3 +8,4 @@ const dashboardRouter = express.Router();
 
 dashboardRouter.get("/stats", getStatistics);
 
+export default dashboardRouter;

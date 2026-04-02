@@ -49,6 +49,10 @@ export const createClient = async(req: express.Request, res: express.Response) =
     if (gstNumber && !validators.validateGSTNumber(gstNumber)) {
         return res.status(400).json({ message: "Invalid GST number" });
     }
+    const authId = (req as any).user.id;
+    if(!authId){
+        return res.status(400).json({message: "no credentials."})
+    }
     try {
         const newClient = await User.create({
             username: userName,
@@ -58,7 +62,7 @@ export const createClient = async(req: express.Request, res: express.Response) =
             email,
             totalAmount,
             totalQuantity,
-            authId: (req as any).user.id
+            authId: authId
         });
         res.status(201).json({ message: "Client created successfully", data: newClient });
     } catch (error: any) {

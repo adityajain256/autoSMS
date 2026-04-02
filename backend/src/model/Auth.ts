@@ -9,7 +9,7 @@ const adminSchema = new mongoose.Schema({
     password: { type: String, required: true },
     // PII: address field, do not log, encrypt at rest in future
     address: { type: String, /* TODO: encrypt at rest, add access controls, retention policy */ },
-    clients: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] }]
+    clients: [{ type: mongoose.Schema.Types.ObjectId, ref: "User"}]
 }, {timestamps: true});
 
 const Admin = mongoose.model("Admin", adminSchema);
