@@ -7,7 +7,7 @@
 
 import express from "express";
 import authMiddleware from "../middleware/auth.middleware.ts";
-import { getAllClients, getClientById, createClient, updateClient, deleteClient } from "../controller/clientController.ts";
+import { getAllClients, getClientById, createClient, updateClient, deleteClient, createClientBulk } from "../controller/clientController.ts";
 
 
 const clientRouter = express.Router();
@@ -144,6 +144,7 @@ clientRouter.get("/:id", getClientById);
  */
 
 clientRouter.post("/", createClient);
+clientRouter.post("/create/bulk", createClientBulk);
 
 /**
  * @swagger
@@ -188,7 +189,6 @@ clientRouter.post("/", createClient);
  *       500:
  *         description: Server error
  */
-clientRouter.patch("/:id", updateClient);
 clientRouter.patch("/:id", updateClient);
 
 /**

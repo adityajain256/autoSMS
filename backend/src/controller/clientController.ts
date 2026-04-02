@@ -1,6 +1,7 @@
 import express from "express";
 import User from "../model/User.ts";
 import validators from "../utils/validators.ts";
+import mongoose from "mongoose";
 
 
 export const getAllClients = async(req: express.Request, res: express.Response) => {
@@ -18,13 +19,8 @@ export const getClientById = async(req: express.Request, res: express.Response) 
     if (!id) {
         return res.status(400).json({ message: "Client ID is required" });
     }
-    // Validate ObjectId format
-    const mongoose = require('mongoose');
-    if (!mongoose.isValidObjectId(id)) {
-        return res.status(400).json({ message: "Invalid id format" });
-    }
     try {
-        const client = await User.findById(id);
+        const client = await User.findById({ _id: id }).populate("entries");
         if (!client) {
             return res.status(404).json({ message: "Client not found" });
         }
@@ -34,22 +30,22 @@ export const getClientById = async(req: express.Request, res: express.Response) 
         if (error.name === 'CastError') {
             return res.status(400).json({ message: "Invalid id format" });
         }
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Server error", error });
     }
 }
 
 export const createClient = async(req: express.Request, res: express.Response) => {
-    const { userName, phoneNumber, address, gstNumber, email, totalAmount } = req.body;
-    if (!userName || !phoneNumber || !address || !gstNumber || !email) {
-        return res.status(400).json({ message: "All fields are required" });
+    const { userName, phoneNumber, address, gstNumber, email, totalAmount, totalQuantity } = req.body;
+    if (!userName) {
+        return res.status(400).json({ message: "Username is required" });
     }
-    if (!validators.validateEmail(email)) {
+    if (email && !validators.validateEmail(email)) {
         return res.status(400).json({ message: "Invalid email" });
     }
     if (!validators.validatePhoneNumber(phoneNumber)) {
         return res.status(400).json({ message: "Invalid phone number" });
     }
-    if (!validators.validateGSTNumber(gstNumber)) {
+    if (gstNumber && !validators.validateGSTNumber(gstNumber)) {
         return res.status(400).json({ message: "Invalid GST number" });
     }
     try {
@@ -59,13 +55,52 @@ export const createClient = async(req: express.Request, res: express.Response) =
             address,
             gstNumber,
             email,
-            totalAmount
+            totalAmount,
+            totalQuantity
         });
         res.status(201).json({ message: "Client created successfully", data: newClient });
     } catch (error: any) {
         // Handle MongoDB duplicate key error
         if (error.code === 11000 && error.keyValue) {
             // Find which field duplicated
+            const fields = Object.keys(error.keyValue).join(', ');
+            return res.status(409).json({
+                message: "Conflict: duplicate field",
+                details: `Duplicate value for: ${fields}`
+            });
+        }
+        console.error("Error creating client:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
+export const createClientBulk = async(req: express.Request, res: express.Response) => {
+    const clients = req.body;
+    if (!Array.isArray(clients) || clients.length === 0) {
+        return res.status(400).json({ message: "Request body must be a non-empty array of clients" });
+    }
+    // Validate each client in the array
+    for (const client of clients) {
+        const { userName, phoneNumber, address, gstNumber, email, totalAmount, quantity } = client;
+        if (!userName || !phoneNumber || !email || !gstNumber) {
+            return res.status(400).json({ message: "Each client must have userName, phoneNumber, email, and gstNumber" });
+        }
+        if (email && !validators.validateEmail(email)) {
+            return res.status(400).json({ message: `Invalid email for client ${userName}` });
+        }
+        if (phoneNumber && !validators.validatePhoneNumber(phoneNumber)) {
+            return res.status(400).json({ message: `Invalid phone number for client ${userName}` });
+        }
+        if (gstNumber && !validators.validateGSTNumber(gstNumber)) {
+            return res.status(400).json({ message: `Invalid GST number for client ${userName}` });
+        }
+    }
+    try {
+        const newClients = await User.insertMany(clients);
+        res.status(201).json({ message: "Clients created successfully", data: newClients });
+    } catch (error: any) {
+        // Handle MongoDB duplicate key error
+        if (error.code === 11000 && error.keyValue) {
             const fields = Object.keys(error.keyValue).join(', ');
             return res.status(409).json({
                 message: "Conflict: duplicate field",
@@ -101,7 +136,7 @@ export const updateClient = async(req: express.Request, res: express.Response) =
         if (email !== undefined) updateData.email = email;
         if (totalAmount !== undefined) updateData.totalAmount = totalAmount;
 
-        const updatedClient = await User.findByIdAndUpdate(id, updateData, { new: true });
+        const updatedClient = await User.findByIdAndUpdate(id, updateData, { returnDocument: "after" });
         if (!updatedClient) {
             return res.status(404).json({ message: "Client not found" });
         }

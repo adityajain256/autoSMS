@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { time } from "node:console";
 
 
 const adminSchema = new mongoose.Schema({
@@ -15,15 +14,12 @@ const adminSchema = new mongoose.Schema({
 
 // Hash password before saving if new or modified
 import bcrypt from "bcryptjs";
-adminSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next();
-    try {
-        const salt = await bcrypt.genSalt(10);
-        this.password = await bcrypt.hash(this.password, salt);
-        next();
-    } catch (err) {
-        next(err);
+adminSchema.pre('save', async function (this: any) {
+    if (!this.isModified('password')) {
+        return;
     }
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
 });
 
 const Admin = mongoose.model("Admin", adminSchema);
