@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
     totalAmount: { type: Number, default: 0},
     totalQuantity: { type: Number, default: 0},
 
-    entries: {type: [mongoose.Schema.Types.ObjectId], ref: "Entry" }
+    entries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Entry" }]
 }, { timestamps: true });
 
 const User = mongoose.model("User", userSchema);

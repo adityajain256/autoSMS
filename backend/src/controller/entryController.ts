@@ -1,6 +1,7 @@
 import Entry from "../model/Entry.ts";
 import User from "../model/User.ts";
 import express from "express";
+import mongoose from "mongoose";
 
 
 export const getAllEntries = async(req: express.Request, res: express.Response) => {
@@ -8,23 +9,34 @@ export const getAllEntries = async(req: express.Request, res: express.Response) 
         const entries = await Entry.find().populate("userId");
         return res.status(200).json(entries);
     } catch (error) {
-        res.status(500).json({ message: "Server error" });
+        return res.status(500).json({ message: "Server error" });
     }
 }
 
 
 export const createEntry = async(req: express.Request, res: express.Response) => {
     const { userId, quantity, amount, message } = req.body;
-    if (!userId || !quantity || !amount) {
-        return res.status(400).json({ message: "userId, quantity and amount are required" });
+    // Accept 0 as valid, only null/undefined is invalid
+    if (userId == null || quantity == null || amount == null || !Number.isFinite(Number(quantity)) || !Number.isFinite(Number(amount))) {
+        return res.status(400).json({ message: "userId, quantity and amount are required and must be numbers" });
     }
+    // Verify user exists
+    const user = await User.findById(userId);
+    if (!user) {
+        return res.status(404).json({ message: "User not found" });
+    }
+    const session = await mongoose.default.startSession();
+    session.startTransaction();
     try {
-        const entry = await Entry.create({userId, quantity, amount, message});
-        await User.findByIdAndUpdate(userId, { $inc: { totalAmount: amount, totalQuantity: quantity } }, { returnDocument: "after" });
-        return res.status(201).json({data: entry, message: "Entry created successfully."});
-
+        const entry = await Entry.create([{ userId, quantity, amount, message }], { session });
+        await User.findByIdAndUpdate(userId, { $inc: { totalAmount: amount, totalQuantity: quantity } }, { session });
+        await session.commitTransaction();
+        session.endSession();
+        return res.status(201).json({ data: entry[0], message: "Entry created successfully." });
     } catch (error) {
-        res.status(500).json({ message: "Server error" });
+        await session.abortTransaction();
+        session.endSession();
+        return res.status(500).json({ message: "Server error" });
     }
 }
 
@@ -37,7 +49,7 @@ export const getEntryByClientId = async(req: express.Request, res: express.Respo
         const entries = await Entry.find({ userId: clientId });
         return res.status(200).json(entries);
     } catch (error) {
-        res.status(500).json({ message: "Server error" });
+        return res.status(500).json({ message: "Server error" });
     }
 }
 
@@ -46,23 +58,40 @@ export const updateDue = async(req: express.Request, res: express.Response) => {
     if(!id){
         return res.status(400).json({message: "no id provided."})
     }
+    const session = await mongoose.default.startSession();
+    session.startTransaction();
     try {
-        const entry = await Entry.findById(id);
-        if(!entry){
-            return res.status(404).json({message: "Entry not found."});
+        const entry = await Entry.findById(id, null, { session });
+        if (!entry) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ message: "Entry not found." });
         }
-        if(!entry.isPaid){
-            await User.findByIdAndUpdate(entry.userId, { $inc: { totalAmount: -entry.amount, totalQuantity: -entry.quantity } }, { returnDocument: "after" });
-        }else{
-            await User.findByIdAndUpdate(entry.userId, { $inc: { totalAmount: entry.amount, totalQuantity: entry.quantity } }, { returnDocument: "after" });
+        const user = await User.findById(entry.userId, null, { session });
+        if (!user) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ message: "User not found." });
         }
-        await Entry.findByIdAndUpdate(
+        // Compute increment/decrement based on isPaid
+        let userUpdate;
+        if (!entry.isPaid) {
+            userUpdate = { $inc: { totalAmount: -entry.amount, totalQuantity: -entry.quantity } };
+        } else {
+            userUpdate = { $inc: { totalAmount: entry.amount, totalQuantity: entry.quantity } };
+        }
+        await User.findByIdAndUpdate(entry.userId, userUpdate, { session });
+        const updatedEntry = await Entry.findByIdAndUpdate(
             id,
             { isPaid: !entry.isPaid },
-            { returnDocument: "after" }
+            { session, returnDocument: "after" }
         );
-        return res.status(200).json({message: "Due updated successfully.", data: entry});
+        await session.commitTransaction();
+        session.endSession();
+        return res.status(200).json({ message: "Due updated successfully.", data: updatedEntry });
     } catch (error) {
-        res.status(500).json({ message: "Server error" });
+        await session.abortTransaction();
+        session.endSession();
+        return res.status(500).json({ message: "Server error" });
     }
 }

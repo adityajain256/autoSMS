@@ -30,7 +30,8 @@ export const getClientById = async(req: express.Request, res: express.Response) 
         if (error.name === 'CastError') {
             return res.status(400).json({ message: "Invalid id format" });
         }
-        res.status(500).json({ message: "Server error", error });
+        console.error("Error fetching client by id:", error);
+        return res.status(500).json({ message: "Server error" });
     }
 }
 
@@ -42,7 +43,7 @@ export const createClient = async(req: express.Request, res: express.Response) =
     if (email && !validators.validateEmail(email)) {
         return res.status(400).json({ message: "Invalid email" });
     }
-    if (!validators.validatePhoneNumber(phoneNumber)) {
+    if (phoneNumber && !validators.validatePhoneNumber(phoneNumber)) {
         return res.status(400).json({ message: "Invalid phone number" });
     }
     if (gstNumber && !validators.validateGSTNumber(gstNumber)) {
@@ -70,7 +71,7 @@ export const createClient = async(req: express.Request, res: express.Response) =
             });
         }
         console.error("Error creating client:", error);
-        res.status(500).json({ message: "Server error" });
+        return res.status(500).json({ message: "Server error" });
     }
 }
 
@@ -79,9 +80,10 @@ export const createClientBulk = async(req: express.Request, res: express.Respons
     if (!Array.isArray(clients) || clients.length === 0) {
         return res.status(400).json({ message: "Request body must be a non-empty array of clients" });
     }
-    // Validate each client in the array
+    // Validate and map each client in the array
+    const mappedClients = [];
     for (const client of clients) {
-        const { userName, phoneNumber, address, gstNumber, email, totalAmount, quantity } = client;
+        const { userName, phoneNumber, address, gstNumber, email, totalAmount, totalQuantity } = client;
         if (!userName || !phoneNumber || !email || !gstNumber) {
             return res.status(400).json({ message: "Each client must have userName, phoneNumber, email, and gstNumber" });
         }
@@ -94,9 +96,18 @@ export const createClientBulk = async(req: express.Request, res: express.Respons
         if (gstNumber && !validators.validateGSTNumber(gstNumber)) {
             return res.status(400).json({ message: `Invalid GST number for client ${userName}` });
         }
+        mappedClients.push({
+            username: userName,
+            phoneNumber,
+            address,
+            gstNumber,
+            email,
+            totalAmount,
+            totalQuantity
+        });
     }
     try {
-        const newClients = await User.insertMany(clients);
+        const newClients = await User.insertMany(mappedClients);
         res.status(201).json({ message: "Clients created successfully", data: newClients });
     } catch (error: any) {
         // Handle MongoDB duplicate key error
@@ -107,7 +118,7 @@ export const createClientBulk = async(req: express.Request, res: express.Respons
                 details: `Duplicate value for: ${fields}`
             });
         }
-        res.status(500).json({ message: "Server error" });
+        return res.status(500).json({ message: "Server error" });
     }
 }
 
