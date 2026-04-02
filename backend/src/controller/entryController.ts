@@ -2,6 +2,7 @@ import Entry from "../model/Entry.ts";
 import User from "../model/User.ts";
 import express from "express";
 import mongoose from "mongoose";
+import { sendSMS } from "../config/teilio.ts";
 
 
 export const getAllEntries = async(req: express.Request, res: express.Response) => {
@@ -24,12 +25,15 @@ export const createEntry = async(req: express.Request, res: express.Response) =>
     session.startTransaction();
     try {
         // Verify user exists inside transaction
+
         const user = await User.findById(userId, null, { session });
         if (!user) {
             await session.abortTransaction();
             session.endSession();
             return res.status(404).json({ message: "User not found" });
         }
+        const smsRes = await sendSMS(user.phoneNumber, `New entry created: Quantity ${quantity}, Amount ${amount}. Message: ${message}`);
+        console.log("SMS response:", smsRes);
         const entry = await Entry.create([{ userId, quantity, amount, message }], { session });
         await User.findByIdAndUpdate(userId, { $inc: { totalAmount: amount, totalQuantity: quantity } }, { session });
         await session.commitTransaction();
@@ -97,3 +101,4 @@ export const updateDue = async(req: express.Request, res: express.Response) => {
         return res.status(500).json({ message: "Server error" });
     }
 }
+

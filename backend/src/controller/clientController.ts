@@ -53,10 +53,11 @@ export const createClient = async(req: express.Request, res: express.Response) =
     if(!authId){
         return res.status(400).json({message: "no credentials."})
     }
+    const p = `+91${phoneNumber}`;
     try {
         const newClient = await User.create({
             username: userName,
-            phoneNumber,
+            phoneNumber: p,
             address,
             gstNumber,
             email,
@@ -146,7 +147,7 @@ export const updateClient = async(req: express.Request, res: express.Response) =
         // Only update fields that are defined
         const updateData: any = {};
         if (userName !== undefined) updateData.username = userName;
-        if (phoneNumber !== undefined) updateData.phoneNumber = phoneNumber;
+        if (phoneNumber !== undefined) updateData.phoneNumber = `+91${phoneNumber}`;
         if (address !== undefined) updateData.address = address;
         if (gstNumber !== undefined) updateData.gstNumber = gstNumber;
         if (email !== undefined) updateData.email = email;

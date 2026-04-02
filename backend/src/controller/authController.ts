@@ -30,7 +30,7 @@ export const registerAdmin = async (req: express.Request, res: express.Response)
         const jwtSecret = process.env.JWT_SECRET;
         if (!jwtSecret) throw new Error("JWT_SECRET environment variable is not set");
         
-        const newAdmin = await Admin.create({ adminName, password: hashedPassword, role, phoneNumber: phoneNumber, address: address });
+        const newAdmin = await Admin.create({ adminName, password: hashedPassword, role, phoneNumber:`+91${phoneNumber}` , address: address });
         
         const token = jwt.sign({id: newAdmin.id}, jwtSecret, { expiresIn: '24h' });
         return res.status(201).json({message: "Admin registered successfully.", token });
@@ -67,7 +67,7 @@ export const register_staff = async (req: express.Request, res: express.Response
             return res.status(400).json({message: "Admin with this username already exists."});
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newAdmin = await Admin.create({ adminName: staffName, password: hashedPassword, role, phoneNumber: phoneNumber, address: address });
+        const newAdmin = await Admin.create({ adminName: staffName, password: hashedPassword, role, phoneNumber: `+91${phoneNumber}`, address: address });
 
         const jwtSecret = process.env.JWT_SECRET || (() => { throw new Error("JWT_SECRET environment variable is not set"); })();
         const token = jwt.sign({id: newAdmin.id}, jwtSecret, { expiresIn: '24h' });
