@@ -57,7 +57,8 @@ export const createClient = async(req: express.Request, res: express.Response) =
             gstNumber,
             email,
             totalAmount,
-            totalQuantity
+            totalQuantity,
+            authId: (req as any).user.id
         });
         res.status(201).json({ message: "Client created successfully", data: newClient });
     } catch (error: any) {

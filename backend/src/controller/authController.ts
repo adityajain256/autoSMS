@@ -29,10 +29,10 @@ export const registerAdmin = async (req: express.Request, res: express.Response)
         const hashedPassword = await bcrypt.hash(password, 10);
         const jwtSecret = process.env.JWT_SECRET;
         if (!jwtSecret) throw new Error("JWT_SECRET environment variable is not set");
-        const token = jwt.sign({ adminName, phoneNumber, role }, jwtSecret);
-
+        
         const newAdmin = await Admin.create({ adminName, password: hashedPassword, role, phoneNumber: phoneNumber, address: address });
-
+        
+        const token = jwt.sign({id: newAdmin.id}, jwtSecret);
         return res.status(201).json({message: "Admin registered successfully.", token });
     } catch (error) {
         console.error("Error registering admin:", error);
@@ -42,8 +42,8 @@ export const registerAdmin = async (req: express.Request, res: express.Response)
 
 
 export const register_staff = async (req: express.Request, res: express.Response) => {
-
-    if(!(req as any).user || (req as any).user.role !== "admin"){
+    const admin = await Admin.findById((req as any).user.id);
+    if(admin?.role !== "admin"){
         // Debug log removed for production safety
         return res.status(403).json({message: "Forbidden: Only admins can register staff."});
     }
@@ -67,10 +67,12 @@ export const register_staff = async (req: express.Request, res: express.Response
             return res.status(400).json({message: "Admin with this username already exists."});
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-
         const newAdmin = await Admin.create({ adminName: staffName, password: hashedPassword, role, phoneNumber: phoneNumber, address: address });
 
-        return res.status(201).json({message: `${staffName} registered successfully.`});
+        const jwtSecret = process.env.JWT_SECRET || (() => { throw new Error("JWT_SECRET environment variable is not set"); })();
+        const token = jwt.sign({id: newAdmin.id}, jwtSecret);
+
+        return res.status(201).json({message: `${staffName} registered successfully.`, token });
     } catch (error) {
         console.error("Error registering staff:", error);
         return res.status(500).json({message: "An error occurred while registering the staff."});
@@ -86,15 +88,13 @@ export const loginUser = async (req: express.Request, res: express.Response) => 
         if (!admin) {
             return res.status(404).json({message: "user not found."});
         }
-
         const isMatch = await bcrypt.compare(password, admin.password);
         if (!isMatch) {
-            return res.status(401).json({message: "Invalid credentials."});
+            return res.status(401).json({message: "wrong password."});
         }
 
-        const jwtSecret = process.env.JWT_SECRET;
-        if (!jwtSecret) throw new Error("JWT_SECRET environment variable is not set");
-        const token = jwt.sign({ adminName: admin.adminName, phoneNumber: admin.phoneNumber, role: admin.role }, jwtSecret);
+        const jwtSecret = process.env.JWT_SECRET || (() => { throw new Error("JWT_SECRET environment variable is not set"); })();
+        const token = jwt.sign({id: admin.id}, jwtSecret);
         return res.status(200).json({message: "Login successful.", token });
     } catch (error) {
         return res.status(500).json({message: "An error occurred while logging in."});
@@ -116,14 +116,11 @@ export const updateProfile = async (req: express.Request, res: express.Response)
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         
-        const admin = await Admin.findOneAndUpdate({ phoneNumber }, { password: hashedPassword, adminName, address }, { new: true });
+        const admin = await Admin.findByIdAndUpdate({ _id: (req as any).user.id }, { password: hashedPassword, adminName, address, phoneNumber }, { new: true });
         if (!admin) {
             return res.status(404).json({message: "user not found."});
         }
-        const jwtSecret = process.env.JWT_SECRET;
-        if (!jwtSecret) throw new Error("JWT_SECRET environment variable is not set");
-        const token = jwt.sign({ adminName: admin.adminName, phoneNumber: admin.phoneNumber, role: admin.role }, jwtSecret);
-        return res.status(200).json({message: "Profile updated successfully.", token });
+        return res.status(200).json({message: "Profile updated successfully."});
     } catch (error) {
         return res.status(500).json({message: "An error occurred while updating the profile."});
     }
@@ -136,31 +133,31 @@ export const getProfile = async (req: express.Request, res: express.Response) =>
             return res.status(401).json({message: "Unauthorized: No user information found in token."});
         }
         
-        const admin = await Admin.findOne({ phoneNumber: (req as any).user.phoneNumber });
+        const admin = await Admin.findById((req as any).user.id).select("-password");
+        console.log("Fetched admin profile:", admin);
         if (!admin) {
             return res.status(404).json({message: "user not found."});
         }
         return res.status(200).json({ 
-            adminName: admin.adminName, 
-            phoneNumber: admin.phoneNumber, 
-            role: admin.role,
-            createdAt: admin.createdAt,
-            updatedAt: admin.updatedAt
+            admin
          });
     } catch (error) {
+        console.error("Error fetching profile:", error);
         return res.status(500).json({message: "An error occurred while fetching the profile."});
     }
 }   
 
 export const getStaff = async (req: express.Request, res: express.Response) => {
     try {
-        if(!(req as any).user || (req as any).user.role !== "admin"){
+        const user = await Admin.findById((req as any).user.id);
+        if(!user || user.role !== "admin"){
             return res.status(403).json({message: "Forbidden: Only admins can view staff members."});
         }
         
         const staffMembers = await Admin.find({ role: "staff" }).select("-password");
         return res.status(200).json(staffMembers);
     } catch (error) {
+        console.error("Error fetching staff members:", error);
         return res.status(500).json({message: "An error occurred while fetching staff members."});
     }
 }  

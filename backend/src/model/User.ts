@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
     address: { type: String, /* TODO: encrypt at rest, restrict access, add retention/deletion, audit access */ },
     totalAmount: { type: Number, default: 0},
     totalQuantity: { type: Number, default: 0},
-
+    authId: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", required: true, index: true },
     entries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Entry" }]
 }, { timestamps: true });
 
