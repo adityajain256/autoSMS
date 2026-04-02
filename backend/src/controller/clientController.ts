@@ -84,8 +84,8 @@ export const createClientBulk = async(req: express.Request, res: express.Respons
     const mappedClients = [];
     for (const client of clients) {
         const { userName, phoneNumber, address, gstNumber, email, totalAmount, totalQuantity } = client;
-        if (!userName || !phoneNumber || !email || !gstNumber) {
-            return res.status(400).json({ message: "Each client must have userName, phoneNumber, email, and gstNumber" });
+        if (!userName) {
+            return res.status(400).json({ message: "Each client must have userName" });
         }
         if (email && !validators.validateEmail(email)) {
             return res.status(400).json({ message: `Invalid email for client ${userName}` });

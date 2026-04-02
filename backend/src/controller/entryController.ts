@@ -20,14 +20,16 @@ export const createEntry = async(req: express.Request, res: express.Response) =>
     if (userId == null || quantity == null || amount == null || !Number.isFinite(Number(quantity)) || !Number.isFinite(Number(amount))) {
         return res.status(400).json({ message: "userId, quantity and amount are required and must be numbers" });
     }
-    // Verify user exists
-    const user = await User.findById(userId);
-    if (!user) {
-        return res.status(404).json({ message: "User not found" });
-    }
     const session = await mongoose.default.startSession();
     session.startTransaction();
     try {
+        // Verify user exists inside transaction
+        const user = await User.findById(userId, null, { session });
+        if (!user) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ message: "User not found" });
+        }
         const entry = await Entry.create([{ userId, quantity, amount, message }], { session });
         await User.findByIdAndUpdate(userId, { $inc: { totalAmount: amount, totalQuantity: quantity } }, { session });
         await session.commitTransaction();
