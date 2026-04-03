@@ -1,20 +1,55 @@
 
 import { Card } from '../../components/common/Card';
-import { Badge } from '../../components/common/Badge';
-import { Avatar } from '../../components/common/Avatar';
-import { MoreVertical, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+// import { Badge } from '../../components/common/Badge';
+// import { Avatar } from '../../components/common/Avatar';
+import { ArrowUpRight } from 'lucide-react';
 
-const mockData = [
-  { id: 1, client: 'Reliance Industries', name: 'Mukesh Ambani', phone: '+91 9876543210', status: 'success', date: 'Oct 23, 10:45 AM', type: 'Tax Reminder' },
-  { id: 2, client: 'TCS', name: 'N. Chandrasekaran', phone: '+91 9876543211', status: 'pending', date: 'Oct 23, 09:30 AM', type: 'Filing Done' },
-  { id: 3, client: 'HDFC Bank', name: 'Sashidhar Jagdishan', phone: '+91 9876543212', status: 'error', date: 'Oct 22, 04:15 PM', type: 'GST Notice' },
-  { id: 4, client: 'Infosys', name: 'Salil Parekh', phone: '+91 9876543213', status: 'success', date: 'Oct 22, 11:20 AM', type: 'Tax Reminder' },
-];
+import { useEffect, useState } from 'react';
+import { api } from '../../utils/api';
+
+
+// const mockData = [
+//   { id: 1, client: 'Reliance Industries', name: 'Mukesh Ambani', phone: '+91 9876543210', status: 'success', date: 'Oct 23, 10:45 AM', type: 'Tax Reminder' },
+//   { id: 2, client: 'TCS', name: 'N. Chandrasekaran', phone: '+91 9876543211', status: 'pending', date: 'Oct 23, 09:30 AM', type: 'Filing Done' },
+//   { id: 3, client: 'HDFC Bank', name: 'Sashidhar Jagdishan', phone: '+91 9876543212', status: 'error', date: 'Oct 22, 04:15 PM', type: 'GST Notice' },
+//   { id: 4, client: 'Infosys', name: 'Salil Parekh', phone: '+91 9876543213', status: 'success', date: 'Oct 22, 11:20 AM', type: 'Tax Reminder' },
+// ];
 
 export function Dashboard() {
+
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState({
+    totalSMS: 0,
+    totalUser: 0,
+    totalAmount: 0
+  });
+
+  const fetchDashboardData = async () => {
+    try {
+      setIsLoading(true);
+      const res = await api.get("/dashboard/stats", {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+      setData(res.data);
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setIsLoading(false);
+    }
+  }
+  useEffect(() => {
+    // const token = localStorage.getItem("token");
+    // if (!token) {
+    //   navigate("/login");
+    // }
+    fetchDashboardData();
+  }, []);
   return (
     <div className="flex flex-col gap-8 animate-in fade-in duration-500">
-      
+
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-on-surface mb-2">Overview</h1>
@@ -26,37 +61,28 @@ export function Dashboard() {
         <Card className="hover:shadow-lg transition-shadow">
           <p className="text-sm font-semibold text-on-surface-variant mb-2">Total Messages Sent</p>
           <div className="flex items-end justify-between">
-            <h2 className="text-4xl font-bold text-on-surface">12,450</h2>
+            <h2 className="text-4xl font-bold text-on-surface" >{data.totalSMS}</h2>
             <span className="flex items-center text-sm font-semibold text-primary">
               <ArrowUpRight className="w-4 h-4 mr-0.5" /> 12%
             </span>
           </div>
         </Card>
         <Card className="hover:shadow-lg transition-shadow">
-          <p className="text-sm font-semibold text-on-surface-variant mb-2">Delivery Rate</p>
+          <p className="text-sm font-semibold text-on-surface-variant mb-2">Total Clients</p>
           <div className="flex items-end justify-between">
-            <h2 className="text-4xl font-bold text-on-surface">98.2%</h2>
-            <span className="flex items-center text-sm font-semibold text-primary">
-              <ArrowUpRight className="w-4 h-4 mr-0.5" /> 0.5%
-            </span>
+            <h2 className="text-4xl font-bold text-on-surface" >{data.totalUser}</h2>
           </div>
         </Card>
         <Card className="hover:shadow-lg transition-shadow">
-          <p className="text-sm font-semibold text-on-surface-variant mb-2">Pending</p>
+          <p className="text-sm font-semibold text-on-surface-variant mb-2">Today's Total Client</p>
           <div className="flex items-end justify-between">
             <h2 className="text-4xl font-bold text-on-surface">144</h2>
-            <span className="flex items-center text-sm font-semibold text-on-surface-variant">
-              avg. 5m
-            </span>
           </div>
         </Card>
         <Card className="hover:shadow-lg transition-shadow lg:border-error/20">
-          <p className="text-sm font-semibold text-on-surface-variant mb-2">Failed Deliveries</p>
+          <p className="text-sm font-semibold text-on-surface-variant mb-2">Total Due Amount</p>
           <div className="flex items-end justify-between">
-            <h2 className="text-4xl font-bold text-error">32</h2>
-            <span className="flex items-center text-sm font-semibold text-error">
-              <ArrowDownRight className="w-4 h-4 mr-0.5" /> 4%
-            </span>
+            <h2 className="text-4xl font-bold text-error" >{data.totalAmount}</h2>
           </div>
         </Card>
       </div>
@@ -81,8 +107,8 @@ export function Dashboard() {
                 <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y ghost-border">
-              {mockData.map((row) => (
+            {/* <tbody className="divide-y ghost-border">
+              {data.map((row) => (
                 <tr key={row.id} className="hover:bg-surface-container/30 transition-colors">
                   <td className="p-4 flex items-center gap-3">
                     <Avatar fallback={row.name.charAt(0)} size="sm" />
@@ -110,7 +136,7 @@ export function Dashboard() {
                   </td>
                 </tr>
               ))}
-            </tbody>
+            </tbody> */}
           </table>
         </div>
       </Card>

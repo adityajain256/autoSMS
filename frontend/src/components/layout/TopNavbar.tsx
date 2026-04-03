@@ -1,8 +1,9 @@
 
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { Menu, Briefcase, List, User, Plus } from 'lucide-react';
 import { Avatar } from '../common/Avatar';
 import { cn } from '../../utils/cn';
+import { Button } from '../common/Button';
 
 interface TopNavbarProps {
   onMenuClick: () => void;
@@ -19,7 +20,7 @@ export function TopNavbar({ onMenuClick, onAddClient }: TopNavbarProps) {
 
   return (
     <header className="sticky top-0 z-40 w-full h-20 bg-surface-lowest/80 backdrop-blur-md border-b ghost-border">
-      <div className="flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="flex h-full items-center justify-between  px-6 lg:px-8">
 
         {/* Left: Branding & Mobile Menu */}
         <div className="flex items-center gap-4">
@@ -30,9 +31,11 @@ export function TopNavbar({ onMenuClick, onAddClient }: TopNavbarProps) {
             <Menu className="w-6 h-6" />
           </button>
           <div className="flex items-center gap-2">
+
             <div className="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center font-bold">
-              CA
+              AS
             </div>
+
             <span className="font-bold text-xl text-on-surface hidden sm:block tracking-tight">AutoSMS</span>
           </div>
         </div>
@@ -65,8 +68,22 @@ export function TopNavbar({ onMenuClick, onAddClient }: TopNavbarProps) {
             <Plus className="w-4 h-4" strokeWidth={3} />
             Add Client
           </button>
-          <div className="w-px h-6 bg-outline-variant/30 hidden sm:block mx-1" />
-          <Avatar fallback="DR" />
+          <div className="w-px h-2 bg-outline-variant/30 mx-1 sm:flex" />
+          {
+            localStorage.getItem("token") ? (
+              <Avatar fallback="PR" />
+            ) : (
+              <Link to="/login">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="sm:flex items-center gap-2 px-4 py-0 bg-[#009262] hover:bg-[#007b53] text-white rounded-full text-sm font-bold shadow-md transition-all active:scale-95"
+                >
+                  Login / Sign-Up
+                </Button>
+              </Link>
+            )
+          }
         </div>
       </div>
     </header>

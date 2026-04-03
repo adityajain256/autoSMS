@@ -1,5 +1,5 @@
 
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { ToastProvider } from './contexts/ToastContext';
 import { Layout } from './components/layout/Layout';
 
@@ -10,7 +10,9 @@ import { Clients } from './pages/Clients/Clients';
 import { Entries } from './pages/Entries/Entries';
 import { CreateEntry } from './pages/Entries/CreateEntry';
 
+
 function App() {
+
   return (
     <ToastProvider>
       <BrowserRouter>

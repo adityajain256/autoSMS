@@ -22,7 +22,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const addToast = (message: string, type: ToastType = 'info') => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
-    
+
     setTimeout(() => {
       removeToast(id);
     }, 4000);
@@ -35,7 +35,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ addToast }}>
       {children}
-      <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+      <div className="fixed top-20 right-4 z-50 flex flex-col gap-2 rounded-2xl bg-green-300 ">
         {toasts.map((toast) => (
           <div
             key={toast.id}

@@ -1,4 +1,5 @@
 import twilio from "twilio";
+import Admin from "../model/Auth.ts";
 
 export const sendSMS = async (to: string, body: string) => {
     const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -11,6 +12,12 @@ export const sendSMS = async (to: string, body: string) => {
             to: "+91"+ to,
             body,
         })
+        // Increment SMS count for the admin
+        const admin = await Admin.findOne({ phoneNumber: `+91${to}` });
+        if (admin) {
+            admin.smsCount += 1;
+            await admin.save();
+        }
         return { success: true, response };
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Unknown error";

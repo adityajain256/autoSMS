@@ -3,10 +3,11 @@ import validators from "../utils/validators.ts";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import express from "express";
+import { log } from "node:console";
 
 
 export const registerAdmin = async (req: express.Request, res: express.Response) => {
-    const { adminName, password, role, phoneNumber, address } = req.body;
+    const { adminName, password, role, phoneNumber, address, petrolPumpName } = req.body;
 
     const re: string = validators.validatePassword(password);
     if(validators.validatePhoneNumber(phoneNumber) === false){
@@ -30,7 +31,7 @@ export const registerAdmin = async (req: express.Request, res: express.Response)
         const jwtSecret = process.env.JWT_SECRET;
         if (!jwtSecret) throw new Error("JWT_SECRET environment variable is not set");
         
-        const newAdmin = await Admin.create({ adminName, password: hashedPassword, role, phoneNumber:`+91${phoneNumber}` , address: address });
+        const newAdmin = await Admin.create({ adminName, password: hashedPassword, role, phoneNumber:`+91${phoneNumber}` , address: address, petrolPumpName });
         
         const token = jwt.sign({id: newAdmin.id}, jwtSecret, { expiresIn: '24h' });
         return res.status(201).json({message: "Admin registered successfully.", token });
@@ -84,7 +85,7 @@ export const loginUser = async (req: express.Request, res: express.Response) => 
     const { phoneNumber, password } = req.body;
 
     try {
-        const admin = await Admin.findOne({ phoneNumber });
+        const admin = await Admin.findOne({ phoneNumber: `+91${phoneNumber}` });
         if (!admin) {
             return res.status(404).json({message: "invalid credential"});
         }

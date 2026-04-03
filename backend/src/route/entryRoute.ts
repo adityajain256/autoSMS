@@ -100,10 +100,17 @@ entryRouter.get("/", getAllEntries);
 entryRouter.get("/client/:clientId", getEntryByClientId);
 /**
  * @swagger
- * /api/entries:
+ * /api/entries/{clientId}:
  *   post:
  *     summary: Create a new entry
  *     tags: [Entries]
+ *     parameters:
+ *       - in: path
+ *         name: clientId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The client ID
  *     requestBody:
  *       required: true
  *       content:
@@ -156,7 +163,7 @@ entryRouter.get("/client/:clientId", getEntryByClientId);
  *         description: Server error
 */
 
-entryRouter.post("/", createEntry);
+entryRouter.post("/:clientId", createEntry);
 
 /**
  * @swagger

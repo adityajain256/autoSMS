@@ -1,5 +1,8 @@
-import { X, Mail, Phone, CheckCircle2, Bell, UserPlus } from 'lucide-react';
+import { X, Mail, Phone, CheckCircle2, UserPlus } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { useState } from 'react';
+import { api } from '../../utils/api';
+import { useToast } from '../../contexts/ToastContext';
 
 interface AddClientProps {
   isOpen: boolean;
@@ -7,9 +10,33 @@ interface AddClientProps {
 }
 
 export function AddClient({ isOpen, onClose }: AddClientProps) {
+  const { addToast } = useToast();
+  const [formData, setFormData] = useState({ userName: "", phoneNumber: "", vehicle: "", totalAmount: "", totalQuantity: "", email: "", gstNumber: "", address: "" })
+
+  const createClient = async () => {
+    try {
+      const response = await api.post("/clients", formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+          }
+        }
+      );
+      console.log(response.data);
+      addToast(response.data.message, "success")
+    } catch (error) {
+      addToast("Error creating client", "error");
+    }
+  }
+
+  const handleCreation = () => {
+    createClient();
+  }
+
   return (
     <>
-      <div 
+      <div
         className={cn(
           "fixed inset-0 z-[100] bg-gray-900/40 backdrop-blur-sm transition-opacity duration-300",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -28,7 +55,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
             <h2 className="text-2xl font-bold text-gray-900">Add New Client</h2>
             <p className="text-sm font-medium text-gray-500 mt-1">Enter client details below to create a new profile.</p>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
           >
@@ -38,7 +65,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-6 sm:p-8 flex flex-col gap-6">
-          
+
           {/* Section Divider */}
           <div className="flex items-center gap-4">
             <span className="bg-[#eafaf1] text-[#006c49] text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider">
@@ -53,6 +80,8 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
               <label className="text-xs font-bold text-gray-800">Full Name</label>
               <input
                 type="text"
+                value={formData.userName}
+                onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
                 placeholder="e.g. Acme Corp or Rajesh Kumar"
                 className="w-full h-12 px-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
               />
@@ -68,6 +97,8 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
                 <input
                   type="email"
                   placeholder="contact@client.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full h-12 pl-11 pr-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
                 />
               </div>
@@ -84,6 +115,8 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
                 <input
                   type="tel"
                   placeholder="98765 43210"
+                  value={formData.phoneNumber}
+                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                   className="w-full h-12 pl-20 pr-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none relative"
                 />
               </div>
@@ -96,6 +129,8 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
                 <input
                   type="text"
                   defaultValue="27AAAAA0000A1Z5"
+                  value={formData.gstNumber}
+                  onChange={(e) => setFormData({ ...formData, gstNumber: e.target.value })}
                   className="w-full h-12 pl-4 pr-11 rounded-xl bg-[#ebfcf3] text-[#006c49] text-sm font-bold border border-transparent focus:border-primary/30 transition-all outline-none"
                 />
                 <div className="absolute right-4 text-[#00a86b]">
@@ -105,24 +140,80 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
               <p className="text-[10px] font-medium text-gray-400">Format: 27AAAAA0000A1Z5</p>
             </div>
 
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-800">Vehicle Number</label>
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  defaultValue="UP94AB1234"
+                  value={formData.vehicle}
+                  onChange={(e) => setFormData({ ...formData, vehicle: e.target.value })}
+                  className="w-full h-12 pl-4 pr-11 rounded-xl bg-[#ebfcf3] text-[#006c49] text-sm font-bold border border-transparent focus:border-primary/30 transition-all outline-none"
+                />
+                <div className="absolute right-4 text-[#00a86b]">
+                  <CheckCircle2 className="w-5 h-5 fill-current text-white" />
+                </div>
+              </div>
+              <p className="text-[10px] font-medium text-gray-400">Format: State Code + District Code + Vehicle Number</p>
+            </div>
+
+            <div className="space-y-1.5 focus-within:text-primary">
+              <label className="text-xs font-bold text-gray-800">Total Amount</label>
+              <div className="relative flex items-center">
+                <div className="absolute left-4 text-gray-500">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <input
+                  type="number"
+                  placeholder="0.00"
+                  step="0.01"
+                  value={formData.totalAmount}
+                  onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })}
+                  className="w-full h-12 pl-11 pr-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5 focus-within:text-primary">
+              <label className="text-xs font-bold text-gray-800">Total Quantity</label>
+              <div className="relative flex items-center">
+                <div className="absolute left-4 text-gray-500">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={formData.totalQuantity}
+                  onChange={(e) => setFormData({ ...formData, totalQuantity: e.target.value })}
+                  className="w-full h-12 pl-11 pr-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
+                />
+              </div>
+            </div>
+
+
             {/* Office Address */}
             <div className="space-y-1.5 focus-within:text-primary">
               <label className="text-xs font-bold text-gray-800">Office Address</label>
               <textarea
                 placeholder="Enter physical address..."
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 className="w-full min-h-[100px] p-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none resize-none"
               />
             </div>
+
+
           </div>
 
-          <div className="flex items-center gap-4 mt-2">
+          {/* <div className="flex items-center gap-4 mt-2">
             <span className="bg-[#eef2f6] text-[#6b7280] text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider">
               Optional Preferences
             </span>
             <div className="flex-1 h-px bg-gray-100" />
-          </div>
+          </div> */}
 
-          <div className="bg-[#f8faff] rounded-xl p-4 flex items-center justify-between border border-gray-100">
+          {/* <div className="bg-[#f8faff] rounded-xl p-4 flex items-center justify-between border border-gray-100">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-[#006c49]">
                 <Bell className="w-5 h-5" />
@@ -133,22 +224,22 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
               </div>
             </div>
             {/* Toggle Switch Simple Mock */}
-            <div className="w-11 h-6 bg-[#006c49] rounded-full relative cursor-pointer">
+          {/* <div className="w-11 h-6 bg-[#006c49] rounded-full relative cursor-pointer">
               <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full transition-all" />
             </div>
-          </div>
+          </div>  */}
 
         </div>
 
         {/* Footer */}
         <div className="p-6 border-t border-gray-100 bg-white grid grid-cols-2 gap-4">
-          <button 
+          <button
             onClick={onClose}
             className="w-full h-12 rounded-xl bg-white border border-gray-200 text-gray-700 font-bold hover:bg-gray-50 transition-colors"
           >
             Cancel
           </button>
-          <button className="w-full h-12 rounded-xl bg-[#009262] hover:bg-[#007b53] text-white font-bold flex items-center justify-center gap-2 transition-all shadow-[0_4px_12px_rgba(0,146,98,0.25)]">
+          <button onClick={handleCreation} className="w-full h-12 rounded-xl bg-[#009262] hover:bg-[#007b53] text-white font-bold flex items-center justify-center gap-2 transition-all shadow-[0_4px_12px_rgba(0,146,98,0.25)]">
             <UserPlus className="w-5 h-5" strokeWidth={2.5} />
             Save Client
           </button>

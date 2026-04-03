@@ -1,7 +1,9 @@
 
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { X, Briefcase, List, User, Plus } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { Avatar } from '../common/Avatar';
+import { Button } from '../common/Button';
 
 interface SidebarMenuProps {
   isOpen: boolean;
@@ -18,14 +20,14 @@ export function SidebarMenu({ isOpen, onClose, onAddClient }: SidebarMenuProps) 
 
   return (
     <>
-      <div 
+      <div
         className={cn(
           "fixed inset-0 z-50 bg-on-surface/20 backdrop-blur-sm lg:hidden transition-opacity",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         onClick={onClose}
       />
-      <div 
+      <div
         className={cn(
           "fixed inset-y-0 left-0 z-50 w-72 bg-surface-lowest shadow-2xl transition-transform duration-300 lg:hidden flex flex-col",
           isOpen ? "translate-x-0" : "-translate-x-full"
@@ -34,7 +36,7 @@ export function SidebarMenu({ isOpen, onClose, onAddClient }: SidebarMenuProps) 
         <div className="p-6 flex items-center justify-between border-b ghost-border">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center font-bold">
-              CA
+              AS
             </div>
             <span className="font-bold text-xl text-on-surface tracking-tight">AutoSMS</span>
           </div>
@@ -50,8 +52,8 @@ export function SidebarMenu({ isOpen, onClose, onAddClient }: SidebarMenuProps) 
               onClick={onClose}
               className={({ isActive }) => cn(
                 "px-4 py-3 rounded-lg text-sm font-medium transition-all flex items-center gap-3",
-                isActive 
-                  ? "bg-primary/10 text-primary" 
+                isActive
+                  ? "bg-primary/10 text-primary"
                   : "text-on-surface hover:bg-surface-container"
               )}
             >
@@ -59,7 +61,7 @@ export function SidebarMenu({ isOpen, onClose, onAddClient }: SidebarMenuProps) 
               {link.label}
             </NavLink>
           ))}
-          
+
           <div className="mt-4 pt-4 border-t ghost-border">
             <button
               onClick={() => {

@@ -16,26 +16,39 @@ export const getAllEntries = async(req: express.Request, res: express.Response) 
 
 
 export const createEntry = async(req: express.Request, res: express.Response) => {
-    const { userId, quantity, amount, message } = req.body;
-    // Accept 0 as valid, only null/undefined is invalid
-    if (userId == null || quantity == null || amount == null || !Number.isFinite(Number(quantity)) || !Number.isFinite(Number(amount))) {
-        return res.status(400).json({ message: "userId, quantity and amount are required and must be numbers" });
+    const { quantity, amount, message, isPaid } = req.body;
+    const rawClientId = req.params.clientId;
+
+    if (Array.isArray(rawClientId) || rawClientId == null) {
+        return res.status(400).json({ message: "Client ID is required" });
     }
+
+    const clientId = rawClientId;
+    const parsedQuantity = Number(quantity);
+    const parsedAmount = Number(amount);
+
+    // Accept 0 as valid, only null/undefined is invalid
+    if (!mongoose.Types.ObjectId.isValid(clientId) || quantity == null || amount == null || !Number.isFinite(parsedQuantity) || !Number.isFinite(parsedAmount)) {
+        return res.status(400).json({ message: "Client ID, quantity and amount are required and must be valid numbers" });
+    }
+
+    const userObjectId = new mongoose.Types.ObjectId(clientId);
+
     const session = await mongoose.default.startSession();
     session.startTransaction();
     try {
         // Verify user exists inside transaction
 
-        const user = await User.findById(userId, null, { session });
+        const user = await User.findById(userObjectId, null, { session });
         if (!user) {
             await session.abortTransaction();
             session.endSession();
             return res.status(404).json({ message: "User not found" });
         }
-        const smsRes = await sendSMS(user.phoneNumber, `New entry created: Quantity ${quantity}, Amount ${amount}. Message: ${message}`);
+        const entry = await Entry.create([{ userId: userObjectId, quantity: parsedQuantity, amount: parsedAmount, message, isPaid }], { session });
+        const smsRes = await sendSMS(user.phoneNumber, `New entry created: Quantity ${parsedQuantity}, Amount ${parsedAmount}. Message: ${message}`);
         console.log("SMS response:", smsRes);
-        const entry = await Entry.create([{ userId, quantity, amount, message }], { session });
-        await User.findByIdAndUpdate(userId, { $inc: { totalAmount: amount, totalQuantity: quantity } }, { session });
+        await User.findByIdAndUpdate(userObjectId, { $inc: { totalAmount: (isPaid)? parsedAmount: -parsedAmount, totalQuantity:(isPaid)? parsedQuantity: -parsedQuantity } }, { session });
         await session.commitTransaction();
         session.endSession();
         return res.status(201).json({ data: entry[0], message: "Entry created successfully." });
@@ -52,9 +65,10 @@ export const getEntryByClientId = async(req: express.Request, res: express.Respo
         return res.status(400).json({ message: "Client ID is required" });
     }
     try {
-        const entries = await Entry.find({ userId: clientId });
+        const entries = await Entry.find({ userId: clientId }).populate("userId");
         return res.status(200).json(entries);
     } catch (error) {
+        console.error("Error fetching entries:", error);
         return res.status(500).json({ message: "Server error" });
     }
 }

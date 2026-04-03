@@ -21,8 +21,25 @@ const userSchema = new mongoose.Schema({
     },
     // PII: address field, do not log, encrypt at rest in future, restrict access, add retention/deletion/audit
     address: { type: String, /* TODO: encrypt at rest, restrict access, add retention/deletion, audit access */ },
-    totalAmount: { type: Number, default: 0},
-    totalQuantity: { type: Number, default: 0},
+    totalQuantity: {
+        type: Number,
+        required: true,
+        validate: {
+            validator: (v: number) => /^\d+(\.\d{1,3})?$/.test(String(v)),
+            message: "Quantity must be a positive number with up to 3 decimal places."
+        },
+        default: 0.000
+    },
+    totalAmount: {
+        type: Number,
+        required: true,
+        validate: {
+            validator: (v: number) => /^\d+(\.\d{1,3})?$/.test(String(v)),
+            message: "Amount must be a positive number with up to 3 decimal places."
+        },
+        default: 0.000
+    },
+    vehicle: {type: String, required: true, },
     authId: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", required: true, index: true },
     entries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Entry" }]
 }, { timestamps: true });

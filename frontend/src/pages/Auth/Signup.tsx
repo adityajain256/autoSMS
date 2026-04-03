@@ -1,22 +1,64 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { User, Phone, Mail, FileText, Wallet, Map, ArrowRight, Wallet as WalletIcon } from 'lucide-react';
+import { User, Phone, Mail, FileText, Map, ArrowRight, Fuel, BellRing } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { api } from '../../utils/api';
+import { useToast } from '../../contexts/ToastContext';
 
 export function Signup() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        adminName: "",
+        phoneNumber: "",
+        password: "",
+        address: "",
+        email: "",
+        petrolPumpName: "",
+        role: "admin",
+    });
+    const { addToast } = useToast();
 
-    const handleSignup = (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setTimeout(() => {
-            setIsLoading(false);
-            navigate('/dashboard');
-        }, 1500);
+
+    const handleSignup = async () => {
+        try {
+            if (formData.phoneNumber === "") {
+                addToast("Phone number is required", "error");
+                return;
+            }
+            if (formData.password.includes(".") || formData.password.includes(",") || formData.password.includes(" ") || formData.password.length < 8) {
+                addToast("Password cannot contain comma or dot or space and must be at least 8 characters", "error");
+                return;
+            }
+            if (formData.adminName === "") {
+                addToast("Name is required", "error");
+                return;
+            }
+            if (formData.address === "") {
+                addToast("Address is required", "error");
+                return;
+            }
+            if (formData.email === "") {
+                addToast("Email is required", "error");
+                return;
+            }
+            if (formData.petrolPumpName === "") {
+                addToast("Petrol pump name is required", "error");
+                return;
+            }
+            setIsLoading(true);
+            const response = await api.post("/auth/register/admin", formData);
+            localStorage.setItem("token", response.data.token);
+            addToast("Signup successful", "success");
+            navigate("/dashboard");
+        } catch (error: any) {
+            console.log(error);
+            addToast(error.response.data.message, "error");
+        }
     };
 
     return (
+
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#eafaf1] to-white relative selection:bg-primary/20">
 
             {/* Decorative Blur Elements (Optional enhancements mapping to the organic feel) */}
@@ -33,11 +75,11 @@ export function Signup() {
                     {/* Header */}
                     <div className="flex flex-col items-center mb-10">
                         <div className="w-14 h-14 bg-[#d1f2e1] text-[#006c49] rounded-full flex items-center justify-center mb-4">
-                            <WalletIcon className="w-6 h-6" strokeWidth={2.5} />
+                            <BellRing className="w-6 h-6" strokeWidth={2.5} />
                         </div>
-                        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Emerald Ledger</h1>
+                        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">AUTOSMS</h1>
                         <p className="text-sm font-medium text-gray-500 text-center">
-                            CA SMS Manager: Precision Tax Management Solutions
+                            SMS Manager: Management Solutions
                         </p>
                     </div>
 
@@ -54,6 +96,8 @@ export function Signup() {
                                 </div>
                                 <input
                                     type="text"
+                                    value={formData.adminName}
+                                    onChange={(e) => setFormData({ ...formData, adminName: e.target.value })}
                                     placeholder="Enter your full name"
                                     className="w-full bg-[#f4f6f5] hover:bg-[#eff1f0] focus:bg-white h-[52px] pl-11 pr-4 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
                                     required
@@ -73,6 +117,8 @@ export function Signup() {
                                     </div>
                                     <input
                                         type="tel"
+                                        value={formData.phoneNumber}
+                                        onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                                         placeholder="+91 00000 00000"
                                         className="w-full bg-[#f4f6f5] hover:bg-[#eff1f0] focus:bg-white h-[52px] pl-11 pr-4 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
                                         required
@@ -91,6 +137,8 @@ export function Signup() {
                                     <input
                                         type="email"
                                         placeholder="name@firm.com"
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                         className="w-full bg-[#f4f6f5] hover:bg-[#eff1f0] focus:bg-white h-[52px] pl-11 pr-4 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
                                         required
                                     />
@@ -102,7 +150,7 @@ export function Signup() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div className="space-y-1.5 focus-within:text-primary">
                                 <label className="text-[11px] font-bold tracking-wider text-gray-500 uppercase">
-                                    GST Number
+                                    Password
                                 </label>
                                 <div className="relative flex items-center">
                                     <div className="absolute left-4 text-gray-400">
@@ -110,16 +158,18 @@ export function Signup() {
                                     </div>
                                     <input
                                         type="text"
-                                        placeholder="22AAAAA0000A1Z5"
+                                        value={formData.password}
+                                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                        placeholder="JohnDue@123"
                                         className="w-full bg-[#f4f6f5] hover:bg-[#eff1f0] focus:bg-white h-[52px] pl-11 pr-4 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
                                         required
                                     />
                                 </div>
                             </div>
 
-                            <div className="space-y-1.5 focus-within:text-primary">
+                            {/* <div className="space-y-1.5 focus-within:text-primary">
                                 <label className="text-[11px] font-bold tracking-wider text-gray-500 uppercase">
-                                    Total Tax Amount
+                                    Amount
                                 </label>
                                 <div className="relative flex items-center">
                                     <div className="absolute left-4 text-gray-400">
@@ -131,13 +181,30 @@ export function Signup() {
                                         className="w-full bg-[#f4f6f5] hover:bg-[#eff1f0] focus:bg-white h-[52px] pl-11 pr-4 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
                                     />
                                 </div>
+                            </div> */}
+                            <div className="space-y-1.5 focus-within:text-primary">
+                                <label className="text-[11px] font-bold tracking-wider text-gray-500 uppercase">
+                                    Petrol Pump Name
+                                </label>
+                                <div className="relative flex items-center">
+                                    <div className="absolute left-4 text-gray-400">
+                                        <Fuel className="w-4 h-4" />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Petrol Pump Name"
+                                        value={formData.petrolPumpName}
+                                        onChange={(e) => setFormData({ ...formData, petrolPumpName: e.target.value })}
+                                        className="w-full bg-[#f4f6f5] hover:bg-[#eff1f0] focus:bg-white h-[52px] pl-11 pr-4 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
+                                    />
+                                </div>
                             </div>
                         </div>
 
                         {/* Office Address (Textarea style) */}
                         <div className="space-y-1.5 focus-within:text-primary">
                             <label className="text-[11px] font-bold tracking-wider text-gray-500 uppercase">
-                                Office Address
+                                Address
                             </label>
                             <div className="relative">
                                 <div className="absolute left-4 top-4 text-gray-400">
@@ -145,6 +212,8 @@ export function Signup() {
                                 </div>
                                 <textarea
                                     placeholder="Enter your complete firm address"
+                                    value={formData.address}
+                                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                                     className="w-full bg-[#f4f6f5] hover:bg-[#eff1f0] focus:bg-white min-h-[100px] pt-4 pb-4 pl-11 pr-4 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none resize-none"
                                     required
                                 />
@@ -155,6 +224,7 @@ export function Signup() {
                         <button
                             type="submit"
                             disabled={isLoading}
+                            onClick={handleSignup}
                             className={cn(
                                 "w-full h-[56px] mt-2 rounded-[1.25rem] bg-[#006c49] hover:bg-[#005a3c] text-white font-semibold text-base flex items-center justify-center gap-2 transition-all shadow-[0_8px_16px_-4px_rgba(0,108,73,0.3)] hover:shadow-[0_12px_20px_-4px_rgba(0,108,73,0.4)] disabled:opacity-70",
                                 isLoading && "animate-pulse"

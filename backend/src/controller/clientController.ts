@@ -6,10 +6,11 @@ import mongoose from "mongoose";
 
 export const getAllClients = async(req: express.Request, res: express.Response) => {
     try {
-        const clients = await User.find();
+        const clients = await User.find({ authId: (req as any).user.id }).populate("entries");
 
         return res.status(200).json(clients);
     } catch (error) {
+        console.log("Error fetching clients:", error);
         res.status(500).json({ message: "Server error" });
     }
 }
@@ -36,7 +37,7 @@ export const getClientById = async(req: express.Request, res: express.Response) 
 }
 
 export const createClient = async(req: express.Request, res: express.Response) => {
-    const { userName, phoneNumber, address, gstNumber, email, totalAmount, totalQuantity } = req.body;
+    const { userName, phoneNumber, address, gstNumber, email, totalAmount, totalQuantity, vehicle } = req.body;
     if (!userName) {
         return res.status(400).json({ message: "Username is required" });
     }
@@ -63,7 +64,8 @@ export const createClient = async(req: express.Request, res: express.Response) =
             email,
             totalAmount,
             totalQuantity,
-            authId: authId
+            authId: authId,
+            vehicle
         });
         res.status(201).json({ message: "Client created successfully", data: newClient });
     } catch (error: any) {
