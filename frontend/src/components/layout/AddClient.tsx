@@ -14,6 +14,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
   const [formData, setFormData] = useState({ userName: "", phoneNumber: "", vehicle: "", amount: "" as string | number, totalQuantity: "" as string | number, email: "", gstNumber: "", address: "" });
   const [isPaid, setIsPaid] = useState(false);
 
+
   const createClient = async () => {
     try {
       const amountValue = Number(formData.amount) || 0;
@@ -138,7 +139,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
               <div className="relative flex items-center">
                 <input
                   type="text"
-                  defaultValue="27AAAAA0000A1Z5"
+                  placeholder="27AAAAA0000A1Z5"
                   value={formData.gstNumber}
                   onChange={(e) => setFormData({ ...formData, gstNumber: e.target.value })}
                   className="w-full h-12 pl-4 pr-11 rounded-xl bg-[#ebfcf3] text-[#006c49] text-sm font-bold border border-transparent focus:border-primary/30 transition-all outline-none"
@@ -155,7 +156,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
               <div className="relative flex items-center">
                 <input
                   type="text"
-                  defaultValue="UP94AB1234"
+                  placeholder="UP94AB1234"
                   value={formData.vehicle}
                   onChange={(e) => setFormData({ ...formData, vehicle: e.target.value })}
                   className="w-full h-12 pl-4 pr-11 rounded-xl bg-[#ebfcf3] text-[#006c49] text-sm font-bold border border-transparent focus:border-primary/30 transition-all outline-none"

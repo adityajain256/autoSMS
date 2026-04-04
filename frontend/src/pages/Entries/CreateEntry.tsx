@@ -24,11 +24,10 @@ export function CreateEntry() {
     isPaid: false,
     message: "",
     type: "diesel",
-    date: new Date()
+    date: new Date().toISOString().split("T")[0]
   });
   const location = useLocation();
   const clientId = location.state.client;
-  console.log(clientId);
   const fethcEntry = async () => {
     try {
       const res = await api.get(`/entries/client/${clientId}`, {
@@ -180,7 +179,7 @@ export function CreateEntry() {
                 type="number"
                 placeholder="0.00"
                 value={formData.amount}
-                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
                 className="w-full h-[72px] pl-12 pr-6 bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white rounded-[2rem] text-2xl font-bold text-gray-900 border border-transparent focus:border-primary/30 outline-none transition-all focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)]"
               />
             </div>
@@ -193,7 +192,7 @@ export function CreateEntry() {
                 type="number"
                 placeholder="0.00"
                 value={formData.quantity}
-                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, quantity: Number(e.target.value) })}
                 className="w-full h-[72px] pl-12 pr-6 bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white rounded-[2rem] text-2xl font-bold text-gray-900 border border-transparent focus:border-primary/30 outline-none transition-all focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)]"
               />
             </div>
