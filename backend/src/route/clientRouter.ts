@@ -7,8 +7,14 @@
 
 import express from "express";
 import authMiddleware from "../middleware/auth.middleware.ts";
-import { getAllClients, getClientById, createClient, updateClient, deleteClient, createClientBulk } from "../controller/clientController.ts";
-
+import {
+  getAllClients,
+  getClientById,
+  createClient,
+  updateClient,
+  deleteClient,
+  createClientBulk,
+} from "../controller/clientController.ts";
 
 const clientRouter = express.Router();
 
@@ -31,7 +37,9 @@ clientRouter.use(authMiddleware);
  *                 type: object
  *                 properties:
  *                   id:
-	*                   username:
+ *                     type: string
+ *                   username:
+ *                     type: string
  *                   userName:
  *                     type: string
  *                   phoneNumber:
@@ -71,7 +79,7 @@ clientRouter.get("/", getAllClients);
  *               properties:
  *                   id:
  *                     type: string
-	*                   username:
+ *                   username:
  *                     type: string
  *                   phoneNumber:
  *                     type: string
@@ -113,7 +121,9 @@ clientRouter.get("/:id", getClientById);
  *                 type: string
  *               email:
  *                 type: string
- *               totalAmount:
+ *               paidAmount:
+ *                 type: number
+ *               nonPaidAmount:
  *                 type: number
  *     responses:
  *       201:
@@ -165,7 +175,7 @@ clientRouter.post("/create/bulk", createClientBulk);
  *           schema:
  *             type: object
  *             properties:
- *               id:     
+ *               id:
  *                 type: string
  *               username:
  *                 type: string
@@ -214,6 +224,5 @@ clientRouter.patch("/:id", updateClient);
  *         description: Server error
  */
 clientRouter.delete("/:id", deleteClient);
-
 
 export default clientRouter;

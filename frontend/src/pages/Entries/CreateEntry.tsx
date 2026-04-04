@@ -1,30 +1,34 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Search, ChevronDown, MessageSquare, Send } from 'lucide-react';
+import { ArrowLeft, Search, ChevronDown, Send, FileText } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Avatar } from '../../components/common/Avatar';
 import { api } from '../../utils/api';
 
+
 export function CreateEntry() {
-  const [taxAmount, setTaxAmount] = useState('');
   const [remark, setRemark] = useState('');
-  const [data, setData] = useState({
-    userId: {
-      username: "",
-      gstNumber: "",
-      totalAmount: "",
-    },
-    taxAmount: "",
-    remark: "",
+  const [data, setData] = useState<any[]>([]);
+
+  const [client, setClient] = useState({
+    username: "",
+    gstNumber: "",
+    vehicle: "",
+    paidAmount: 0.00,
+    nonPaidAmount: 0.00,
+    totalQuantity: 0.00,
   });
+
   const [formData, setFormData] = useState({
-    amount: "",
-    quantity: "",
+    amount: 0.00,
+    quantity: 0.00,
     isPaid: false,
     message: "",
+    type: "diesel",
+    date: new Date()
   });
   const location = useLocation();
   const clientId = location.state.client;
-
+  console.log(clientId);
   const fethcEntry = async () => {
     try {
       const res = await api.get(`/entries/client/${clientId}`, {
@@ -39,7 +43,24 @@ export function CreateEntry() {
     }
   }
 
+  const fetchClients = async () => {
+    try {
+      const res = await api.get(`/clients/${clientId}`, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        }
+      })
+      console.log(res.data)
+      setClient(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   const createEntry = async () => {
+    if (formData.amount === 0.00 || formData.quantity === 0.00) {
+      alert("Please fill all the fields");
+      return;
+    }
     try {
       const res = await api.post(`/entries/${clientId}`, formData, {
         headers: {
@@ -54,6 +75,7 @@ export function CreateEntry() {
   }
 
   useEffect(() => {
+    fetchClients();
     fethcEntry();
   }, []);
 
@@ -97,8 +119,8 @@ export function CreateEntry() {
             <Search className="w-5 h-5 text-gray-400" />
             <Avatar fallback="AM" size="md" className="shadow-sm" />
             <div>
-              <h3 className="font-extrabold text-gray-900 text-base">{data[0]?.userId?.username}</h3>
-              <p className="text-[11px] font-bold text-gray-500 tracking-wider">{data[0]?.userId?.gstNumber || data[0]?.userId?.vehicle}</p>
+              <h3 className="font-extrabold text-gray-900 text-base">{client?.username}</h3>
+              <p className="text-[11px] font-bold text-gray-500 tracking-wider">{client?.gstNumber || client?.vehicle}</p>
             </div>
           </div>
           <div className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-200/50 transition-colors">
@@ -107,8 +129,38 @@ export function CreateEntry() {
         </div>
 
         <div className="mt-6 bg-[#f4f7fa] rounded-[2rem] py-10 px-6 flex flex-col items-center justify-center text-center">
-          <p className="text-[11px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-3">{((data[0]?.userId?.totalAmount - data[0]?.amount) > 0) ? "Current Total Paid" : "Total due"}</p>
-          <p className={((data[0]?.userId?.totalAmount - data[0]?.amount) > 0) ? "text-4xl font-extrabold text-[#009262] tracking-tight" : "text-4xl font-extrabold text-[#f50c0c] tracking-tight"}>{data[0]?.userId?.totalAmount - data[0]?.amount || "0"}</p>
+          <p className="text-[11px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-3">{"Total due"}</p>
+          <p className={"text-4xl font-extrabold text-[#f50c0c] tracking-tight"}>{client?.nonPaidAmount}</p>
+        </div>
+        <div className="overflow-hidden w-full rounded-2xl mt-4">
+          <table className="w-full text-left border-collapse min-w-[800px]">
+            <thead>
+              <tr className="bg-surface-container/30 text-xs uppercase tracking-wider text-on-surface-variant font-bold border-b ghost-border">
+                <th className="p-4">Index</th>
+                <th className="p-4">Date / Time</th>
+                <th className="p-4">Type</th>
+                <th className="p-4 ">Qty</th>
+                <th className="p-4">Cost</th>
+                <th className="p-4">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y ghost-border">
+              {data.map((row, i) => (
+                <tr key={row._id + 1} className="hover:bg-surface-container/30 transition-colors">
+                  <td className="pl-4  text-sm font-bold text-on-surface">{i + 1}</td>
+                  <td className="p-3 text-sm font-medium text-on-surface">{row?.date?.split("T")[0] + " / " + row?.date?.split("T")[1]?.split(".")[0]?.slice(0, 5)}</td>
+                  <td className="p-3 text-sm font-medium text-on-surface">{row.type}</td>
+                  <td className="p-3 text-sm text-on-surface-variant truncate max-w-[200px]">
+                    {row.quantity}
+                  </td>
+                  <td className="p-3 text-sm font-medium text-on-surface">{row.amount}</td>
+                  <td className={row.isPaid ? "p-3 text-green-500" : "p-3 text-red-500"}>
+                    {row.isPaid ? "Paid" : "Unpaid"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -125,7 +177,7 @@ export function CreateEntry() {
             <div className="relative flex items-center">
               <span className="absolute left-6 font-bold text-gray-500 text-xl">₹</span>
               <input
-                type="text"
+                type="number"
                 placeholder="0.00"
                 value={formData.amount}
                 onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
@@ -138,7 +190,7 @@ export function CreateEntry() {
             <div className="relative flex items-center">
               <span className="absolute left-6 font-bold text-gray-500 text-xl">₹</span>
               <input
-                type="text"
+                type="number"
                 placeholder="0.00"
                 value={formData.quantity}
                 onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
@@ -146,7 +198,35 @@ export function CreateEntry() {
               />
             </div>
           </div>
+          <div className="space-y-3">
+            <label className="text-[11px] font-extrabold text-gray-500 uppercase tracking-[0.15em] ml-2">Type</label>
+            <div className="relative flex items-center">
 
+              <select
+                value={formData.type}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                className="w-full h-[72px] pl-12  pr-30 bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white rounded-[2rem] text-xl font-bold text-gray-900 border border-transparent focus:border-primary/30 outline-none transition-all focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)]"
+              >
+                <option value="diesel">Diesel</option>
+                <option value="petrol">Petrol</option>
+                <option value="cng">CNG</option>
+              </select>
+            </div>
+          </div>
+
+              <div className="space-y-3">
+            <label className="text-[11px] font-extrabold text-gray-500 uppercase tracking-[0.15em] ml-2">Quantity</label>
+            <div className="relative flex items-center">
+              <span className="absolute left-6 font-bold text-gray-500 text-xl">₹</span>
+              <input
+                type="date"
+                placeholder="0.00"
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                className="w-full h-[72px] pl-12 pr-6 bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white rounded-[2rem] text-2xl font-bold text-gray-900 border border-transparent focus:border-primary/30 outline-none transition-all focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)]"
+              />
+            </div>
+          </div>
 
           <div className="space-y-3">
             <label className="text-[11px] font-extrabold text-gray-500 uppercase tracking-[0.15em] ml-2">Remark / Note</label>
@@ -169,8 +249,8 @@ export function CreateEntry() {
               <span className="left-6 font-bold text-black pl-3 text-xl">Paid </span>
               <input
                 type="checkbox"
-                value={formData.isPaid}
-                onChange={(e) => setFormData({ ...formData, isPaid: e.target.value })}
+                checked={formData.isPaid}
+                onChange={(e) => setFormData({ ...formData, isPaid: e.target.checked })}
                 className="w-6 h-6 pl-12 mr-20 bg-[#f4f7fa] hover:bg-[#eef2f6]  focus:bg-white rounded-[2rem] text-2xl font-bold text-gray-900 border border-transparent focus:border-primary/30 outline-none transition-all focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)]"
               />
             </div>
@@ -204,12 +284,14 @@ export function CreateEntry() {
         <Link to="/clients" className="w-full sm:w-[240px] h-[64px] bg-white border-2 border-gray-100 text-gray-700 font-bold text-lg rounded-[2rem] hover:bg-gray-50 hover:border-gray-200 transition-all flex items-center justify-center shadow-sm">
           Cancel
         </Link>
-        <button onClick={createEntry} className="w-full flex-1 h-[64px] bg-[#006c49] text-white font-bold text-lg rounded-[2rem] shadow-[0_12px_24px_-8px_rgba(0,108,73,0.5)] flex items-center justify-center gap-3 hover:bg-[#005a3c] transition-all active:scale-[0.98] hover:shadow-[0_16px_32px_-8px_rgba(0,108,73,0.6)]">
-          <Send className="w-5 h-5 fill-current" />
-          Create Entry
-        </button>
+        <Link to="/clients" onClick={createEntry} className="w-full flex-1 h-[64px] bg-[#006c49] text-white font-bold text-lg rounded-[2rem] shadow-[0_12px_24px_-8px_rgba(0,108,73,0.5)] flex items-center justify-center gap-3 hover:bg-[#005a3c] transition-all active:scale-[0.98] hover:shadow-[0_16px_32px_-8px_rgba(0,108,73,0.6)]">
+          <button className='flex items-center gap-3'>
+            <Send className="w-5 h-5 fill-current" />
+            Create Entry
+          </button>
+        </Link>
       </div>
 
-    </div>
+    </div >
   );
 }

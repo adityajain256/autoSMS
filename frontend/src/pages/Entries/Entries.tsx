@@ -83,7 +83,7 @@ export function Entries() {
             </thead>
             <tbody className="divide-y ghost-border">
               {data.map((row) => (
-                <tr key={row.id + 1} className="hover:bg-surface-container/30 transition-colors">
+                <tr key={row._id + 1} className="hover:bg-surface-container/30 transition-colors">
                   <td className="p-4 flex items-center gap-3">
                     <Avatar fallback={row.userId?.username.charAt(0)} size="sm" />
                     <span className="font-semibold text-on-surface text-sm">{row.userId?.username}</span>

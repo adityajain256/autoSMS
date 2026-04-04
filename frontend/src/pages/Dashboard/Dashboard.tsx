@@ -6,6 +6,7 @@ import { ArrowUpRight } from 'lucide-react';
 
 import { useEffect, useState } from 'react';
 import { api } from '../../utils/api';
+import { useNavigate } from 'react-router-dom';
 
 
 // const mockData = [
@@ -17,7 +18,7 @@ import { api } from '../../utils/api';
 
 export function Dashboard() {
 
-
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState({
     totalSMS: 0,
@@ -33,6 +34,7 @@ export function Dashboard() {
           "Authorization": `Bearer ${localStorage.getItem("token")}`
         }
       });
+      console.log(res.data)
       setData(res.data);
     } catch (error) {
       console.log(error)
@@ -41,10 +43,10 @@ export function Dashboard() {
     }
   }
   useEffect(() => {
-    // const token = localStorage.getItem("token");
-    // if (!token) {
-    //   navigate("/login");
-    // }
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
     fetchDashboardData();
   }, []);
   return (

@@ -1,4 +1,4 @@
-import { X, Mail, Phone, CheckCircle2, UserPlus } from 'lucide-react';
+import { X, Mail, Phone, CheckCircle2, UserPlus, IndianRupee } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useState } from 'react';
 import { api } from '../../utils/api';
@@ -11,11 +11,21 @@ interface AddClientProps {
 
 export function AddClient({ isOpen, onClose }: AddClientProps) {
   const { addToast } = useToast();
-  const [formData, setFormData] = useState({ userName: "", phoneNumber: "", vehicle: "", totalAmount: "", totalQuantity: "", email: "", gstNumber: "", address: "" })
+  const [formData, setFormData] = useState({ userName: "", phoneNumber: "", vehicle: "", amount: "" as string | number, totalQuantity: "" as string | number, email: "", gstNumber: "", address: "" });
+  const [isPaid, setIsPaid] = useState(false);
 
   const createClient = async () => {
     try {
-      const response = await api.post("/clients", formData,
+      const amountValue = Number(formData.amount) || 0;
+      const payload = {
+        ...formData,
+        amount: amountValue,
+        totalQuantity: Number(formData.totalQuantity) || 0,
+        paidAmount: isPaid ? amountValue : 0,
+        nonPaidAmount: !isPaid ? amountValue : 0,
+      };
+
+      const response = await api.post("/clients", payload,
         {
           headers: {
             "Content-Type": "application/json",
@@ -26,7 +36,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
       console.log(response.data);
       addToast(response.data.message, "success")
     } catch (error) {
-      addToast("Error creating client", "error");
+      addToast("Error creating client" , "error");
     }
   }
 
@@ -158,19 +168,35 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
             </div>
 
             <div className="space-y-1.5 focus-within:text-primary">
-              <label className="text-xs font-bold text-gray-800">Total Amount</label>
+
+              <label className="text-xs font-bold text-gray-800 w-4/5">Total Amount</label>
+
               <div className="relative flex items-center">
-                <div className="absolute left-4 text-gray-500">
-                  <Mail className="w-4 h-4" />
+
+                <div className='flex items-center gap-6 justify-end  w-full flex-row-reverse '>
+
+
+                  <input
+                    type="checkbox"
+                    checked={isPaid}
+                    onChange={(e) => setIsPaid(e.target.checked)}
+                    className="w-6 h-6 cursor-pointer accent-primary"
+                  />
+                  <div className='relative flex items-center w-4/5'>
+                    <div className="absolute left-4 text-gray-500">
+                      <IndianRupee className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="number"
+                      placeholder="0.00"
+                      step="0.01"
+                      value={formData.amount}
+                      onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                      className="w-full h-12 pl-11 pr-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
+                    />
+
+                  </div>
                 </div>
-                <input
-                  type="number"
-                  placeholder="0.00"
-                  step="0.01"
-                  value={formData.totalAmount}
-                  onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })}
-                  className="w-full h-12 pl-11 pr-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
-                />
               </div>
             </div>
 

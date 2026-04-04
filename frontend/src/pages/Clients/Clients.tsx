@@ -17,8 +17,9 @@ export function Clients() {
     phoneNumber: "",
     gstNumber: "",
     vehicle: "",
-    totalQuantity: "",
-    totalAmount: "",
+    totalQuantity: 0.00,
+    paidAmount: 0.00,
+    nonPaidAmount: 0.00,
     address: ""
   }]);
 
@@ -66,8 +67,8 @@ export function Clients() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {(data[0].authId != "") ? data.map((client) => (
-          <Link to={"/entries/create"} state={{ client: client._id }}>
-            <Card key={client._id} className="flex flex-col group cursor-pointer hover:border-primary/30 transition-all">
+          <Card key={client._id} className="flex flex-col group cursor-pointer hover:border-primary/30 transition-all">
+            <Link to={"/entries/create"} state={{ client: client._id }}>
               <div className="flex items-start justify-between mb-4">
                 <div className="flex flex-row items-center gap-4">
                   <Avatar fallback={client.username?.charAt(0)} size="lg" className="group-hover:bg-primary group-hover:text-on-primary transition-colors duration-300" />
@@ -99,17 +100,21 @@ export function Clients() {
               <div className='w-full h-0.5 mt-4 bg-on-surface-variant opacity-50' />
 
               <div className='flex flex-row justify-between gap-4 mt-4'>
-                <div className="flex items-center text-sm text-on-surface">
-                  <IndianRupee className="w-4 h-4 mr-3 text-on-surface-variant" />
-                  {client.totalAmount.toFixed(2)}
+                <div className="flex items-center text-sm text-green-500">
+                  <IndianRupee className="w-4 h-4 mr-3 text-green-500" />
+                  {client.paidAmount?.toFixed(2)}
+                </div>
+                <div className="flex items-center text-sm text-red-500">
+                  <IndianRupee className="w-4 h-4 mr-3 text-red-500" />
+                  {client.nonPaidAmount?.toFixed(2)}
                 </div>
                 <div className="flex items-center text-sm text-on-surface">
                   <FuelIcon className="w-4 h-4 mr-3 text-on-surface-variant" />
-                  {client.totalQuantity.toFixed(2)} Ltr
+                  {client.totalQuantity?.toFixed(2)} Ltr
                 </div>
               </div>
-            </Card>
-          </Link>
+            </Link>
+          </Card>
         )) : <div>No clients found</div>}
       </div>
     </div>
