@@ -159,7 +159,7 @@ clientRouter.post("/create/bulk", createClientBulk);
 /**
  * @swagger
  * /api/clients/{id}:
- *   put:
+ *   patch:
  *     summary: Update a client
  *     tags: [Clients]
  *     parameters:

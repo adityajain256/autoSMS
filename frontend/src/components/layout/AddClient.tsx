@@ -3,6 +3,7 @@ import { cn } from '../../utils/cn';
 import { useState } from 'react';
 import { api } from '../../utils/api';
 import { useToast } from '../../contexts/ToastContext';
+import { useNavigate } from 'react-router-dom';
 
 interface AddClientProps {
   isOpen: boolean;
@@ -13,7 +14,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
   const { addToast } = useToast();
   const [formData, setFormData] = useState({ userName: "", phoneNumber: "", vehicle: "", amount: "" as string | number, totalQuantity: "" as string | number, email: "", gstNumber: "", address: "" });
   const [isPaid, setIsPaid] = useState(false);
-
+  const navigate = useNavigate();
 
   const createClient = async () => {
     try {
@@ -35,6 +36,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
         }
       );
       console.log(response.data);
+      navigate("/clients");
       addToast(response.data.message, "success")
     } catch (error) {
       addToast("Error creating client" , "error");
@@ -190,10 +192,11 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
                     <input
                       type="number"
                       placeholder="0.00"
+
                       step="0.01"
                       value={formData.amount}
-                      onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                      className="w-full h-12 pl-11 pr-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
+                      onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })}
+                      className=" no-spin-buttons w-full h-12 pl-11 pr-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
                     />
 
                   </div>
@@ -212,8 +215,8 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
                   step="0.01"
                   placeholder="0.00"
                   value={formData.totalQuantity}
-                  onChange={(e) => setFormData({ ...formData, totalQuantity: e.target.value })}
-                  className="w-full h-12 pl-11 pr-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
+                  onChange={(e) => setFormData({ ...formData, totalQuantity: parseFloat(e.target.value) || 0 })}
+                  className="no-spin-buttons w-full h-12 pl-11 pr-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
                 />
               </div>
             </div>

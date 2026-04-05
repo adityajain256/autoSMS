@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Search, ChevronDown, Send, FileText } from 'lucide-react';
+import { ArrowLeft, Search, ChevronDown, Send} from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Avatar } from '../../components/common/Avatar';
 import { api } from '../../utils/api';
 
 
+
 export function CreateEntry() {
   const [remark, setRemark] = useState('');
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<any []>([]);
 
   const [client, setClient] = useState({
     username: "",
@@ -28,7 +29,27 @@ export function CreateEntry() {
   });
   const location = useLocation();
   const clientId = location.state.client;
-  const fethcEntry = async () => {
+ 
+  const createEntry = async () => {
+    if (formData.amount === 0.00 || formData.quantity === 0.00) {
+      alert("Please fill all the fields");
+      return;
+    }
+    try {
+      const res = await api.post(`/entries/${clientId}`, formData, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        }
+      })
+      console.log(res.data)
+      setData(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+     const fethcEntry = async () => {
     try {
       const res = await api.get(`/entries/client/${clientId}`, {
         headers: {
@@ -55,25 +76,6 @@ export function CreateEntry() {
       console.log(error);
     }
   }
-  const createEntry = async () => {
-    if (formData.amount === 0.00 || formData.quantity === 0.00) {
-      alert("Please fill all the fields");
-      return;
-    }
-    try {
-      const res = await api.post(`/entries/${clientId}`, formData, {
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-      })
-      console.log(res.data)
-      setData(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  useEffect(() => {
     fetchClients();
     fethcEntry();
   }, []);
@@ -179,8 +181,9 @@ export function CreateEntry() {
                 type="number"
                 placeholder="0.00"
                 value={formData.amount}
+                min='0.00'
                 onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
-                className="w-full h-[72px] pl-12 pr-6 bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white rounded-[2rem] text-2xl font-bold text-gray-900 border border-transparent focus:border-primary/30 outline-none transition-all focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)]"
+                className="w-full no-spin-buttons h-[72px] pl-12 pr-6 bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white rounded-[2rem] text-2xl font-bold text-gray-900 border border-transparent focus:border-primary/30 outline-none transition-all focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)]"
               />
             </div>
           </div>
@@ -189,11 +192,12 @@ export function CreateEntry() {
             <div className="relative flex items-center">
               <span className="absolute left-6 font-bold text-gray-500 text-xl">₹</span>
               <input
-                type="number"
-                placeholder="0.00"
-                value={formData.quantity}
-                onChange={(e) => setFormData({ ...formData, quantity: Number(e.target.value) })}
-                className="w-full h-[72px] pl-12 pr-6 bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white rounded-[2rem] text-2xl font-bold text-gray-900 border border-transparent focus:border-primary/30 outline-none transition-all focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)]"
+              type="number"
+              placeholder="0.00"
+              min='0.00'
+              value={formData.quantity} 
+              onChange={(e) => setFormData({ ...formData, quantity: Number(e.target.value) })}
+              className="w-full h-[72px] pl-12 pr-6 bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white rounded-[2rem] text-2xl font-bold text-gray-900 border border-transparent focus:border-primary/30 outline-none transition-all focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
           </div>

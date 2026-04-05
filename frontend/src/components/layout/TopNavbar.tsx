@@ -1,22 +1,23 @@
 
-import { Link, NavLink } from 'react-router-dom';
-import { Menu, Briefcase, List, User, Plus } from 'lucide-react';
+import { Link, NavLink} from 'react-router-dom';
+import { Menu, Briefcase, List, User, Plus} from 'lucide-react';
 import { Avatar } from '../common/Avatar';
 import { cn } from '../../utils/cn';
 import { Button } from '../common/Button';
+
 
 interface TopNavbarProps {
   onMenuClick: () => void;
   onAddClient?: () => void;
 }
 
-export function TopNavbar({ onMenuClick, onAddClient }: TopNavbarProps) {
-
+export function TopNavbar({ onMenuClick, onAddClient }: TopNavbarProps ) {
   const navLinks = [
     { to: '/dashboard', label: 'Dashboard', icon: <Briefcase className="w-4 h-4" /> },
     { to: '/clients', label: 'Clients', icon: <User className="w-4 h-4" /> },
     { to: '/entries', label: 'History', icon: <List className="w-4 h-4" /> },
   ];
+
 
   return (
     <header className="sticky top-0 z-40 w-full h-20 bg-surface-lowest/80 backdrop-blur-md border-b ghost-border">
@@ -70,8 +71,10 @@ export function TopNavbar({ onMenuClick, onAddClient }: TopNavbarProps) {
           </button>
           <div className="w-px h-2 bg-outline-variant/30 mx-1 sm:flex" />
           {
-            localStorage.getItem("token") ? (
-              <Avatar fallback="PR" />
+            (localStorage.getItem("token")) ? (
+              <Link to="/profile">
+                <Avatar fallback="PR" />
+              </Link>
             ) : (
               <Link to="/login">
                 <Button

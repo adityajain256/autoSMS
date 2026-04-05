@@ -2,6 +2,7 @@ import express from "express";
 import User from "../model/User.ts";
 import validators from "../utils/validators.ts";
 import mongoose from "mongoose";
+import Admin from "../model/Auth.ts";
 
 export const getAllClients = async (
   req: express.Request,
@@ -87,6 +88,9 @@ export const createClient = async (
       totalQuantity,
       authId: authId,
       vehicle,
+    });
+    await Admin.findByIdAndUpdate(authId, {
+      $push: { clients: newClient._id },
     });
     res
       .status(201)

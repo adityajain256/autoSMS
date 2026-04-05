@@ -59,7 +59,7 @@ export const createEntry = async (
       return res.status(404).json({ message: "User not found" });
     }
 
-    const entry = await Entry.create(
+    const entry: any = await Entry.create(
       [
         {
           userId: userObjectId,
@@ -86,6 +86,7 @@ export const createEntry = async (
           nonPaidAmount: isPaid ? 0.0 : parsedAmount,
           totalQuantity: parsedQuantity,
         },
+        $push: { entries: entry[0]._id },
       },
       { session },
     );

@@ -1,9 +1,8 @@
 
-import { Link, NavLink } from 'react-router-dom';
+import {  NavLink } from 'react-router-dom';
 import { X, Briefcase, List, User, Plus } from 'lucide-react';
 import { cn } from '../../utils/cn';
-import { Avatar } from '../common/Avatar';
-import { Button } from '../common/Button';
+
 
 interface SidebarMenuProps {
   isOpen: boolean;

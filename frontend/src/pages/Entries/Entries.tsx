@@ -10,7 +10,7 @@ import { api } from '../../utils/api';
 export function Entries() {
   const [searchTerm, setSearchTerm] = useState('');
   const [data, setData] = useState([{
-    id: "",
+    _id: "",
     userId: {
       username: "",
       phoneNumber: "",
@@ -21,20 +21,20 @@ export function Entries() {
     date: "",
     isPaid: ""
   }]);
-  const fetchEntries = async () => {
-    try {
-      const res = await api.get("/entries", {
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-      });
-      console.log(res.data);
-      setData(res.data);
-    } catch (error) {
-      console.log(error)
-    }
-  }
   useEffect(() => {
+    const fetchEntries = async () => {
+      try {
+        const res = await api.get("/entries", {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+          }
+        });
+        console.log(res.data);
+        setData(res.data);
+      } catch (error) {
+        console.log(error)
+      }
+    }
     fetchEntries();
   }, []);
   return (

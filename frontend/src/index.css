@@ -18,6 +18,18 @@
   .glass-panel {
     @apply bg-surface-container-lowest/70 backdrop-blur-md shadow-ambient;
   }
+
+  
+  .no-spin-buttons ::-webkit-outer-spin-button,
+  .no-spin-buttons ::-webkit-inner-spin-button{
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+  .no-spin-buttons {
+    -moz-appearance: textfield;
+  }
+  
   /* The "Ghost Border" from Stitch design system at 20% opacity */
   .ghost-border {
     border: 1px solid theme('colors.outline-variant' / 20%);

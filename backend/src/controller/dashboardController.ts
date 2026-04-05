@@ -9,9 +9,8 @@ export const getStatistics = async (
   res: express.Response,
 ) => {
   try {
-    const totalUser = await User.countDocuments({
-      authId: (req as any).user.id,
-    });
+    const user: any = await User.find({ authId: (req as any).user.id });
+    const totalUser: number = user.length;
     if (totalUser === 0) {
       return res.status(200).json({
         totalUser: 0,
@@ -21,22 +20,32 @@ export const getStatistics = async (
       });
     }
 
-    const totalDueAmount = await User.aggregate([
-      {
-        $group: {
-          _id: null,
-          nonPaidAmount: { $sum: "$nonPaidAmount" },
-        },
-      },
-    ]);
+    const totalDueAmount: Number = user.reduce(
+      (acc: any, ele: any) => acc + ele.nonPaidAmount,
+      0,
+    );
+
     const totalSMS = await Admin.findById((req as any).user.id).select(
       "smsCount",
     );
-    console.log(totalDueAmount, totalSMS, totalUser);
+
+    const totalClientInOneDay: any = user.reduce((acc: any, ele: any) => {
+      const createdAt = new Date(ele.createdAt);
+      const today = new Date();
+      if (
+        createdAt.getDate() === today.getDate() &&
+        createdAt.getMonth() === today.getMonth() &&
+        createdAt.getFullYear() === today.getFullYear()
+      ) {
+        return acc + 1;
+      }
+      return acc;
+    }, 0);
     return res.status(200).json({
-      totalUser,
-      totalAmount: totalDueAmount[0]?.nonPaidAmount || 0,
+      totalUser: totalUser || 0,
+      totalAmount: totalDueAmount || 0,
       totalSMS: totalSMS?.smsCount || 0,
+      totalClientInOneDay: totalClientInOneDay || 0,
     });
   } catch (error) {
     console.log("Error fetching statistics:", error);

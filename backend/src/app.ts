@@ -13,12 +13,10 @@ import dashboardRouter from "./route/dashboard.ts";
 doenv.config();
 await DBconnection();
 
-
 const app: express.Application = express();
 
-
 // Middleware
-app.use(cors({methods: ["GET", "POST", "PUT", "DELETE"], origin: "*"}));
+app.use(cors({ methods: ["GET", "POST", "PATCH", "DELETE"], origin: "*" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRouter);
@@ -27,7 +25,5 @@ app.use("/api/entries", entryRouter);
 app.use("/api/sms", smsRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-
-
 
 export default app;
