@@ -64,7 +64,9 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {(data[0].authId != "") ?((searchTerm.length > 0)? newData:data).map((client) => (
           <Card key={client._id} className="flex flex-col group cursor-pointer hover:border-primary/30 transition-all">
-            <Link to={"/entries/create"} state={{ client: client._id }}>
+
+
+
               <div className="flex items-start justify-between mb-4">
                 <div className="flex flex-row items-center gap-4">
                   <Avatar fallback={client.username?.charAt(0)} size="lg" className="group-hover:bg-primary group-hover:text-on-primary transition-colors duration-300" />
@@ -73,15 +75,17 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
                     <p className="text-sm font-medium text-on-surface-variant">{client.phoneNumber}</p>
                   </div>
                 </div>
-                <Link to={"client/delete"}>
                 
-                <button  onClick={() => box(client._id)}  className="text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded p-1 transition-colors">
+            <Link to={"/client/delete"}>
+                
+                <button className=" text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded p-1 transition-colors">
                   <Delete  className="w-5 h-5 text-red-500" />
                 </button>
                 </Link>
 
-
               </div>
+            <Link to={"/create"} state={{ client: client._id }}>
+
 
               <div className="space-y-2 mt-4 flex-1">
                 <div className="flex items-center text-sm text-on-surface">
@@ -115,6 +119,7 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
                 </div>
               </div>
             </Link>
+            
           </Card>
         )) : <div>No clients found</div>}
       </div>

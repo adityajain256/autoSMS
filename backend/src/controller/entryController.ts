@@ -136,7 +136,9 @@ export const updateDue = async (
   try {
     const entry = await Entry.findByIdAndUpdate(
       id,
-      { isPaid: !Entry.isPaid },
+      {
+        isPaid: !Entry.isPaid,
+      },
       { session },
     );
     if (!entry) {
@@ -153,34 +155,54 @@ export const updateDue = async (
     // Compute increment/decrement based on isPaid
     let userUpdate;
     if (entry.isPaid) {
-      userUpdate = {
-        $inc: {
-          paidAmount: -entry.amount,
-          nonPaidAmount: entry.amount,
-        },
-      };
+      if (user.paidAmount > entry.amount) {
+        userUpdate = {
+          $inc: {
+            paidAmount: -entry.amount,
+            nonPaidAmount: entry.amount,
+          },
+        };
+      } else {
+        userUpdate = {
+          $inc: {
+            paidAmount: -user.paidAmount,
+            nonPaidAmount: user.paidAmount,
+          },
+        };
+      }
     } else {
-      userUpdate = {
-        $inc: {
-          paidAmount: entry.amount,
-          nonPaidAmount: -entry.amount,
-        },
-      };
+      if (user.nonPaidAmount > entry.amount) {
+        userUpdate = {
+          $inc: {
+            paidAmount: entry.amount,
+            nonPaidAmount: -entry.amount,
+          },
+        };
+      } else {
+        userUpdate = {
+          $inc: {
+            paidAmount: entry.amount,
+            nonPaidAmount: -user.nonPaidAmount,
+          },
+        };
+      }
+      await User.findByIdAndUpdate(entry.userId, userUpdate, { session });
+
+      const updatedEntry = await Entry.findByIdAndUpdate(
+        id,
+        { isPaid: !entry.isPaid },
+        { session, returnDocument: "after" },
+      );
+      await session.commitTransaction();
+      session.endSession();
+      return res
+        .status(200)
+        .json({ message: "Due updated successfully.", data: updatedEntry });
     }
-    await User.findByIdAndUpdate(entry.userId, userUpdate, { session });
-    const updatedEntry = await Entry.findByIdAndUpdate(
-      id,
-      { isPaid: !entry.isPaid },
-      { session, returnDocument: "after" },
-    );
-    await session.commitTransaction();
-    session.endSession();
-    return res
-      .status(200)
-      .json({ message: "Due updated successfully.", data: updatedEntry });
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
+    console.log(error);
     return res.status(500).json({ message: "Server error" });
   }
 };

@@ -30,7 +30,7 @@ const entrySchema = new mongoose.Schema(
     message: { type: String, default: "" },
     type: {
       type: String,
-      enum: ["petrol", "diesel", "CNG"],
+      enum: ["petrol", "diesel", "CNG", "Payment"],
       required: true,
       default: "diesel",
     },

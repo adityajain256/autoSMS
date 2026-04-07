@@ -5,7 +5,6 @@ import { Avatar } from '../common/Avatar';
 import { cn } from '../../utils/cn';
 import { Button } from '../common/Button';
 
-
 interface TopNavbarProps {
   onMenuClick: () => void;
   onAddClient?: () => void;
@@ -71,7 +70,7 @@ export function TopNavbar({ onMenuClick, onAddClient }: TopNavbarProps ) {
           </button>
           <div className="w-px h-2 bg-outline-variant/30 mx-1 sm:flex" />
           {
-            (localStorage.getItem("token")) ? (
+            (localStorage.getItem("token") != null || undefined) ? (
               <Link to="/profile">
                 <Avatar fallback="PR" />
               </Link>

@@ -3,12 +3,14 @@ import { ArrowLeft, Search, ChevronDown, Send} from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Avatar } from '../../components/common/Avatar';
 import { api } from '../../utils/api';
+import { useToast } from '../../contexts/ToastContext';
 
 
 
 export function CreateEntry() {
   const [remark, setRemark] = useState('');
   const [data, setData] = useState<any []>([]);
+  const { addToast } = useToast();
 
   const [client, setClient] = useState({
     username: "",
@@ -18,6 +20,7 @@ export function CreateEntry() {
     nonPaidAmount: 0.00,
     totalQuantity: 0.00,
   });
+  const [inAmount, setInAmount] = useState(0.00);
 
   const [formData, setFormData] = useState({
     amount: 0.00,
@@ -29,6 +32,22 @@ export function CreateEntry() {
   });
   const location = useLocation();
   const clientId = location.state.client;
+
+  const handleUpdateAmount = async () => {
+    try {
+
+      const res = await api.patch(`/clients/${clientId}`, {amount: inAmount.toFixed(2)}, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        }
+      }) 
+      console.log(res.data);
+      window.location.reload();
+    } catch (error) {
+      addToast("Error updating amount", "error");
+      console.log(error);
+    }
+  }
  
   const createEntry = async () => {
     if (formData.amount === 0.00 || formData.quantity === 0.00) {
@@ -45,6 +64,7 @@ export function CreateEntry() {
       setData(res.data);
     } catch (error) {
       console.log(error);
+      addToast("Error creating entry", "error");
     }
   }
   const updateEntry = async(entryId: string, isPaid: boolean) => {
@@ -59,6 +79,7 @@ export function CreateEntry() {
       setData(res.data);
     } catch (error) {
       console.log(error);
+      addToast("Error updating entry", "error");
     }
   };
 
@@ -93,7 +114,7 @@ export function CreateEntry() {
   }
     fetchClients();
     fethcEntry();
-  }, []);
+  }, [clientId]);
 
   return (
     <div className="flex flex-col max-w-[800px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -148,6 +169,25 @@ export function CreateEntry() {
           <p className="text-[11px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-3">{"Total due"}</p>
           <p className={"text-4xl font-extrabold text-[#f50c0c] tracking-tight"}>{client?.nonPaidAmount}</p>
         </div>
+         <div className="space-y-3">
+            <label className="text-[11px] font-extrabold text-gray-500 uppercase tracking-[0.15em] ml-2">Paying Amount</label>
+            <div className="relative flex items-center">
+              <span className="absolute left-6 font-bold text-gray-500 text-xl">₹</span>
+              <input
+                type="number"
+                placeholder="0.00"
+                value={inAmount}
+                min='0.00'
+                onChange={(e) => setInAmount(Number(e.target.value))}
+                className="w-full no-spin-buttons h-[72px] pl-12 pr-6 bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white rounded-[2rem] text-2xl font-bold text-gray-900 border border-transparent focus:border-primary/30 outline-none transition-all focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)]"
+              />
+            <Send onClick={handleUpdateAmount} className={`${inAmount > (client?.nonPaidAmount || 0) ? 'hidden' : 'ml-3 hover:text-red-600'} `} />
+            </div>
+            <p className={`${inAmount > (client?.nonPaidAmount || 0) ? 'text-red-500' : 'text-green-500'} text-[11px] font-bold uppercase tracking-[0.2em]`}>
+              {inAmount > (client?.nonPaidAmount || 0) ? "Amount exceeds due" : "Amount is valid"}
+            </p>
+          </div>
+
         <div className="overflow-hidden w-full rounded-2xl mt-4">
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>

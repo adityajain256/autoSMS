@@ -17,7 +17,7 @@ export function Clients() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-on-surface">Clients</h1>
-          <p className="text-on-surface-variant mt-1">Manage your CA firm's clients and their contact information.</p>
+          <p className="text-on-surface-variant mt-1">Manage your clients and their contact information.</p>
         </div>
       </div>
 
