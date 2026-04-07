@@ -3,6 +3,7 @@ import{  CheckCircle2,
   MessageSquare,
   ShieldCheck
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Hero() {
   return (
@@ -26,9 +27,11 @@ export default function Hero() {
               The architectural trust framework for modern petrol pump operations. Handle data management and sms handling via secure SMS notifications and automated real-time audit logs.
             </p>
             <div className="flex flex-wrap gap-4">
+              <Link to="/dashboard">
               <button className="bg-gradient-to-br from-primary to-primary-container text-on-primary px-8 py-4 rounded-lg font-semibold shadow-lg shadow-primary/20 hover:opacity-90 transition-all">
                 Get Started
               </button>
+              </Link>
             </div>
             {/* Trusted By / Stats */}
             <div className="pt-8 grid grid-cols-3 gap-8">

@@ -4,9 +4,11 @@ import { Search, Filter } from 'lucide-react';
 import { ClientCard } from '../../components/data-display/ClientCard';
 import { useState } from 'react';
 
+
 export function Clients() {
   const [searchTerm, setSearchTerm] = useState('');
   console.log(searchTerm);
+
   
 
   return (

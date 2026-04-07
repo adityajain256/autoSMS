@@ -13,6 +13,7 @@ import { Profile } from './pages/Profile/Profile';
 import Hero from './pages/Hero/Hero';
 import { api } from './utils/api';
 import { useEffect } from 'react';
+import { DeleteClient } from './pages/Clients/DeleteClient';
 
 
 function App() {
@@ -49,6 +50,7 @@ function App() {
             <Route path="entries/create" element={<CreateEntry />} />
             <Route path="profile" element={<Profile />} />
             <Route path="hero" element={<Hero />} />
+            <Route path="/client/delete" element={<DeleteClient />} />
           </Route>
         </Routes>
       </BrowserRouter>

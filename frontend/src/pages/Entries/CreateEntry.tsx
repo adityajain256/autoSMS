@@ -47,6 +47,21 @@ export function CreateEntry() {
       console.log(error);
     }
   }
+  const updateEntry = async(entryId: string, isPaid: boolean) => {
+    try {
+      const res = await api.patch(`/entries/${entryId}`, { isPaid }, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+      console.log(res.data);
+      window.location.reload();
+      setData(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
 
   useEffect(() => {
      const fethcEntry = async () => {
@@ -137,31 +152,30 @@ export function CreateEntry() {
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="bg-surface-container/30 text-xs uppercase tracking-wider text-on-surface-variant font-bold border-b ghost-border">
-                <th className="p-4">Index</th>
-                <th className="p-4">Date / Time</th>
+                <th className="p-2">Index</th>
+                <th className="p-2">Date</th>
                 <th className="p-4">Type</th>
-                <th className="p-4 ">Qty</th>
-                <th className="p-4">Cost</th>
-                <th className="p-4">Status</th>
+
+                <th className="p-2">Cost</th>
+                <th className="p-2">Status- Paid</th>
+
               </tr>
             </thead>
             <tbody className="divide-y ghost-border">
               {data.map((row, i) => (
                 <tr key={row._id + 1} className="hover:bg-surface-container/30 transition-colors">
                   <td className="pl-4  text-sm font-bold text-on-surface">{i + 1}</td>
-                  <td className="p-3 text-sm font-medium text-on-surface">{row?.date?.split("T")[0] + " / " + row?.date?.split("T")[1]?.split(".")[0]?.slice(0, 5)}</td>
-                  <td className="p-3 text-sm font-medium text-on-surface">{row.type}</td>
-                  <td className="p-3 text-sm text-on-surface-variant truncate max-w-[200px]">
-                    {row.quantity}
-                  </td>
-                  <td className="p-3 text-sm font-medium text-on-surface">{row.amount}</td>
-                  <td className={row.isPaid ? "p-3 text-green-500" : "p-3 text-red-500"}>
-                    {row.isPaid ? "Paid" : "Unpaid"}
+                  <td className="p-2 text-sm font-medium text-on-surface">{row?.date?.split("T")[0]}</td>
+                  <td className="p-2 text-sm font-medium text-on-surface">{row.type}</td>
+                  <td className="p-2 text-sm font-medium text-on-surface">{row.amount}</td>
+                  <td className={row.isPaid ? "p-2 text-green-500" : "p-2 text-red-500"}>
+                  <input type="checkbox" className='{row.isPaid ? " accent-green-500 divide-green-500" : "accent-red-500 divide-red-500"}' checked={row.isPaid} onChange={() => {updateEntry(row._id, !row.isPaid)}} />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+
         </div>
       </div>
 

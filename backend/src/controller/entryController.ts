@@ -9,7 +9,7 @@ export const getAllEntries = async (
   res: express.Response,
 ) => {
   try {
-    const entries = await Entry.find().populate("userId");
+    const entries = (await Entry.find().populate("userId")).toReversed();
     return res.status(200).json(entries);
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
@@ -111,7 +111,11 @@ export const getEntryByClientId = async (
     return res.status(400).json({ message: "Client ID is required" });
   }
   try {
-    const entries = await Entry.find({ userId: clientId }).populate("userId");
+    const user = await User.findById(clientId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const entries = (await Entry.find({ userId: clientId })).toReversed();
     return res.status(200).json(entries);
   } catch (error) {
     console.error("Error fetching entries:", error);
@@ -130,7 +134,11 @@ export const updateDue = async (
   const session = await mongoose.default.startSession();
   session.startTransaction();
   try {
-    const entry = await Entry.findById(id, null, { session });
+    const entry = await Entry.findByIdAndUpdate(
+      id,
+      { isPaid: !Entry.isPaid },
+      { session },
+    );
     if (!entry) {
       await session.abortTransaction();
       session.endSession();
@@ -144,20 +152,18 @@ export const updateDue = async (
     }
     // Compute increment/decrement based on isPaid
     let userUpdate;
-    if (!entry.isPaid) {
+    if (entry.isPaid) {
       userUpdate = {
         $inc: {
-          paidAmount: 0.0,
+          paidAmount: -entry.amount,
           nonPaidAmount: entry.amount,
-          totalQuantity: entry.quantity,
         },
       };
     } else {
       userUpdate = {
         $inc: {
           paidAmount: entry.amount,
-          nonPaidAmount: 0.0,
-          totalQuantity: entry.quantity,
+          nonPaidAmount: -entry.amount,
         },
       };
     }

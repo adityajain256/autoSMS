@@ -3,6 +3,7 @@ import User from "../model/User.ts";
 import validators from "../utils/validators.ts";
 import mongoose from "mongoose";
 import Admin from "../model/Auth.ts";
+import Entry from "../model/Entry.ts";
 
 export const getAllClients = async (
   req: express.Request,
@@ -75,7 +76,7 @@ export const createClient = async (
   if (!authId) {
     return res.status(400).json({ message: "no credentials." });
   }
-  const p = `+91${phoneNumber}`;
+  const p = `${phoneNumber}`;
   try {
     const newClient = await User.create({
       username: userName,
@@ -100,6 +101,7 @@ export const createClient = async (
     if (error.code === 11000 && error.keyValue) {
       // Find which field duplicated
       const fields = Object.keys(error.keyValue).join(", ");
+      console.error("Duplicate field error:", error);
       return res.status(409).json({
         message: "Conflict: duplicate field",
         details: `Duplicate value for: ${fields}`,
@@ -185,38 +187,42 @@ export const updateClient = async (
   res: express.Response,
 ) => {
   const { id } = req.params;
-  const { userName, phoneNumber, address, gstNumber, email, totalAmount } =
-    req.body;
-  if (!id) {
-    return res.status(400).json({ message: "Client ID is required" });
-  }
-  if (email && !validators.validateEmail(email)) {
-    return res.status(400).json({ message: "Invalid email" });
-  }
-  if (phoneNumber && !validators.validatePhoneNumber(phoneNumber)) {
-    return res.status(400).json({ message: "Invalid phone number" });
-  }
-  if (gstNumber && !validators.validateGSTNumber(gstNumber)) {
-    return res.status(400).json({ message: "Invalid GST number" });
-  }
-  try {
-    // Only update fields that are defined
-    const updateData: any = {};
-    if (userName !== undefined) updateData.username = userName;
-    if (phoneNumber !== undefined) updateData.phoneNumber = `+91${phoneNumber}`;
-    if (address !== undefined) updateData.address = address;
-    if (gstNumber !== undefined) updateData.gstNumber = gstNumber;
-    if (email !== undefined) updateData.email = email;
-    if (totalAmount !== undefined) updateData.totalAmount = totalAmount;
+  const { amount } = req.body;
+  const session = await mongoose.default.startSession();
+  session.startTransaction();
 
-    const updatedClient = await User.findByIdAndUpdate(id, updateData, {
-      returnDocument: "after",
-    });
-    if (!updatedClient) {
+  try {
+    // Only update fields that are defined\
+
+    const client = await User.findById(id);
+    if (!client) {
       return res.status(404).json({ message: "Client not found" });
     }
-    res.json({ message: "Client updated successfully", data: updatedClient });
+
+    if (amount > client.nonPaidAmount) {
+      return res.status(400).json({
+        message: "Amount cannot be greater than non-paid amount / due amount",
+      });
+    }
+    await Entry.create({
+      userId: id,
+      amount: amount,
+      type: "Payment",
+      quantity: 0,
+      date: new Date(),
+      isPaid: true,
+    });
+    client.paidAmount += amount;
+    client.nonPaidAmount -= amount;
+    await client.save();
+
+    session.commitTransaction();
+    session.endSession();
+
+    res.json({ message: "Client updated successfully", data: client });
   } catch (error: any) {
+    session.abortTransaction();
+    session.endSession();
     res.status(500).json({ message: "Server error", error });
   }
 };
@@ -229,13 +235,21 @@ export const deleteClient = async (
   if (!id) {
     return res.status(400).json({ message: "Client ID is required" });
   }
+
+  const session = await mongoose.default.startSession();
+  session.startTransaction();
   try {
+    await Entry.deleteMany({ userId: id }, { session });
     const deletedClient = await User.findByIdAndDelete(id);
     if (!deletedClient) {
       return res.status(404).json({ message: "Client not found" });
     }
+    await session.commitTransaction();
+    session.endSession();
     res.json({ message: "Client deleted successfully" });
   } catch (error: any) {
+    session.abortTransaction();
+    session.endSession();
     res.status(500).json({ message: "Server error", error });
   }
 };

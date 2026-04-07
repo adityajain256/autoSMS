@@ -86,10 +86,10 @@ export function Entries() {
                 <tr key={row._id + 1} className="hover:bg-surface-container/30 transition-colors">
                   <td className="p-4 flex items-center gap-3">
                     <Avatar fallback={row.userId?.username.charAt(0)} size="sm" />
-                    <span className="font-semibold text-on-surface text-sm">{row.userId?.username}</span>
+                    <span className="font-semibold text-on-surface text-sm">{row?.userId?.username}</span>
                   </td>
-                  <td className="p-4 text-sm font-bold text-on-surface">{row.userId?.phoneNumber}</td>
-                  <td className="p-4 text-sm font-bold text-on-surface">{row.userId?.vehicle}</td>
+                  <td className="p-4 text-sm font-bold text-on-surface">{row?.userId?.phoneNumber}</td>
+                  <td className="p-4 text-sm font-bold text-on-surface">{row?.userId?.vehicle}</td>
                   <td className="p-4 text-sm font-medium text-on-surface">{row?.date?.split("T")[0] + " / " + row?.date?.split("T")[1]?.split(".")[0]?.slice(0, 5)}</td>
                   <td className="p-4 text-sm text-on-surface-variant truncate max-w-[200px]">
                     {row.quantity}

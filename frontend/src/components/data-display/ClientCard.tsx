@@ -1,12 +1,13 @@
-import { FuelIcon, IndianRupee, Mail, MoreVertical, Phone } from "lucide-react";
+import { Delete, FuelIcon, IndianRupee, Mail, Phone } from "lucide-react";
 import { api } from "../../utils/api";
 import { Avatar } from "../common/Avatar";
 import { Link } from "react-router-dom";
 import { Card } from "../common/Card";
 import { useEffect, useState } from "react";
 
+
 export function ClientCard({searchTerm}: {searchTerm: string}) {
-    let hide = true;
+
     const [data, setData] = useState([{
         _id: "",
         authId: "",
@@ -20,6 +21,8 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
         nonPaidAmount: 0.00,
         address: ""
       }]);
+
+
       
       const newData = data.filter((client) => {
         const term = searchTerm.toLowerCase();
@@ -32,8 +35,6 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
         );
       });
 
-      
-      console.log(hide)
 
       useEffect(() => {
         const fetchClients = async () => {
@@ -43,7 +44,14 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
               }
             });
-            setData(res.data);
+            if(res.data.length > 0){
+
+              setData(res.data);
+            }else {
+              return (
+                <div>No Client Found</div>
+              )
+            }
           } catch (error) {
             console.log(error);
           }
@@ -65,10 +73,13 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
                     <p className="text-sm font-medium text-on-surface-variant">{client.phoneNumber}</p>
                   </div>
                 </div>
-
-                <button onClick={() => hide = !hide}  className="text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded p-1 transition-colors">
-                  <MoreVertical  className="w-5 h-5" />
+                <Link to={"client/delete"}>
+                
+                <button  onClick={() => box(client._id)}  className="text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded p-1 transition-colors">
+                  <Delete  className="w-5 h-5 text-red-500" />
                 </button>
+                </Link>
+
 
               </div>
 
