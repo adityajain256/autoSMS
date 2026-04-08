@@ -62,6 +62,7 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
     entries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Entry" }],
+    welcomeSMSSent: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

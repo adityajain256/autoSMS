@@ -2,7 +2,6 @@ import Entry from "../model/Entry.ts";
 import User from "../model/User.ts";
 import express from "express";
 import mongoose from "mongoose";
-import { sendSMS } from "../config/teilio.ts";
 
 export const getAllEntries = async (
   req: express.Request,
@@ -73,11 +72,6 @@ export const createEntry = async (
       ],
       { session },
     );
-    const smsRes = await sendSMS(
-      user.phoneNumber,
-      `New entry created: Quantity ${parsedQuantity}, Amount ${parsedAmount}. Message: ${message}`,
-    );
-    console.log("SMS response:", smsRes);
     await User.findByIdAndUpdate(
       userObjectId,
       {

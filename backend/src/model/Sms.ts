@@ -16,8 +16,6 @@ const smsSchema = new mongoose.Schema(
       default: "pending",
     },
     errorMessage: { type: String, default: "" },
-    SMSEng: { type: String, default: "" },
-    SMSHindi: { type: String, default: "" },
   },
   { timestamps: true },
 );
