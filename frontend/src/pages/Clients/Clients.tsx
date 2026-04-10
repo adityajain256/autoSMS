@@ -7,9 +7,9 @@ import { useState } from 'react';
 
 export function Clients() {
   const [searchTerm, setSearchTerm] = useState('');
-  console.log(searchTerm);
 
-  
+
+
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500">
@@ -35,8 +35,9 @@ export function Clients() {
           More Filters
         </Button>
       </div>
-      
-      <ClientCard searchTerm={searchTerm}/>
+      <div>
+        <ClientCard searchTerm={searchTerm} />
+      </div>
     </div>
   );
 }

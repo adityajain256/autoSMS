@@ -2,7 +2,7 @@
 import { Card } from '../../components/common/Card';
 // import { Badge } from '../../components/common/Badge';
 // import { Avatar } from '../../components/common/Avatar';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, Loader2 } from 'lucide-react';
 
 import { useEffect, useState } from 'react';
 import { api } from '../../utils/api';
@@ -19,7 +19,7 @@ import { useNavigate } from 'react-router-dom';
 export function Dashboard() {
 
   const navigate = useNavigate();
-  // const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState({
     totalSMS: 0,
     totalUser: 0,
@@ -29,7 +29,7 @@ export function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      // setIsLoading(true);
+      setIsLoading(true);
       const res = await api.get("/dashboard/stats", {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`
@@ -37,16 +37,21 @@ export function Dashboard() {
       });
       console.log(res.data)
       setData(res.data);
+
     } catch (error) {
       console.log(error)
+      if (error.response.status == 401) {
+        navigate("/login");
+      }
     } finally {
-      // setIsLoading(false);
+      setIsLoading(false);
     }
   }
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");
+      return;
     }
     fetchDashboardData();
   }, []);
@@ -64,7 +69,7 @@ export function Dashboard() {
         <Card className="hover:shadow-lg transition-shadow">
           <p className="text-sm font-semibold text-on-surface-variant mb-2">Total Messages Sent</p>
           <div className="flex items-end justify-between">
-            <h2 className="text-4xl font-bold text-on-surface" >{data?.totalSMS || 0}</h2>
+            <h2 className="text-4xl font-bold text-on-surface" >{isLoading ? <Loader2 className="w-8 h-8 animate-spin" /> : data?.totalSMS || 0}</h2>
             <span className="flex items-center text-sm font-semibold text-primary">
               <ArrowUpRight className="w-4 h-4 mr-0.5" /> 12%
             </span>
@@ -73,19 +78,19 @@ export function Dashboard() {
         <Card className="hover:shadow-lg transition-shadow">
           <p className="text-sm font-semibold text-on-surface-variant mb-2">Total Clients</p>
           <div className="flex items-end justify-between">
-            <h2 className="text-4xl font-bold text-on-surface" >{data?.totalUser || 0}</h2>
+            <h2 className="text-4xl font-bold text-on-surface" >{isLoading ? <Loader2 className="w-8 h-8 animate-spin" /> : data?.totalUser || 0}</h2>
           </div>
         </Card>
         <Card className="hover:shadow-lg transition-shadow">
           <p className="text-sm font-semibold text-on-surface-variant mb-2">Today's Total Client</p>
           <div className="flex items-end justify-between">
-            <h2 className="text-4xl font-bold text-on-surface">{data?.totalClientInOneDay || 0}</h2>
+            <h2 className="text-4xl font-bold text-on-surface">{isLoading ? <Loader2 className="w-8 h-8 animate-spin" /> : data?.totalClientInOneDay || 0}</h2>
           </div>
         </Card>
         <Card className="hover:shadow-lg transition-shadow lg:border-error/20">
           <p className="text-sm font-semibold text-on-surface-variant mb-2">Total Due Amount</p>
           <div className="flex items-end justify-between">
-            <h2 className="text-4xl font-bold text-error" >{data?.totalAmount || 0}</h2>
+            <h2 className="text-4xl font-bold text-error" >{isLoading ? <Loader2 className="w-8 h-8 animate-spin" /> : data?.totalAmount || 0}</h2>
           </div>
         </Card>
       </div>

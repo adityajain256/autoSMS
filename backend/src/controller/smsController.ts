@@ -44,39 +44,50 @@ export const sendWelcomeSMS = async (
   req: express.Request,
   res: express.Response,
 ) => {
+  interface Admin {
+    _id: mongoose.Types.ObjectId;
+    englishWelcomeSMS: string;
+    hindiWelcomeSMS: string;
+    petrolPumpName: string;
+  }
+  const { eng, hindi } = req.body;
   try {
-    const admin = await Admin.findById((req as any).user.id).select(
-      "englishWelcomeSMS hindiWelcomeSMS petrolPumpName",
-    );
+    let admin: Admin | null = null;
+
+    admin = await Admin.findById((req as any).user.id);
     if (!admin) {
       return res.status(404).json({ message: "Admin not found." });
     }
-    const clients = await User.find({ welcomeSMSSent: false }).select(
-      "phoneNumber",
-    );
+
+    const clients = await User.find({
+      authId: (req as any).user.id,
+      welcomeSMSSent: false,
+    }).select("phoneNumber");
+    console.log("Clients to send welcome SMS:", clients);
+    let welcomeMessage = eng
+      ? admin.englishWelcomeSMS + "\n" + admin.petrolPumpName
+      : admin.hindiWelcomeSMS + "\n" + admin.petrolPumpName;
+    let failedClients: { phoneNumber: string; error: any }[] = [];
     for (const client of clients) {
+      let phn = String(client.phoneNumber);
       try {
-        await sendSMS(
-          client.phoneNumber,
-          admin.englishWelcomeSMS +
-            "\n" +
-            admin.petrolPumpName +
-            "\n" +
-            admin.hindiWelcomeSMS +
-            "\n" +
-            admin.petrolPumpName,
-        );
-        return res
-          .status(200)
-          .json({ message: "Welcome SMS sent to all clients" });
+        await sendSMS(phn, welcomeMessage);
       } catch (error) {
-        return res.status(500).json({
-          message: `Failed to send welcome SMS to ${client.phoneNumber}`,
-          error,
-        });
+        failedClients.push({ phoneNumber: phn, error });
       }
     }
+    if (failedClients.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "Welcome SMS sent to all clients" });
+    } else {
+      return res.status(207).json({
+        message: "Some welcome SMS failed to send",
+        failedClients,
+      });
+    }
   } catch (error) {
+    console.error("Error sending welcome SMS to all clients:", error);
     res
       .status(500)
       .json({ message: "Error sending welcome SMS to all clients", error });

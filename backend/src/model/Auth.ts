@@ -14,8 +14,11 @@ const adminSchema = new mongoose.Schema(
     clients: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     petrolPumpName: { type: String },
     smsCount: { type: Number, default: 0 },
-    englishWelcomeSMS: { type: String, default: "" },
-    hindiWelcomeSMS: { type: String, default: "" },
+    englishWelcomeSMS: { type: String, default: "Welcome to our service!" },
+    hindiWelcomeSMS: {
+      type: String,
+      default: "हमारी सेवा में आपका स्वागत है!",
+    },
   },
   { timestamps: true },
 );

@@ -24,6 +24,7 @@ app.use("/api/clients", clientRouter);
 app.use("/api/entries", entryRouter);
 app.use("/api/sms", smsRouter);
 app.use("/api/dashboard", dashboardRouter);
+app.use("/api/sms", smsRouter);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 export default app;

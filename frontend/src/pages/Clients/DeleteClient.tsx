@@ -1,5 +1,5 @@
 import {  useEffect,  useState } from "react";
-import { FileText, Filter, Search, Trash2 } from "lucide-react";
+import { FileText, Filter, Loader, Search, Trash2 } from "lucide-react";
 import { Avatar } from "../../components/common/Avatar";
 import { api } from "../../utils/api";
 import { Button } from "../../components/common/Button";
@@ -24,13 +24,13 @@ type ClientRow = {
 
 
 export function DeleteClient() {
+    const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-
     const [data, setData] = useState<ClientRow[]>([]);
-    // const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
 
     const handleDelete = async (id: string) => {
         try {
+            setIsLoading(true);
             await api.delete(`/clients/${id}`, {
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem("token")}`
@@ -39,11 +39,14 @@ export function DeleteClient() {
             setData(prevData => prevData.filter(client => client._id !== id));
         } catch (error) {
             console.error("Error deleting client:", error);
+        } finally {
+            setIsLoading(false);
         }
     };
     useEffect(() => {
     const allClients = async () => {
         try {
+            setIsLoading(true);
             const res = await api.get("/clients", {
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem("token")}`
@@ -52,6 +55,8 @@ export function DeleteClient() {
             setData(res.data);
         } catch (error) {
             console.error("Error fetching clients:", error);
+        } finally {
+            setIsLoading(false);
         }
     }
     allClients();
@@ -130,8 +135,23 @@ export function DeleteClient() {
                     </thead>
 
                     <tbody className="divide-y ghost-border overflow-scroll">
-                        {(data[0]?._id != "") ? ((searchTerm.length > 0) ? newData : data).map((row) => (
-                            <tr key={row._id} className="hover:bg-surface-container/30 transition-colors">
+                        {isLoading ? (
+                            <tr>
+                                <td colSpan={8} className="p-8 text-center">
+                                    <div className="flex justify-center items-center">
+                                        <Loader className="w-8 h-8 animate-spin text-primary" />
+                                    </div>
+                                </td>
+                            </tr>
+                        ) : data.length === 0 ? (
+                            <tr>
+                                <td colSpan={8} className="p-8 text-center text-on-surface-variant">
+                                    No clients found
+                                </td>
+                            </tr>
+                        ) : (
+                            ((searchTerm.length > 0) ? newData : data).map((row) => (
+                                <tr key={row._id} className="hover:bg-surface-container/30 transition-colors">
                                 <td className="p-4 flex items-center gap-3">
                                     <Avatar fallback={row.username?.charAt(0) ?? "?"} size="sm" />
                                     <span className="font-semibold text-on-surface text-sm">
@@ -177,7 +197,8 @@ export function DeleteClient() {
                                     </div>
                                 </td>
                             </tr>
-                        )) : <div>No clients found</div>}
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>

@@ -8,8 +8,10 @@ import {
   sendDueSMS,
   sendSmsToAll,
 } from "../controller/smsController.ts";
-
+import authMiddleware from "../middleware/auth.middleware.ts";
 const smsRouter = express.Router();
+
+smsRouter.use(authMiddleware);
 
 smsRouter.post("/sendSMS", sendSmsToAll);
 smsRouter.post("/send/welcomeSMS", sendWelcomeSMS);

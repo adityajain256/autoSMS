@@ -6,6 +6,7 @@ import { Card } from '../../components/common/Card';
 import { Lock, Phone } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
 import { api } from '../../utils/api.ts';
+import { Loader } from '../../components/common/Loader';
 
 
 export function Login() {
@@ -16,6 +17,12 @@ export function Login() {
     phoneNumber: "",
     password: "",
   });
+
+  if(isLoading){
+    return(
+      <Loader />
+    )
+  }
 
   const handleLogin = async () => {
     if (formData.phoneNumber.length !== 10) {
@@ -34,6 +41,7 @@ export function Login() {
       localStorage.setItem("token", response.data?.token);
       addToast("Login successful", "success");
       navigate("/dashboard");
+        
 
     } catch (error: any) {
       console.log(error);

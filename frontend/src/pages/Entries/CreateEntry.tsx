@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Search, ChevronDown, Send} from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { ArrowLeft, Search, ChevronDown, Send, Loader2 } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Avatar } from '../../components/common/Avatar';
 import { api } from '../../utils/api';
 import { useToast } from '../../contexts/ToastContext';
-
-
 
 export function CreateEntry() {
   const [remark, setRemark] = useState('');
   const [data, setData] = useState<any []>([]);
   const { addToast } = useToast();
+  const navigate = useNavigate();
 
   const [client, setClient] = useState({
     username: "",
@@ -31,11 +30,15 @@ export function CreateEntry() {
     date: new Date().toISOString().split("T")[0]
   });
   const location = useLocation();
-  const clientId = location.state.client;
+  const clientId = location.state?.client;
+
+  const [isFetching, setIsFetching] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUpdatingAmount, setIsUpdatingAmount] = useState(false);
 
   const handleUpdateAmount = async () => {
     try {
-
+      setIsUpdatingAmount(true);
       const res = await api.patch(`/clients/${clientId}`, {amount: inAmount.toFixed(2)}, {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`
@@ -46,15 +49,19 @@ export function CreateEntry() {
     } catch (error) {
       addToast("Error updating amount", "error");
       console.log(error);
+    } finally {
+      setIsUpdatingAmount(false);
     }
   }
  
-  const createEntry = async () => {
+  const createEntry = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
     if (formData.amount === 0.00 || formData.quantity === 0.00) {
       alert("Please fill all the fields");
       return;
     }
     try {
+      setIsSubmitting(true);
       const res = await api.post(`/entries/${clientId}`, formData, {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`
@@ -62,9 +69,13 @@ export function CreateEntry() {
       })
       console.log(res.data)
       setData(res.data);
+      addToast("Entry created successfully", "success");
+      navigate("/clients");
     } catch (error) {
       console.log(error);
       addToast("Error creating entry", "error");
+    } finally {
+      setIsSubmitting(false);
     }
   }
   const updateEntry = async(entryId: string, isPaid: boolean) => {
@@ -85,36 +96,53 @@ export function CreateEntry() {
 
 
   useEffect(() => {
-     const fethcEntry = async () => {
-    try {
-      const res = await api.get(`/entries/client/${clientId}`, {
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-      })
-      console.log(res.data)
-      setData(res.data);
-    } catch (error) {
-      console.log(error);
+    if (!clientId) {
+      navigate('/clients');
+      return;
     }
-  }
 
-  const fetchClients = async () => {
-    try {
-      const res = await api.get(`/clients/${clientId}`, {
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-      })
-      console.log(res.data)
-      setClient(res.data);
-    } catch (error) {
-      console.log(error);
+    const fetchEntry = async () => {
+      try {
+        const res = await api.get(`/entries/client/${clientId}`, {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+          }
+        })
+        console.log(res.data)
+        setData(res.data);
+      } catch (error) {
+        console.log(error);
+      }
     }
+
+    const fetchClients = async () => {
+      try {
+        const res = await api.get(`/clients/${clientId}`, {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+          }
+        })
+        console.log(res.data)
+        setClient(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    setIsFetching(true);
+    Promise.all([fetchClients(), fetchEntry()]).finally(() => {
+      setIsFetching(false);
+    });
+  }, [clientId, navigate]);
+
+  if (isFetching) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] gap-4">
+        <Loader2 className="w-8 h-8 animate-spin text-[#006c49]" />
+        <p className="text-gray-500 font-medium">Loading client details...</p>
+      </div>
+    );
   }
-    fetchClients();
-    fethcEntry();
-  }, [clientId]);
 
   return (
     <div className="flex flex-col max-w-[800px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -181,7 +209,11 @@ export function CreateEntry() {
                 onChange={(e) => setInAmount(Number(e.target.value))}
                 className="w-full no-spin-buttons h-[72px] pl-12 pr-6 bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white rounded-[2rem] text-2xl font-bold text-gray-900 border border-transparent focus:border-primary/30 outline-none transition-all focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)]"
               />
-            <Send onClick={handleUpdateAmount} className={`${inAmount > (client?.nonPaidAmount || 0) ? 'hidden' : 'ml-3 hover:text-red-600'} `} />
+              {isUpdatingAmount ? (
+                <Loader2 className="w-5 h-5 ml-3 animate-spin text-gray-500" />
+              ) : (
+                <Send onClick={handleUpdateAmount} className={`${inAmount > (client?.nonPaidAmount || 0) ? 'hidden' : 'ml-3 hover:text-red-600 cursor-pointer'} `} />
+              )}
             </div>
             <p className={`${inAmount > (client?.nonPaidAmount || 0) ? 'text-red-500' : 'text-green-500'} text-[11px] font-bold uppercase tracking-[0.2em]`}>
               {inAmount > (client?.nonPaidAmount || 0) ? "Amount exceeds due" : "Amount is valid"}
@@ -209,7 +241,7 @@ export function CreateEntry() {
                   <td className="p-2 text-sm font-medium text-on-surface">{row.type}</td>
                   <td className="p-2 text-sm font-medium text-on-surface">{row.amount}</td>
                   <td className={row.isPaid ? "p-2 text-green-500" : "p-2 text-red-500"}>
-                  <input type="checkbox" className='{row.isPaid ? " accent-green-500 divide-green-500" : "accent-red-500 divide-red-500"}' checked={row.isPaid} onChange={() => {updateEntry(row._id, !row.isPaid)}} />
+                  <input type="checkbox" className={row.isPaid ? "accent-green-500 divide-green-500" : "accent-red-500 divide-red-500"} checked={row.isPaid} onChange={() => {updateEntry(row._id, !row.isPaid)}} />
                   </td>
                 </tr>
               ))}
@@ -341,12 +373,12 @@ export function CreateEntry() {
         <Link to="/clients" className="w-full sm:w-[240px] h-[64px] bg-white border-2 border-gray-100 text-gray-700 font-bold text-lg rounded-[2rem] hover:bg-gray-50 hover:border-gray-200 transition-all flex items-center justify-center shadow-sm">
           Cancel
         </Link>
-        <Link to="/clients" onClick={createEntry} className="w-full flex-1 h-[64px] bg-[#006c49] text-white font-bold text-lg rounded-[2rem] shadow-[0_12px_24px_-8px_rgba(0,108,73,0.5)] flex items-center justify-center gap-3 hover:bg-[#005a3c] transition-all active:scale-[0.98] hover:shadow-[0_16px_32px_-8px_rgba(0,108,73,0.6)]">
-          <button className='flex items-center gap-3'>
-            <Send className="w-5 h-5 fill-current" />
-            Create Entry
-          </button>
-        </Link>
+        <button onClick={createEntry} disabled={isSubmitting} className="w-full flex-1 h-[64px] bg-[#006c49] text-white font-bold text-lg rounded-[2rem] shadow-[0_12px_24px_-8px_rgba(0,108,73,0.5)] flex items-center justify-center gap-3 hover:bg-[#005a3c] transition-all active:scale-[0.98] hover:shadow-[0_16px_32px_-8px_rgba(0,108,73,0.6)] disabled:opacity-75 disabled:cursor-not-allowed">
+          <div className='flex items-center gap-3'>
+            {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 fill-current" />}
+            {isSubmitting ? 'Creating...' : 'Create Entry'}
+          </div>
+        </button>
       </div>
 
     </div >

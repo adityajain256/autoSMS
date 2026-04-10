@@ -1,5 +1,5 @@
 
-import { BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastProvider } from './contexts/ToastContext';
 import { Layout } from './components/layout/Layout';
 
@@ -12,10 +12,11 @@ import { CreateEntry } from './pages/Entries/CreateEntry';
 import { Profile } from './pages/Profile/Profile';
 import Hero from './pages/Hero/Hero';
 import { DeleteClient } from './pages/Clients/DeleteClient';
+import { Sms } from './pages/Sms/Sms';
 
 
 function App() {
-   
+
   return (
     <ToastProvider>
       <BrowserRouter>
@@ -30,6 +31,7 @@ function App() {
             <Route path="/create" element={<CreateEntry />} />
             <Route path="profile" element={<Profile />} />
             <Route path="hero" element={<Hero />} />
+            <Route path="/SMS" element={<Sms />} />
             <Route path="/client/delete" element={<DeleteClient />} />
           </Route>
         </Routes>

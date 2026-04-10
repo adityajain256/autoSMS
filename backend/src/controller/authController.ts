@@ -51,7 +51,7 @@ export const registerAdmin = async (
     });
 
     const token = jwt.sign({ id: newAdmin.id }, jwtSecret, {
-      expiresIn: "24h",
+      expiresIn: "7d",
     });
     return res
       .status(201)
@@ -149,7 +149,7 @@ export const loginUser = async (
       (() => {
         throw new Error("JWT_SECRET environment variable is not set");
       })();
-    const token = jwt.sign({ id: admin.id }, jwtSecret, { expiresIn: "24h" });
+    const token = jwt.sign({ id: admin.id }, jwtSecret, { expiresIn: "7d" });
     return res.status(200).json({ message: "Login successful.", token });
   } catch (error) {
     return res
@@ -162,7 +162,8 @@ export const updateProfile = async (
   req: express.Request,
   res: express.Response,
 ) => {
-  const { password, adminName, address } = req.body;
+  const { password, adminName, address, englishWelcomeSMS, hindiWelcomeSMS } =
+    req.body;
   if (password) {
     const re: string = validators.validatePassword(password);
     if (re !== "OK") {
@@ -182,7 +183,13 @@ export const updateProfile = async (
 
     const admin = await Admin.findByIdAndUpdate(
       (req as any).user.id,
-      { password: hashedPassword, adminName, address },
+      {
+        password: hashedPassword,
+        adminName,
+        address,
+        englishWelcomeSMS,
+        hindiWelcomeSMS,
+      },
       { returnDocument: "after" },
     );
     if (!admin) {

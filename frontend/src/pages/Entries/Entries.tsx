@@ -3,24 +3,14 @@ import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
 import { InputField } from '../../components/common/InputField';
 import { Avatar } from '../../components/common/Avatar';
-import { Search, Filter, Download, FileText } from 'lucide-react';
+import { Search, Filter, Download, FileText, Loader2 } from 'lucide-react';
 import { api } from '../../utils/api';
 
 
 export function Entries() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [data, setData] = useState([{
-    _id: "",
-    userId: {
-      username: "",
-      phoneNumber: "",
-      vehicle: ""
-    },
-    quantity: "",
-    amount: "",
-    date: "",
-    isPaid: ""
-  }]);
+  const [data, setData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     const fetchEntries = async () => {
       try {
@@ -33,8 +23,11 @@ export function Entries() {
         setData(res.data);
       } catch (error) {
         console.log(error)
+      } finally {
+        setIsLoading(false);
       }
     }
+    setIsLoading(true);
     fetchEntries();
   }, []);
   return (
@@ -82,10 +75,25 @@ export function Entries() {
               </tr>
             </thead>
             <tbody className="divide-y ghost-border">
-              {data.map((row) => (
-                <tr key={row._id + 1} className="hover:bg-surface-container/30 transition-colors">
-                  <td className="p-4 flex justify-center items-center gap-3">
-                    <Avatar fallback={row.userId?.username.charAt(0)} size="sm" />
+              {isLoading ? (
+                <tr>
+                  <td colSpan={8} className="p-8 text-center">
+                    <div className="flex justify-center items-center">
+                      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    </div>
+                  </td>
+                </tr>
+              ) : data.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="p-8 text-center text-on-surface-variant">
+                    No entries found
+                  </td>
+                </tr>
+              ) : (
+                data.map((row) => (
+                  <tr key={row._id + 1} className="hover:bg-surface-container/30 transition-colors">
+                    <td className="p-4 flex justify-center items-center gap-3">
+                      <Avatar fallback={row.userId?.username?.charAt(0) || 'U'} size="sm" />
                     <span className="font-semibold text-on-surface text-sm">{row?.userId?.username}</span>
                   </td>
                   <td className="p-4 text-sm font-bold text-on-surface">{row?.userId?.phoneNumber}</td>
@@ -104,7 +112,8 @@ export function Entries() {
                     </button>
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>

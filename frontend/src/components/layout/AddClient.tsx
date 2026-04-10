@@ -1,9 +1,9 @@
-import { X, Mail, Phone, CheckCircle2, UserPlus, IndianRupee } from 'lucide-react';
+import { X, Mail, Phone, CheckCircle2, UserPlus, IndianRupee, Loader } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useState } from 'react';
 import { api } from '../../utils/api';
 import { useToast } from '../../contexts/ToastContext';
-import { Link} from 'react-router-dom';
+
 
 interface AddClientProps {
   isOpen: boolean;
@@ -14,8 +14,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
   const { addToast } = useToast();
   const [formData, setFormData] = useState({ userName: "", phoneNumber: "", vehicle: "", amount: "" as string | number, totalQuantity: "" as string | number, email: "", gstNumber: "", address: "" });
   const [isPaid, setIsPaid] = useState(false);
-
-
+  const [isLoading, setIsLoading] = useState(false);
   const createClient = async () => {
     try {
       const amountValue = Number(formData.amount) || 0;
@@ -26,7 +25,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
         paidAmount: isPaid ? amountValue : 0,
         nonPaidAmount: !isPaid ? amountValue : 0,
       };
-
+      setIsLoading(true);
       const response = await api.post("/clients", payload,
         {
           headers: {
@@ -37,8 +36,11 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
       );
       window.location.reload();
       addToast(response.data.message, "success")
+      console.log(response.data.message)
     } catch (error) {
-      addToast("Error creating client"+ error , "error");
+      addToast("Error creating client" + error, "error");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -268,12 +270,10 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
           >
             Cancel
           </button>
-          <Link to="/clients" onClick={handleCreation}>
-          <button  className="w-full h-12 rounded-xl bg-[#009262] hover:bg-[#007b53] text-white font-bold flex items-center justify-center gap-2 transition-all shadow-[0_4px_12px_rgba(0,146,98,0.25)]">
-            <UserPlus className="w-5 h-5" strokeWidth={2.5} />
-            Save Client
+          <button onClick={handleCreation} disabled={isLoading} className="w-full h-12 rounded-xl bg-[#009262] hover:bg-[#007b53] text-white font-bold flex items-center justify-center gap-2 transition-all shadow-[0_4px_12px_rgba(0,146,98,0.25)] disabled:opacity-75 disabled:cursor-not-allowed">
+            {isLoading ? <Loader className="w-5 h-5 animate-spin" /> : <UserPlus className="w-5 h-5" strokeWidth={2.5} />}
+            {isLoading ? 'Saving...' : 'Save Client'}
           </button>
-          </Link>
         </div>
       </div>
     </>

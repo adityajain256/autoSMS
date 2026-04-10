@@ -19,7 +19,6 @@ export function Signup() {
     });
     const { addToast } = useToast();
 
-
     const handleSignup = async () => {
         try {
             if (formData.phoneNumber === "") {

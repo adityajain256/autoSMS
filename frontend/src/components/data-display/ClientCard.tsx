@@ -1,4 +1,4 @@
-import { Delete, FuelIcon, IndianRupee, Mail, Phone } from "lucide-react";
+import { Delete, FuelIcon, IndianRupee, Loader2, Mail, Phone } from "lucide-react";
 import { api } from "../../utils/api";
 import { Avatar } from "../common/Avatar";
 import { Link } from "react-router-dom";
@@ -6,32 +6,23 @@ import { Card } from "../common/Card";
 import { useEffect, useState } from "react";
 
 
-export function ClientCard({searchTerm}: {searchTerm: string}) {
 
-    const [data, setData] = useState([{
-        _id: "",
-        authId: "",
-        username: "",
-        email: "",
-        phoneNumber: "",
-        gstNumber: "",
-        vehicle: "",
-        totalQuantity: 0.00,
-        paidAmount: 0.00,
-        nonPaidAmount: 0.00,
-        address: ""
-      }]);
+export function ClientCard({searchTerm}: {searchTerm: string}) {
+  const [isLoading, setIsLoading] = useState(true);
+
+    const [data, setData] = useState<any[]>([]);
 
 
       
-      const newData = data.filter((client) => {
+      const displayData = data.filter((client) => {
+        if (!searchTerm) return true;
         const term = searchTerm.toLowerCase();
         return (
-          client.username.toLowerCase().includes(term) ||
-          client.phoneNumber.toLowerCase().includes(term) ||
-          client.email.toLowerCase().includes(term) ||
-          client.gstNumber.toLowerCase().includes(term) ||
-          client.vehicle.toLowerCase().includes(term)
+          client.username?.toLowerCase().includes(term) ||
+          client.phoneNumber?.toLowerCase().includes(term) ||
+          client.email?.toLowerCase().includes(term) ||
+          client.gstNumber?.toLowerCase().includes(term) ||
+          client.vehicle?.toLowerCase().includes(term)
         );
       });
 
@@ -39,37 +30,49 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
       useEffect(() => {
         const fetchClients = async () => {
           try {
+            setIsLoading(true);
             const res = await api.get("/clients", {
               headers: {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
               }
             });
-            if(res.data.length > 0){
-
-              setData(res.data);
-            }else {
-              return (
-                <div>No Client Found</div>
-              )
-            }
+            setData(res.data);
           } catch (error) {
+            setIsLoading(false);
             console.log(error);
+          } finally{
+            setIsLoading(false);
           }
         };
 
         fetchClients();
       }, []);
-  return (
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
+  if (displayData.length === 0) {
+    return (
+      <div className="flex justify-center py-20 text-on-surface-variant font-medium">
+        No clients found.
+      </div>
+    );
+  }
+
+  return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {(data[0].authId != "") ?((searchTerm.length > 0)? newData:data).map((client) => (
+        {displayData.map((client) => (
           <Card key={client._id} className="flex flex-col group cursor-pointer hover:border-primary/30 transition-all">
 
 
 
               <div className="flex items-start justify-between mb-4">
                 <div className="flex flex-row items-center gap-4">
-                  <Avatar fallback={client.username?.charAt(0)} size="lg" className="group-hover:bg-primary group-hover:text-on-primary transition-colors duration-300" />
+                  <Avatar fallback={client.username?.charAt(0) || 'U'} size="lg" className="group-hover:bg-primary group-hover:text-on-primary transition-colors duration-300" />
                   <div>
                     <h3 className="text-lg font-bold text-on-surface leading-tight">{client.username}</h3>
                     <p className="text-sm font-medium text-on-surface-variant">{client.phoneNumber}</p>
@@ -121,7 +124,7 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
             </Link>
             
           </Card>
-        )) : <div>No clients found</div>}
+        ))}
       </div>
   );
 }

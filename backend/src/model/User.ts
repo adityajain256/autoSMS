@@ -10,7 +10,6 @@ const userSchema = new mongoose.Schema(
     },
     phoneNumber: {
       type: String,
-      required: true,
       unique: true,
       match: [/^(\+91[\-\s]?)?[6-9]\d{9}$/, "Please use a valid phone number."],
     },
@@ -54,7 +53,7 @@ const userSchema = new mongoose.Schema(
           "Amount must be a positive number with up to 3 decimal places.",
       },
     },
-    vehicle: { type: String, required: true },
+    vehicle: { type: String, required: true, unique: true },
     authId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Admin",
