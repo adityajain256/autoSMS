@@ -2,6 +2,7 @@ import Entry from "../model/Entry.ts";
 import User from "../model/User.ts";
 import express from "express";
 import mongoose from "mongoose";
+import { sendSMS } from "../service/smsService.ts";
 
 export const getAllEntries = async (
   req: express.Request,
@@ -51,12 +52,15 @@ export const createEntry = async (
   try {
     // Verify user exists inside transaction
 
-    const user = await User.findById(userObjectId, null, { session });
+    const user = await User.findById(userObjectId, null, { session }).select(
+      "phoneNumber paidAmount nonPaidAmount totalQuantity",
+    );
     if (!user) {
       await session.abortTransaction();
       session.endSession();
       return res.status(404).json({ message: "User not found" });
     }
+    const phone = String(user.phoneNumber);
 
     const entry: any = await Entry.create(
       [
@@ -84,6 +88,12 @@ export const createEntry = async (
       },
       { session },
     );
+    if (!isPaid) {
+      await sendSMS(
+        phone,
+        `Dear customer, you have an outstanding due of ${parsedAmount} for your purchase of ${type} ${quantity}ltr on ${date}. Please make the payment at your earliest convenience. Thank you!`,
+      );
+    }
     await session.commitTransaction();
     session.endSession();
     return res

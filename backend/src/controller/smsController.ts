@@ -98,26 +98,36 @@ export const sendDueSMS = async (
   req: express.Request,
   res: express.Response,
 ) => {
+  const { eng, hindi } = req.body;
   try {
-    const dueEntries = await Entry.find({ isPaid: false }).populate("userId");
-    for (const entry of dueEntries) {
+    const user = await User.find({ nonPaidAmount: { $gt: 0 } });
+    let respo: express.Response | null = null;
+    const petrolPumpName = (await Admin.findById((req as any).user.id))
+      ?.petrolPumpName;
+    for (const client of user) {
+      const phone = String(client.phoneNumber);
       try {
         await sendSMS(
-          (entry.userId as any).phoneNumber,
-          `Dear customer, you have an outstanding due of ${entry.amount} for your purchase on ${entry.date.toDateString()}. Please make the payment at your earliest convenience. Thank you!`,
+          phone,
+          eng
+            ? `Dear customer, you have an outstanding due of ${client.nonPaidAmount} for your purchase. Please make the payment at your earliest convenience. Thank you! -${petrolPumpName}`
+            : `प्रिय ग्राहक, आपकी खरीदारी के लिए ${new Date().toDateString()} को ₹${client.nonPaidAmount} का बकाया है। कृपया जल्द से जल्द भुगतान करें। धन्यवाद! -${petrolPumpName}`,
         );
-        res
+        respo = res
           .status(200)
           .json({ message: "Due SMS sent to all clients with dues" });
       } catch (error) {
-        res.status(500).json({
-          message: `Failed to send due SMS to ${(entry.userId as any).phoneNumber}`,
+        respo = res.status(500).json({
+          message: `Failed to send due SMS to ${phone}`,
           error,
         });
       }
     }
+    return (
+      respo || res.status(200).json({ message: "No clients with dues found" })
+    );
   } catch (error) {
-    res
+    return res
       .status(500)
       .json({ message: "Error sending due SMS to all clients", error });
   }

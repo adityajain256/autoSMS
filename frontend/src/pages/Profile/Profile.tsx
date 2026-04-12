@@ -59,6 +59,7 @@ export function Profile() {
         })
         console.log(res.data);
         setProfile(res.data.admin);
+
       } catch (error) {
         console.error("Error fetching profile:", error);
       }
