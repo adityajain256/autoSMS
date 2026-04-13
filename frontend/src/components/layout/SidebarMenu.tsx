@@ -1,6 +1,6 @@
 
 import {  NavLink } from 'react-router-dom';
-import { X, Briefcase, List, User, Plus } from 'lucide-react';
+import { X, Briefcase, List, User, Plus, Bell, Send } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 
@@ -15,6 +15,8 @@ export function SidebarMenu({ isOpen, onClose, onAddClient }: SidebarMenuProps) 
     { to: '/dashboard', label: 'Dashboard', icon: <Briefcase className="w-5 h-5" /> },
     { to: '/clients', label: 'Clients', icon: <User className="w-5 h-5" /> },
     { to: '/entries', label: 'History', icon: <List className="w-5 h-5" /> },
+        { to: '/SMS', label: 'Send SMS', icon: <Send className='w-4 h-4' /> },
+    { to: '/announcement', label: 'Announcement', icon: <Bell className='w-4 h-4' /> },
   ];
 
   return (

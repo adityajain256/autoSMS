@@ -18,7 +18,7 @@ export const sendSmsToAll = async (
     );
     for (const client of clients) {
       try {
-        await sendSMS(client.phoneNumber, message);
+        await sendSMS(client.phoneNumber, message, (req as any).user.id);
         client.welcomeSMSSent = true;
         await client.save();
       } catch (error) {
@@ -63,15 +63,16 @@ export const sendWelcomeSMS = async (
       authId: (req as any).user.id,
       welcomeSMSSent: false,
     }).select("phoneNumber");
-    console.log("Clients to send welcome SMS:", clients);
     let welcomeMessage = eng
-      ? admin.englishWelcomeSMS + "\n" + admin.petrolPumpName
+      ? admin.englishWelcomeSMS + "/n" + admin.petrolPumpName
       : admin.hindiWelcomeSMS + "\n" + admin.petrolPumpName;
     let failedClients: { phoneNumber: string; error: any }[] = [];
     for (const client of clients) {
       let phn = String(client.phoneNumber);
       try {
-        await sendSMS(phn, welcomeMessage);
+        await sendSMS(phn, welcomeMessage, (req as any).user.id);
+        client.welcomeSMSSent = true;
+        await client.save();
       } catch (error) {
         failedClients.push({ phoneNumber: phn, error });
       }
@@ -87,7 +88,6 @@ export const sendWelcomeSMS = async (
       });
     }
   } catch (error) {
-    console.error("Error sending welcome SMS to all clients:", error);
     res
       .status(500)
       .json({ message: "Error sending welcome SMS to all clients", error });
@@ -99,8 +99,14 @@ export const sendDueSMS = async (
   res: express.Response,
 ) => {
   const { eng, hindi } = req.body;
+  const session = await mongoose.default.startSession();
+  session.startTransaction();
   try {
-    const user = await User.find({ nonPaidAmount: { $gt: 0 } });
+    const user = await User.find({
+      nonPaidAmount: { $gt: 0 },
+      authId: (req as any).user.id,
+      dueSMSSent: false,
+    });
     let respo: express.Response | null = null;
     const petrolPumpName = (await Admin.findById((req as any).user.id))
       ?.petrolPumpName;
@@ -112,11 +118,17 @@ export const sendDueSMS = async (
           eng
             ? `Dear customer, you have an outstanding due of ${client.nonPaidAmount} for your purchase. Please make the payment at your earliest convenience. Thank you! -${petrolPumpName}`
             : `प्रिय ग्राहक, आपकी खरीदारी के लिए ${new Date().toDateString()} को ₹${client.nonPaidAmount} का बकाया है। कृपया जल्द से जल्द भुगतान करें। धन्यवाद! -${petrolPumpName}`,
+          (req as any).user.id,
         );
+        client.dueSMSSent = true;
+        await client.save();
+        session.commitTransaction();
         respo = res
           .status(200)
           .json({ message: "Due SMS sent to all clients with dues" });
       } catch (error) {
+        session.abortTransaction();
+        session.endSession();
         respo = res.status(500).json({
           message: `Failed to send due SMS to ${phone}`,
           error,

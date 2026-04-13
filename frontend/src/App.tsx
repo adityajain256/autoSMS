@@ -13,6 +13,7 @@ import { Profile } from './pages/Profile/Profile';
 import Hero from './pages/Hero/Hero';
 import { DeleteClient } from './pages/Clients/DeleteClient';
 import { Sms } from './pages/Sms/Sms';
+import Announcement from './pages/Announcement/Announcement';
 
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
             <Route path="hero" element={<Hero />} />
             <Route path="/SMS" element={<Sms />} />
             <Route path="/client/delete" element={<DeleteClient />} />
+            <Route path="announcement" element={<Announcement />} />
           </Route>
         </Routes>
       </BrowserRouter>

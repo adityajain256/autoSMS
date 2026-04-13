@@ -2,7 +2,7 @@ import Entry from "../model/Entry.ts";
 import User from "../model/User.ts";
 import express from "express";
 import mongoose from "mongoose";
-import { sendSMS } from "../service/smsService.ts";
+import { sendSMS } from "../config/teilio.ts";
 
 export const getAllEntries = async (
   req: express.Request,
@@ -92,6 +92,7 @@ export const createEntry = async (
       await sendSMS(
         phone,
         `Dear customer, you have an outstanding due of ${parsedAmount} for your purchase of ${type} ${quantity}ltr on ${date}. Please make the payment at your earliest convenience. Thank you!`,
+        (req as any).user.id,
       );
     }
     await session.commitTransaction();
@@ -122,7 +123,6 @@ export const getEntryByClientId = async (
     const entries = (await Entry.find({ userId: clientId })).toReversed();
     return res.status(200).json(entries);
   } catch (error) {
-    console.error("Error fetching entries:", error);
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -162,15 +162,15 @@ export const updateDue = async (
       if (user.paidAmount > entry.amount) {
         userUpdate = {
           $inc: {
-            paidAmount: -entry.amount,
-            nonPaidAmount: entry.amount,
+            paidAmount: -entry.amount.toFixed(2),
+            nonPaidAmount: entry.amount.toFixed(2),
           },
         };
       } else {
         userUpdate = {
           $inc: {
-            paidAmount: -user.paidAmount,
-            nonPaidAmount: user.paidAmount,
+            paidAmount: -user.paidAmount.toFixed(2),
+            nonPaidAmount: user.paidAmount.toFixed(2),
           },
         };
       }
@@ -178,15 +178,15 @@ export const updateDue = async (
       if (user.nonPaidAmount > entry.amount) {
         userUpdate = {
           $inc: {
-            paidAmount: entry.amount,
-            nonPaidAmount: -entry.amount,
+            paidAmount: entry.amount.toFixed(2),
+            nonPaidAmount: -entry.amount.toFixed(2),
           },
         };
       } else {
         userUpdate = {
           $inc: {
-            paidAmount: entry.amount,
-            nonPaidAmount: -user.nonPaidAmount,
+            paidAmount: entry.amount.toFixed(2),
+            nonPaidAmount: -user.nonPaidAmount.toFixed(2),
           },
         };
       }
@@ -206,7 +206,6 @@ export const updateDue = async (
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
-    console.log(error);
     return res.status(500).json({ message: "Server error" });
   }
 };

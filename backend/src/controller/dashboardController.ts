@@ -1,8 +1,8 @@
 import express from "express";
 import User from "../model/User.ts";
-import Entry from "../model/Entry.ts";
-import { error } from "console";
 import Admin from "../model/Auth.ts";
+// import { fetchAllSMS } from "../config/teilio.ts";
+import SMS from "../model/Sms.ts";
 
 export const getStatistics = async (
   req: express.Request,
@@ -25,9 +25,13 @@ export const getStatistics = async (
       0,
     );
 
-    const totalSMS = await Admin.findById((req as any).user.id).select(
-      "smsCount",
-    );
+    // const totalSMS = await Admin.findById((req as any).user.id).select(
+    //   "smsCount",
+    // );
+
+    const smsCount = await SMS.countDocuments({
+      adminId: (req as any).user.id,
+    });
 
     const totalClientInOneDay: any = user.reduce((acc: any, ele: any) => {
       const createdAt = new Date(ele.createdAt);
@@ -41,14 +45,20 @@ export const getStatistics = async (
       }
       return acc;
     }, 0);
+    const listOfSMS = await SMS.find({ adminId: (req as any).user.id })
+      .sort({
+        createdAt: -1,
+      })
+      .limit(10);
+
     return res.status(200).json({
       totalUser: totalUser || 0,
       totalAmount: totalDueAmount || 0,
-      totalSMS: totalSMS?.smsCount || 0,
+      totalSMS: smsCount || 0,
       totalClientInOneDay: totalClientInOneDay || 0,
+      listOfSMS,
     });
   } catch (error) {
-    console.log("Error fetching statistics:", error);
     return res.status(500).json({ message: "server error" });
   }
 };

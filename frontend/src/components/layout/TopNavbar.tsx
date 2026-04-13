@@ -1,6 +1,6 @@
 
 import { Link, NavLink } from 'react-router-dom';
-import { Menu, Briefcase, List, User, Plus, Send } from 'lucide-react';
+import { Menu, Briefcase, List, User, Plus, Send, Bell } from 'lucide-react';
 import { Avatar } from '../common/Avatar';
 import { cn } from '../../utils/cn';
 import { Button } from '../common/Button';
@@ -16,6 +16,7 @@ export function TopNavbar({ onMenuClick, onAddClient }: TopNavbarProps) {
     { to: '/clients', label: 'Clients', icon: <User className="w-4 h-4" /> },
     { to: '/entries', label: 'History', icon: <List className="w-4 h-4" /> },
     { to: '/SMS', label: 'Send SMS', icon: <Send className='w-4 h-4' /> },
+    { to: '/announcement', label: 'Announcement', icon: <Bell className='w-4 h-4' /> },
   ];
 
 

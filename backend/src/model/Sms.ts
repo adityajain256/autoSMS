@@ -12,7 +12,6 @@ const smsSchema = new mongoose.Schema(
     body: { type: String, required: true },
     status: {
       type: String,
-      enum: ["pending", "sent", "failed"],
       default: "pending",
     },
     errorMessage: { type: String, default: "" },

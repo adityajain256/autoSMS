@@ -2,11 +2,12 @@
 import { Card } from '../../components/common/Card';
 // import { Badge } from '../../components/common/Badge';
 // import { Avatar } from '../../components/common/Avatar';
-import { ArrowUpRight, Loader2 } from 'lucide-react';
+import { ArrowUpRight, Badge, Loader2, MoreVertical } from 'lucide-react';
 
 import { useEffect, useState } from 'react';
 import { api } from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
+import { Avatar } from '../../components/common/Avatar';
 
 
 // const mockData = [
@@ -24,35 +25,41 @@ export function Dashboard() {
     totalSMS: 0,
     totalUser: 0,
     totalAmount: 0,
-    totalClientInOneDay: 0
+    totalClientInOneDay: 0,
+    listOfSMS: [{
+      _id: "",
+      to: "",
+      createdAt: "",
+      body: "",
+    }],
   });
 
-  const fetchDashboardData = async () => {
-    try {
-      setIsLoading(true);
-      const res = await api.get("/dashboard/stats", {
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-      });
-      console.log(res.data)
-      setData(res.data);
-
-    } catch (error) {
-      console.log(error)
-      if (error.response.status == 401) {
-        navigate("/login");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");
       return;
     }
+    const fetchDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        const res = await api.get("/dashboard/stats", {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+          }
+        });
+        console.log(res.data)
+        setData(res.data);
+  
+      } catch (error) {
+        console.log(error)
+        if (error.response.status == 401) {
+          navigate("/login");
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
     fetchDashboardData();
   }, []);
   return (
@@ -107,44 +114,21 @@ export function Dashboard() {
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="bg-surface-container/30 text-xs uppercase tracking-wider text-on-surface-variant font-bold border-b ghost-border">
-                <th className="p-4">Client</th>
                 <th className="p-4">Phone</th>
-                <th className="p-4">Type</th>
                 <th className="p-4">Date & Time</th>
-                <th className="p-4">Status</th>
-                <th className="p-4 text-right">Actions</th>
+                <th className="p-4 text-right">Message</th>
               </tr>
             </thead>
-            {/* <tbody className="divide-y ghost-border">
-              {data.map((row) => (
-                <tr key={row.id} className="hover:bg-surface-container/30 transition-colors">
-                  <td className="p-4 flex items-center gap-3">
-                    <Avatar fallback={row.name.charAt(0)} size="sm" />
-                    <div>
-                      <div className="font-semibold text-on-surface text-sm">{row.client}</div>
-                      <div className="text-xs text-on-surface-variant">{row.name}</div>
-                    </div>
-                  </td>
-                  <td className="p-4 text-sm font-medium text-on-surface">{row.phone}</td>
-                  <td className="p-4">
-                    <span className="text-sm font-medium text-on-surface bg-surface-container px-2.5 py-1 rounded-md">
-                      {row.type}
-                    </span>
-                  </td>
-                  <td className="p-4 text-sm text-on-surface-variant">{row.date}</td>
-                  <td className="p-4">
-                    <Badge status={row.status as any}>
-                      {row.status}
-                    </Badge>
-                  </td>
-                  <td className="p-4 text-right">
-                    <button className="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors">
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
-                  </td>
+            <tbody className="divide-y ghost-border">
+              {data.listOfSMS.map((row) => (
+                <tr key={row._id} className="hover:bg-surface-container/30 transition-colors">
+          
+                  <td className="p-4 text-sm font-medium text-on-surface">{row.to}</td>
+                  <td className="p-4 text-sm text-on-surface-variant">{row.createdAt.toString().slice(0, 10) + " " + row.createdAt.toString().slice(11, 16)}</td>
+                  <td className="p-4 text-sm text-right text-on-surface">{row.body.slice(0, 30)}...</td>
                 </tr>
               ))}
-            </tbody> */}
+            </tbody>
           </table>
         </div>
       </Card>

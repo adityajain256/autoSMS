@@ -17,7 +17,10 @@ export function Profile() {
   });
   const [isLoading, setIsLoading] = React.useState(false);
   const navigate = useNavigate();
-
+  const logOut = () => {
+    localStorage.removeItem("token");
+    navigate("/hero")
+  }
   const updateProfile = async () => {
     const payload = {
       adminName: profile.adminName,
@@ -174,8 +177,8 @@ export function Profile() {
                 <h4 className="text-tertiary font-bold">Close Account</h4>
                 <p className="text-xs text-on-surface-variant">All archived SMS data and filings will be permanently deleted.</p>
               </div>
-              <button className="px-6 py-2 border border-tertiary/20 text-tertiary rounded-full text-sm font-semibold hover:bg-tertiary/5 transition-colors">
-                Deactivate Account
+              <button onClick={() => logOut()} className="px-6 py-2 border border-tertiary/20 text-tertiary rounded-full text-sm font-semibold hover:bg-tertiary/5 transition-colors">
+                Log Out
               </button>
             </footer>
           </div>

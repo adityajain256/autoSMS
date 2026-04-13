@@ -4,6 +4,7 @@ import validators from "../utils/validators.ts";
 import mongoose from "mongoose";
 import Admin from "../model/Auth.ts";
 import Entry from "../model/Entry.ts";
+import { sendSMS } from "../config/teilio.ts";
 
 export const getAllClients = async (
   req: express.Request,
@@ -16,7 +17,6 @@ export const getAllClients = async (
 
     return res.status(200).json(clients);
   } catch (error) {
-    console.log("Error fetching clients:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -40,7 +40,6 @@ export const getClientById = async (
     if (error.name === "CastError") {
       return res.status(400).json({ message: "Invalid id format" });
     }
-    console.error("Error fetching client by id:", error);
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -101,13 +100,11 @@ export const createClient = async (
     if (error.code === 11000 && error.keyValue) {
       // Find which field duplicated
       const fields = Object.keys(error.keyValue).join(", ");
-      console.error("Duplicate field error:", error);
       return res.status(409).json({
         message: "Conflict: duplicate field",
         details: `Duplicate value for: ${fields}`,
       });
     }
-    console.error("Error creating client:", error);
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -213,9 +210,13 @@ export const updateClient = async (
       isPaid: true,
     });
     client.paidAmount += amount;
-    client.nonPaidAmount -= amount;
+    client.nonPaidAmount = (client.nonPaidAmount - amount).toFixed(2) as any;
     await client.save();
-
+    await sendSMS(
+      String(client.phoneNumber),
+      `Dear customer, we have received your payment of ₹${amount}. Your remaining due amount is ₹${client.nonPaidAmount}. Thank you!`,
+      (req as any).user.id,
+    );
     session.commitTransaction();
     session.endSession();
 

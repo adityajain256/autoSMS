@@ -13,7 +13,6 @@ const adminSchema = new mongoose.Schema(
     },
     clients: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     petrolPumpName: { type: String },
-    smsCount: { type: Number, default: 0 },
     englishWelcomeSMS: { type: String, default: "Welcome to our service!" },
     hindiWelcomeSMS: {
       type: String,

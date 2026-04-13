@@ -3,7 +3,6 @@ import validators from "../utils/validators.ts";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import express from "express";
-import { log } from "node:console";
 
 export const registerAdmin = async (
   req: express.Request,
@@ -57,7 +56,6 @@ export const registerAdmin = async (
       .status(201)
       .json({ message: "Admin registered successfully.", token });
   } catch (error) {
-    console.error("Error registering admin:", error);
     return res
       .status(500)
       .json({ message: "An error occurred while registering the admin." });
@@ -121,7 +119,6 @@ export const register_staff = async (
       .status(201)
       .json({ message: `${staffName} registered successfully.`, token });
   } catch (error) {
-    console.error("Error registering staff:", error);
     return res
       .status(500)
       .json({ message: "An error occurred while registering the staff." });
@@ -197,7 +194,6 @@ export const updateProfile = async (
     }
     return res.status(200).json({ message: "Profile updated successfully." });
   } catch (error) {
-    console.log("Error updating profile:", error);
     return res
       .status(500)
       .json({ message: "An error occurred while updating the profile." });
@@ -226,7 +222,6 @@ export const getProfile = async (
       admin,
     });
   } catch (error) {
-    console.error("Error fetching profile:", error);
     return res
       .status(500)
       .json({ message: "An error occurred while fetching the profile." });
@@ -247,7 +242,6 @@ export const getStaff = async (req: express.Request, res: express.Response) => {
     );
     return res.status(200).json(staffMembers);
   } catch (error) {
-    console.error("Error fetching staff members:", error);
     return res
       .status(500)
       .json({ message: "An error occurred while fetching staff members." });
