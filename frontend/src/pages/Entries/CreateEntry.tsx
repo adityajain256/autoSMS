@@ -39,12 +39,12 @@ export function CreateEntry() {
   const handleUpdateAmount = async () => {
     try {
       setIsUpdatingAmount(true);
-      const res = await api.patch(`/clients/${clientId}`, {amount: inAmount.toFixed(2)}, {
+      await api.patch(`/clients/${clientId}`, {amount: inAmount.toFixed(2)}, {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`
         }
       }) 
-      console.log(res.data);
+      
       window.location.reload();
     } catch (error) {
       addToast("Error updating amount", "error");
@@ -67,7 +67,7 @@ export function CreateEntry() {
           "Authorization": `Bearer ${localStorage.getItem("token")}`
         }
       })
-      console.log(res.data)
+
       setData(res.data);
       addToast("Entry created successfully", "success");
       navigate("/clients");
@@ -85,7 +85,7 @@ export function CreateEntry() {
           "Authorization": `Bearer ${localStorage.getItem("token")}`
         }
       });
-      console.log(res.data);
+
       window.location.reload();
       setData(res.data);
     } catch (error) {
@@ -108,7 +108,7 @@ export function CreateEntry() {
             "Authorization": `Bearer ${localStorage.getItem("token")}`
           }
         })
-        console.log(res.data)
+
         setData(res.data);
       } catch (error) {
         console.log(error);
@@ -122,7 +122,7 @@ export function CreateEntry() {
             "Authorization": `Bearer ${localStorage.getItem("token")}`
           }
         })
-        console.log(res.data)
+
         setClient(res.data);
       } catch (error) {
         console.log(error);
@@ -298,7 +298,7 @@ export function CreateEntry() {
               >
                 <option value="diesel">Diesel</option>
                 <option value="petrol">Petrol</option>
-                <option value="cng">CNG</option>
+                <option value="CNG">CNG</option>
               </select>
             </div>
           </div>

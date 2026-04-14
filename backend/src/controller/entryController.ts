@@ -28,8 +28,8 @@ export const createEntry = async (
   }
 
   const clientId = rawClientId;
-  const parsedQuantity = Number(quantity);
-  const parsedAmount = Number(amount);
+  const parsedQuantity = Number(quantity).toFixed(2);
+  const parsedAmount = Number(amount).toFixed(2);
 
   // Accept 0 as valid, only null/undefined is invalid
   if (
@@ -66,8 +66,8 @@ export const createEntry = async (
       [
         {
           userId: userObjectId,
-          quantity: parsedQuantity,
-          amount: parsedAmount,
+          quantity: Number(parsedQuantity),
+          amount: Number(parsedAmount),
           message,
           isPaid,
           type,
@@ -103,6 +103,7 @@ export const createEntry = async (
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
+    console.log("Error creating entry:", error);
     return res.status(500).json({ message: "Server error" });
   }
 };

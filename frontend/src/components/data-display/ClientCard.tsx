@@ -39,7 +39,6 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
             setData(res.data);
           } catch (error) {
             setIsLoading(false);
-            console.log(error);
           } finally{
             setIsLoading(false);
           }

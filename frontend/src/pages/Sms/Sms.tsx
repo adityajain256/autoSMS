@@ -1,7 +1,8 @@
 
-import { Loader2, Lock, LockOpenIcon, MessageSquare } from 'lucide-react';
+import { Loader2, Lock, MessageSquare } from 'lucide-react';
 import React from 'react';
 import { api } from '../../utils/api';
+import { useToast } from '../../contexts/ToastContext';
 
 export function Sms() {
     const [isLoading, setIsLoading] = React.useState(false)
@@ -11,6 +12,7 @@ export function Sms() {
         petrolPumpName: "",
 
     })
+    const { addToast } = useToast();
     const [selectedLanguage, setSelectLanguage] = React.useState<"english" | "hindi">("english")
     const [selected, setselected] = React.useState<"welcome" | "due" | "custom">("welcome")
 
@@ -25,9 +27,9 @@ export function Sms() {
                     }
                 }
             )
-            console.log(res.data.message)
+            addToast(res.data.message, "success")
         } catch (error) {
-            console.log(error)
+            addToast("Failed to send SMS.", "error")
         } finally {
             setIsLoading(false)
         }
@@ -43,10 +45,10 @@ export function Sms() {
                     }
                 }
             )
-            console.log(res.data.message)
+            addToast(res.data.message, "success")
 
         } catch (error) {
-            console.log(error)
+            addToast("Failed to send due SMS.", "error")
         } finally {
             setIsLoading(false)
         }
@@ -63,7 +65,7 @@ export function Sms() {
                     }
                 }
             )
-            console.log(res.data.message)
+            addToast(res.data.message, "success")
 
         } catch (error) {
             console.log(error)

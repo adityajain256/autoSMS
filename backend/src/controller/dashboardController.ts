@@ -45,7 +45,7 @@ export const getStatistics = async (
       }
       return acc;
     }, 0);
-    const listOfSMS = await SMS.find({ adminId: (req as any).user.id })
+    let listOfSMS: any[] = await SMS.find({ adminId: (req as any).user.id })
       .sort({
         createdAt: -1,
       })
@@ -57,7 +57,23 @@ export const getStatistics = async (
       totalSMS: smsCount || 0,
       totalClientInOneDay: totalClientInOneDay || 0,
       listOfSMS,
+      user,
     });
+  } catch (error) {
+    return res.status(500).json({ message: "server error" });
+  }
+};
+
+export const getTopClients = async (
+  req: express.Request,
+  res: express.Response,
+) => {
+  const { period } = req.query;
+  try {
+    const topClients = await User.find({ authId: (req as any).user.id }).sort({
+      paidAmount: -1,
+    });
+    return res.status(200).json({ topClients });
   } catch (error) {
     return res.status(500).json({ message: "server error" });
   }

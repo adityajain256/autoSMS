@@ -6,14 +6,14 @@ import express from "express";
 import {
   sendWelcomeSMS,
   sendDueSMS,
-  sendSmsToAll,
+  sendSms,
 } from "../controller/smsController.ts";
 import authMiddleware from "../middleware/auth.middleware.ts";
 const smsRouter = express.Router();
 
 smsRouter.use(authMiddleware);
 
-smsRouter.post("/sendSMS", sendSmsToAll);
+smsRouter.post("/sendSMS", sendSms);
 
 /**
  * @swagger

@@ -39,7 +39,7 @@ export function Profile() {
       })
       // window.location.reload()
 
-      console.log("Profile updated successfully");
+
     } catch (error) {
       if (error.response.status == 401) {
         navigate("/login");

@@ -19,7 +19,7 @@ export function Entries() {
             "Authorization": `Bearer ${localStorage.getItem("token")}`
           }
         });
-        console.log(res.data);
+
         setData(res.data);
       } catch (error) {
         console.log(error)

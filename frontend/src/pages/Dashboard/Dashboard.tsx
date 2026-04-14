@@ -2,12 +2,12 @@
 import { Card } from '../../components/common/Card';
 // import { Badge } from '../../components/common/Badge';
 // import { Avatar } from '../../components/common/Avatar';
-import { ArrowUpRight, Badge, Loader2, MoreVertical } from 'lucide-react';
+import { ArrowUpRight,  Loader2} from 'lucide-react';
 
 import { useEffect, useState } from 'react';
 import { api } from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
-import { Avatar } from '../../components/common/Avatar';
+
 
 
 // const mockData = [
@@ -33,7 +33,6 @@ export function Dashboard() {
       body: "",
     }],
   });
-
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -48,7 +47,7 @@ export function Dashboard() {
             "Authorization": `Bearer ${localStorage.getItem("token")}`
           }
         });
-        console.log(res.data)
+
         setData(res.data);
   
       } catch (error) {
@@ -62,6 +61,9 @@ export function Dashboard() {
     };
     fetchDashboardData();
   }, []);
+  if(isLoading){
+    <Loader2 className="w-8 h-8 animate-spin" />
+  }
   return (
     <div className="flex flex-col gap-8 animate-in fade-in duration-500">
 

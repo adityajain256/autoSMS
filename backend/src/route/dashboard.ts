@@ -2,7 +2,10 @@
 // GET    /api/reports/client/:id   // Client-wise report
 
 import express from "express";
-import { getStatistics } from "../controller/dashboardController.ts";
+import {
+  getStatistics,
+  getTopClients,
+} from "../controller/dashboardController.ts";
 import authMiddleware from "../middleware/auth.middleware.ts";
 
 const dashboardRouter = express.Router();
@@ -33,8 +36,9 @@ dashboardRouter.use(authMiddleware);
  *                   example: 80
  *                 unpaidEntries:
  *                   type: integer
- *                   example: 20   
+ *                   example: 20
  */
 dashboardRouter.get("/stats", getStatistics);
 
+dashboardRouter.get("/top/clients", getTopClients);
 export default dashboardRouter;

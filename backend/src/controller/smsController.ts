@@ -5,32 +5,20 @@ import User from "../model/User.ts";
 import mongoose from "mongoose";
 import Admin from "../model/Auth.ts";
 
-export const sendSmsToAll = async (
-  req: express.Request,
-  res: express.Response,
-) => {
-  const { message } = req.body;
+export const sendSms = async (req: express.Request, res: express.Response) => {
+  const { phoneNumber, message } = req.body;
   const session = await mongoose.default.startSession();
   session.startTransaction();
   try {
-    const clients = await User.find({ welcomeSMSSent: false }).select(
-      "phoneNumber",
-    );
-    for (const client of clients) {
-      try {
-        await sendSMS(client.phoneNumber, message, (req as any).user.id);
-        client.welcomeSMSSent = true;
-        await client.save();
-      } catch (error) {
-        return res.status(500).json({
-          message: `Failed to send SMS to ${client.phoneNumber}`,
-          error,
-        });
-      }
+    const clients = await User.findOne({ phoneNumber: phoneNumber });
+    if (!clients) {
+      return res.status(404).json({ message: "Client not found" });
     }
+    const sms = await sendSMS(phoneNumber, message, (req as any).user.id);
+
     session.commitTransaction();
     session.endSession();
-    return res.status(200).json({ message: "SMS sent to all clients" });
+    return res.status(200).json({ message: "SMS sent to all clients", sms });
   } catch (error) {
     session.abortTransaction();
     session.endSession();

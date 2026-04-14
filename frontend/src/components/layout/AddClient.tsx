@@ -36,7 +36,6 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
       );
       window.location.reload();
       addToast(response.data.message, "success")
-      console.log(response.data.message)
     } catch (error) {
       addToast("Error creating client" + error, "error");
     } finally {
