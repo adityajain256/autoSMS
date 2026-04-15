@@ -31,7 +31,6 @@ const entrySchema = new mongoose.Schema(
     type: {
       type: String,
       enum: ["petrol", "diesel", "CNG", "Payment"],
-      required: true,
       default: "diesel",
     },
     date: { type: Date, max: Date.now, default: Date.now },

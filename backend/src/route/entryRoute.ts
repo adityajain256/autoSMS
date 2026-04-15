@@ -8,7 +8,13 @@
 
 import express from "express";
 import authMiddleware from "../middleware/auth.middleware.ts";
-import { getAllEntries, createEntry, getEntryByClientId, updateDue } from "../controller/entryController.ts";
+import {
+  getAllEntries,
+  createEntry,
+  getEntryByClientId,
+  updateDue,
+  exportClientEntriesToExcel,
+} from "../controller/entryController.ts";
 
 const entryRouter = express.Router();
 
@@ -95,7 +101,7 @@ entryRouter.get("/", getAllEntries);
  *       400:
  *         description: Bad request
  *       500:
- *         description: Server error    
+ *         description: Server error
  */
 entryRouter.get("/client/:clientId", getEntryByClientId);
 /**
@@ -161,7 +167,7 @@ entryRouter.get("/client/:clientId", getEntryByClientId);
  *         description: Bad request
  *       500:
  *         description: Server error
-*/
+ */
 
 entryRouter.post("/:clientId", createEntry);
 
@@ -189,5 +195,35 @@ entryRouter.post("/:clientId", createEntry);
  *         description: Server error
  */
 entryRouter.patch("/:id", updateDue);
+
+/**
+ * @swagger
+ * /api/entries/export/excel/{clientId}:
+ *   get:
+ *     summary: Export entries of a client to Excel
+ *     tags: [Entries]
+ *     parameters:
+ *       - in: path
+ *         name: clientId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The client ID
+ *     responses:
+ *       200:
+ *         description: Excel file generated successfully
+ *         content:
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Client not found
+ *       500:
+ *         description: Server error
+ */
+entryRouter.get("/export/excel/:clientId", exportClientEntriesToExcel);
 
 export default entryRouter;

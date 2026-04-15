@@ -50,7 +50,7 @@ export function Dashboard() {
 
         setData(res.data);
   
-      } catch (error) {
+      } catch (error: any) {
         console.log(error)
         if (error.response.status == 401) {
           navigate("/login");

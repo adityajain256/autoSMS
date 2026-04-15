@@ -3,6 +3,7 @@ import User from "../model/User.ts";
 import express from "express";
 import mongoose from "mongoose";
 import { sendSMS } from "../config/teilio.ts";
+import excel from "exceljs";
 
 export const getAllEntries = async (
   req: express.Request,
@@ -207,6 +208,65 @@ export const updateDue = async (
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const exportClientEntriesToExcel = async (
+  req: express.Request,
+  res: express.Response,
+) => {
+  const { clientId } = req.params;
+  if (!clientId) {
+    return res.status(400).json({ message: "Client ID is required" });
+  }
+  try {
+    const entries = await Entry.find({ userId: clientId }).populate("userId");
+    const user = entries[0]?.userId as any;
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const workbook = new excel.Workbook();
+    const worksheet = workbook.addWorksheet("Entries");
+
+    worksheet.name = `${user.name}'s Entries`;
+    worksheet.columns = [
+      {
+        header: "Date",
+        key: "date",
+        width: 20,
+        style: { numFmt: "mm/dd/yyyy" },
+      },
+      { header: "Type", key: "type", width: 20 },
+      { header: "Quantity", key: "quantity", width: 15 },
+      { header: "Amount", key: "amount", width: 15 },
+      { header: "Message", key: "message", width: 30 },
+      { header: "Is Paid", key: "isPaid", width: 10 },
+    ];
+    worksheet.addRows(
+      entries.map((entry) => {
+        return {
+          date: entry.date.toLocaleDateString(),
+          type: entry.type,
+          quantity: entry.quantity,
+          amount: entry.amount,
+          message: entry.message,
+          isPaid: entry.isPaid ? "Yes" : "No",
+        };
+      }),
+    );
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=entries_${user.name}_${Date.now()}.xlsx`,
+    );
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }
 };

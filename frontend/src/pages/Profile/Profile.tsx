@@ -40,7 +40,7 @@ export function Profile() {
       // window.location.reload()
 
 
-    } catch (error) {
+    } catch (error: any) {
       if (error.response.status == 401) {
         navigate("/login");
       }

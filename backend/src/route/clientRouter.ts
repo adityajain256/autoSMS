@@ -14,6 +14,7 @@ import {
   updateClient,
   deleteClient,
   createClientBulk,
+  exportExcel,
 } from "../controller/clientController.ts";
 
 const clientRouter = express.Router();
@@ -225,5 +226,22 @@ clientRouter.patch("/:id", updateClient);
  */
 clientRouter.delete("/:id", deleteClient);
 
-
+/** 
+ * @swagger
+ * /api/clients/export/excel:
+ *   get:
+ *     summary: Export clients data to Excel
+ *     tags: [Clients]
+ *     responses:
+ *       200:
+ *         description: Excel file generated successfully
+ *         content:
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       500:
+ *         description: Server error  
+ */
+clientRouter.get("/export/excel", exportExcel);
 export default clientRouter;

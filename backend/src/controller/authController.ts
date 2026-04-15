@@ -3,6 +3,7 @@ import validators from "../utils/validators.ts";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import express from "express";
+import excel from "exceljs";
 
 export const registerAdmin = async (
   req: express.Request,
@@ -245,23 +246,5 @@ export const getStaff = async (req: express.Request, res: express.Response) => {
     return res
       .status(500)
       .json({ message: "An error occurred while fetching staff members." });
-  }
-};
-
-export const updateWelcomeSMS = async (
-  req: express.Request,
-  res: express.Response,
-) => {
-  const { englishWelcomeSMS, hindiWelcomeSMS } = req.body;
-  try {
-    const admin = await Admin.findByIdAndUpdate(
-      (req as any).user.id,
-      { englishWelcomeSMS, hindiWelcomeSMS },
-      { returnDocument: "after" },
-    );
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "An error occurred while updating welcome SMS." });
   }
 };

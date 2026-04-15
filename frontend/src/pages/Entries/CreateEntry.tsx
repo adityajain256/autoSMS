@@ -4,6 +4,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Avatar } from '../../components/common/Avatar';
 import { api } from '../../utils/api';
 import { useToast } from '../../contexts/ToastContext';
+import { Button } from '../../components/common/Button';
+
 
 export function CreateEntry() {
   const [remark, setRemark] = useState('');
@@ -93,6 +95,35 @@ export function CreateEntry() {
       addToast("Error updating entry", "error");
     }
   };
+  const downloadEntriesToExcel = async () => {
+    setIsFetching(true);
+    try {
+      const res = await api.get(`entries/export/excel/${clientId}`,{
+        responseType: 'blob',
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        }
+      })
+
+      const blob = new Blob([res.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `entries_${client.username}_${Date.now()}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      addToast("Entries exported successfully!", "success");
+    } catch (error) {
+      setIsFetching(false);
+      addToast("Failed to export entries. Please try again.", "error");
+    } finally{
+      setIsFetching(false);
+    }
+  }
 
 
   useEffect(() => {
@@ -148,11 +179,19 @@ export function CreateEntry() {
     <div className="flex flex-col max-w-[800px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
 
       {/* Heading */}
-      <div className="flex items-center gap-4 mb-8">
+      <div className="flex justify-between items-center gap-4 mb-8">
+        <div>
+
         <Link to="/clients" className="w-10 h-10 rounded-full bg-[#eafaf1] text-[#006c49] flex items-center justify-center hover:bg-[#d1ebd9] transition-colors shadow-sm">
           <ArrowLeft className="w-5 h-5" strokeWidth={2.5} />
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Create Entry</h1>
+        <h1 className="text-3xl my-2 font-bold text-gray-900 tracking-tight">Create Entry</h1>
+        </div>
+        <div>
+          <Button onClick={downloadEntriesToExcel} className='rounded-xl'>
+            Download Entries of {client.username} To Excel
+          </Button>
+        </div>
       </div>
 
       {/* Stepper */}

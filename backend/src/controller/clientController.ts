@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import Admin from "../model/Auth.ts";
 import Entry from "../model/Entry.ts";
 import { sendSMS } from "../config/teilio.ts";
+import excel from "exceljs";
 
 export const getAllClients = async (
   req: express.Request,
@@ -210,7 +211,11 @@ export const updateClient = async (
       isPaid: true,
     });
     client.paidAmount += amount;
-    client.nonPaidAmount = (client.nonPaidAmount - amount).toFixed(2) as any;
+    if (client.nonPaidAmount - amount < 0) {
+      client.nonPaidAmount = 0 as any;
+    } else {
+      client.nonPaidAmount = (client.nonPaidAmount - amount).toFixed(2) as any;
+    }
     await client.save();
     await sendSMS(
       String(client.phoneNumber),
@@ -252,5 +257,61 @@ export const deleteClient = async (
     session.abortTransaction();
     session.endSession();
     res.status(500).json({ message: "Server error", error });
+  }
+};
+
+export const exportExcel = async (
+  req: express.Request,
+  res: express.Response,
+) => {
+  try {
+    const data = await User.find({ authId: (req as any).user.id }).populate(
+      "entries",
+    );
+
+    const workbook = new excel.Workbook();
+    const worksheet = workbook.addWorksheet("Clients");
+
+    worksheet.columns = [
+      { header: "Username", key: "username", width: 30 },
+      { header: "Phone Number", key: "phoneNumber", width: 20 },
+      { header: "Vehicle Number", key: "vehicle", width: 20 },
+      { header: "Created At", key: "createdAt", width: 20 },
+      { header: "Email", key: "email", width: 30 },
+      { header: "Paid Amount", key: "paidAmount", width: 15 },
+      { header: "Non-Paid Amount", key: "nonPaidAmount", width: 15 },
+      { header: "Total Quantity", key: "totalQuantity", width: 15 },
+      { header: "GST Number", key: "gstNumber", width: 20 },
+      { header: "Address", key: "address", width: 30 },
+    ];
+
+    worksheet.addRows(
+      data.map((client) => ({
+        username: client.username,
+        phoneNumber: client.phoneNumber,
+        vehicle: client.vehicle,
+        createdAt: client.createdAt,
+        email: client.email,
+        paidAmount: client.paidAmount,
+        nonPaidAmount: client.nonPaidAmount,
+        totalQuantity: client.totalQuantity,
+        gstNumber: client.gstNumber,
+        address: client.address,
+      })),
+    );
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=clients_${"Clients" + Date.now()}.xlsx`,
+    );
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error("Error exporting Excel:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
