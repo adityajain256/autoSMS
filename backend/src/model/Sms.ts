@@ -14,7 +14,6 @@ const smsSchema = new mongoose.Schema(
       type: String,
       default: "pending",
     },
-    errorMessage: { type: String, default: "" },
   },
   { timestamps: true },
 );

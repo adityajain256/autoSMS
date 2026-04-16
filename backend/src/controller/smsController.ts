@@ -1,9 +1,9 @@
 import express from "express";
-import { sendSMS } from "../config/teilio.ts";
-import Entry from "../model/Entry.ts";
 import User from "../model/User.ts";
 import mongoose from "mongoose";
 import Admin from "../model/Auth.ts";
+import { sendBulkDLTSMS } from "../config/fast2SMS.ts";
+import SMS from "../model/Sms.ts";
 
 export const sendSms = async (req: express.Request, res: express.Response) => {
   const { phoneNumber, message } = req.body;
@@ -14,7 +14,13 @@ export const sendSms = async (req: express.Request, res: express.Response) => {
     if (!clients) {
       return res.status(404).json({ message: "Client not found" });
     }
-    const sms = await sendSMS(phoneNumber, message, (req as any).user.id);
+    // const sms = await sendSMS(phoneNumber, message, (req as any).user.id);
+    const sms = await sendBulkDLTSMS({
+      numbers: [phoneNumber],
+      templateId: message,
+      senderId: process.env.FAST2SMS_SENDER_ID || "TXTIND",
+      variables: [(req as any).user.id],
+    });
 
     session.commitTransaction();
     session.endSession();
@@ -32,39 +38,54 @@ export const sendWelcomeSMS = async (
   req: express.Request,
   res: express.Response,
 ) => {
+  
   interface Admin {
     _id: mongoose.Types.ObjectId;
-    englishWelcomeSMS: string;
-    hindiWelcomeSMS: string;
     petrolPumpName: string;
+    clients: {
+      phoneNumber: string;
+    }[];
   }
   const { eng, hindi } = req.body;
   try {
     let admin: Admin | null = null;
 
-    admin = await Admin.findById((req as any).user.id);
+    admin = (await Admin.findById((req as any).user.id).populate(
+      "clients",
+    )) as any;
     if (!admin) {
       return res.status(404).json({ message: "Admin not found." });
     }
 
-    const clients = await User.find({
-      authId: (req as any).user.id,
-      welcomeSMSSent: false,
-    }).select("phoneNumber");
-    let welcomeMessage = eng
-      ? admin.englishWelcomeSMS + "/n" + admin.petrolPumpName
-      : admin.hindiWelcomeSMS + "\n" + admin.petrolPumpName;
-    let failedClients: { phoneNumber: string; error: any }[] = [];
-    for (const client of clients) {
-      let phn = String(client.phoneNumber);
-      try {
-        await sendSMS(phn, welcomeMessage, (req as any).user.id);
-        client.welcomeSMSSent = true;
-        await client.save();
-      } catch (error) {
-        failedClients.push({ phoneNumber: phn, error });
-      }
+    const phoneNumbers = admin.clients.map((client) =>
+      String(client.phoneNumber),
+    );
+    if (phoneNumbers.length === 0) {
+      return res.status(404).json({ message: "No clients found." });
     }
+
+    let failedClients: { phoneNumber: string; error: any }[] = [];
+    const welcomeMessage = eng
+      ? process.env.FAST2SMS_WELCOME_MESSAGE_ENG
+      : process.env.FAST2SMS_MESSAGE_WELCOME_HINDI;
+
+    await sendBulkDLTSMS({
+      numbers: phoneNumbers,
+      templateId: welcomeMessage || "Welcome back to our petrol pump",
+      senderId: process.env.FAST2SMS_SENDER_ID || "TXTIND",
+      variables: [admin.petrolPumpName],
+    });
+
+    await SMS.create(
+      phoneNumbers.map((phone) => ({
+        adminId: (req as any).user.id,
+        to: "+91" + phone,
+        body: welcomeMessage || "Welcome back to our petrol pump",
+        status: "sent",
+      })),
+      { session: null },
+    );
+
     if (failedClients.length === 0) {
       return res
         .status(200)
@@ -87,29 +108,45 @@ export const sendDueSMS = async (
   res: express.Response,
 ) => {
   const { eng, hindi } = req.body;
+  interface user {
+    phoneNumber: string;
+    nonPaidAmount: number;
+    date: Date;
+    totalQuantity: number;
+  }
+
   const session = await mongoose.default.startSession();
   session.startTransaction();
+
   try {
-    const user = await User.find({
-      nonPaidAmount: { $gt: 0 },
-      authId: (req as any).user.id,
-      dueSMSSent: false,
-    });
+    const admin = (await Admin.findById((req as any).user.id).populate(
+      "clients",
+    )) as any;
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found." });
+    }
+    const user = admin.clients.filter(
+      (client: any) => client.nonPaidAmount > 0,
+    );
     let respo: express.Response | null = null;
-    const petrolPumpName = (await Admin.findById((req as any).user.id))
-      ?.petrolPumpName;
+    const petrolPumpName = admin.petrolPumpName;
+    const dueMessage = eng
+      ? process.env.FAST2SMS_DUE_MESSAGE_ENG
+      : process.env.FAST2SMS_DUE_MESSAGE_HINDI;
+
     for (const client of user) {
       const phone = String(client.phoneNumber);
+      const dueAmount = String(client.nonPaidAmount.toFixed(2));
+      const quantity = String(client.totalQuantity.toFixed(2));
+      const date = client.updatedAt.toLocaleDateString("en-GB");
       try {
-        await sendSMS(
-          phone,
-          eng
-            ? `Dear customer, you have an outstanding due of ${client.nonPaidAmount} for your purchase. Please make the payment at your earliest convenience. Thank you! -${petrolPumpName}`
-            : `प्रिय ग्राहक, आपकी खरीदारी के लिए ${new Date().toDateString()} को ₹${client.nonPaidAmount} का बकाया है। कृपया जल्द से जल्द भुगतान करें। धन्यवाद! -${petrolPumpName}`,
-          (req as any).user.id,
-        );
-        client.dueSMSSent = true;
-        await client.save();
+        await sendBulkDLTSMS({
+          numbers: [phone],
+          templateId: dueMessage || "",
+          senderId: process.env.FAST2SMS_SENDER_ID || "TXTIND",
+          variables: [dueAmount, quantity, date, petrolPumpName],
+        });
+
         session.commitTransaction();
         respo = res
           .status(200)

@@ -4,6 +4,8 @@ import express from "express";
 import mongoose from "mongoose";
 import { sendSMS } from "../config/teilio.ts";
 import excel from "exceljs";
+import { singleSMS } from "../config/fast2SMS.ts";
+import Admin from "../model/Auth.ts";
 
 export const getAllEntries = async (
   req: express.Request,
@@ -52,7 +54,9 @@ export const createEntry = async (
   session.startTransaction();
   try {
     // Verify user exists inside transaction
-
+    const petropumpName = String(
+      await Admin.findById((req as any).user.id).select("petrolPumpName"),
+    );
     const user = await User.findById(userObjectId, null, { session }).select(
       "phoneNumber paidAmount nonPaidAmount totalQuantity",
     );
@@ -77,6 +81,13 @@ export const createEntry = async (
       ],
       { session },
     );
+    const sms = await singleSMS(phone, message, [
+      parsedAmount,
+      parsedQuantity,
+      date,
+      petropumpName,
+    ]);
+    console.log("SMS Response:", sms);
     await User.findByIdAndUpdate(
       userObjectId,
       {
@@ -89,13 +100,6 @@ export const createEntry = async (
       },
       { session },
     );
-    if (!isPaid) {
-      await sendSMS(
-        phone,
-        `Dear customer, you have an outstanding due of ${parsedAmount} for your purchase of ${type} ${quantity}ltr on ${date}. Please make the payment at your earliest convenience. Thank you!`,
-        (req as any).user.id,
-      );
-    }
     await session.commitTransaction();
     session.endSession();
     return res
