@@ -2,6 +2,7 @@ export const sendWhatsAppMessage = async (
   to: string,
   message: string,
   lang: string,
+  petrolPumpName?: string,
 ) => {
   const apiKey = process.env.WHATSAPP_API_KEY;
   const senderId = process.env.WHATSAPP_SENDER_ID;
@@ -26,6 +27,17 @@ export const sendWhatsAppMessage = async (
           name: message,
           language: {
             code: lang,
+            components: [
+              {
+                type: "header",
+                parameters: [
+                  {
+                    type: "text",
+                    text: petrolPumpName,
+                  },
+                ],
+              },
+            ],
           },
         },
       }),
@@ -40,8 +52,8 @@ export const sendDueWhatsappMessage = async (
   to: string,
   message: string,
   lang: string,
-  dueAmount: number,
-  quantity: number,
+  dueAmount: string,
+  quantity: string,
   dueDate: string,
   petrolPumpName: string,
 ) => {

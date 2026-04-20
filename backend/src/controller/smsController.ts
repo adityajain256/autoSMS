@@ -4,6 +4,10 @@ import mongoose from "mongoose";
 import Admin from "../model/Auth.ts";
 import { sendBulkDLTSMS } from "../config/fast2SMS.ts";
 import SMS from "../model/Sms.ts";
+import {
+  sendDueWhatsappMessage,
+  sendWhatsAppMessage,
+} from "../config/whatsapp.ts";
 
 export const sendSms = async (req: express.Request, res: express.Response) => {
   const { phoneNumber, message } = req.body;
@@ -38,7 +42,6 @@ export const sendWelcomeSMS = async (
   req: express.Request,
   res: express.Response,
 ) => {
-  
   interface Admin {
     _id: mongoose.Types.ObjectId;
     petrolPumpName: string;
@@ -47,6 +50,8 @@ export const sendWelcomeSMS = async (
     }[];
   }
   const { eng, hindi } = req.body;
+  const session = await mongoose.default.startSession();
+  session.startTransaction();
   try {
     let admin: Admin | null = null;
 
@@ -65,16 +70,32 @@ export const sendWelcomeSMS = async (
     }
 
     let failedClients: { phoneNumber: string; error: any }[] = [];
-    const welcomeMessage = eng
-      ? process.env.FAST2SMS_WELCOME_MESSAGE_ENG
-      : process.env.FAST2SMS_MESSAGE_WELCOME_HINDI;
+    // const welcomeMessage = eng
+    //   ? process.env.FAST2SMS_WELCOME_MESSAGE_ENG
+    //   : process.env.FAST2SMS_MESSAGE_WELCOME_HINDI;
 
-    await sendBulkDLTSMS({
-      numbers: phoneNumbers,
-      templateId: welcomeMessage || "Welcome back to our petrol pump",
-      senderId: process.env.FAST2SMS_SENDER_ID || "TXTIND",
-      variables: [admin.petrolPumpName],
-    });
+    // await sendBulkDLTSMS({
+    //   numbers: phoneNumbers,
+    //   templateId: welcomeMessage || "Welcome back to our petrol pump",
+    //   senderId: process.env.FAST2SMS_SENDER_ID || "TXTIND",
+    //   variables: [admin.petrolPumpName],
+    // });
+
+    const welcomeMessage = eng
+      ? process.env.WHATSAPP_WELCOME_MESSAGE_ENG
+      : process.env.WHATSAPP_WELCOME_MESSAGE_HINDI;
+
+    for (const phone of phoneNumbers) {
+      const response = await sendWhatsAppMessage(
+        phone,
+        welcomeMessage || "Welcome back to our petrol pump",
+        eng ? "en_US" : "hi",
+        admin.petrolPumpName,
+      );
+      if (response?.error) {
+        failedClients.push({ phoneNumber: phone, error: response.error });
+      }
+    }
 
     await SMS.create(
       phoneNumbers.map((phone) => ({
@@ -83,8 +104,10 @@ export const sendWelcomeSMS = async (
         body: welcomeMessage || "Welcome back to our petrol pump",
         status: "sent",
       })),
-      { session: null },
+      { session },
     );
+    await session.commitTransaction();
+    session.endSession();
 
     if (failedClients.length === 0) {
       return res
@@ -97,7 +120,9 @@ export const sendWelcomeSMS = async (
       });
     }
   } catch (error) {
-    res
+    await session.abortTransaction();
+    session.endSession();
+    return res
       .status(500)
       .json({ message: "Error sending welcome SMS to all clients", error });
   }
@@ -130,9 +155,12 @@ export const sendDueSMS = async (
     );
     let respo: express.Response | null = null;
     const petrolPumpName = admin.petrolPumpName;
+    // const dueMessage = eng
+    //   ? process.env.FAST2SMS_DUE_MESSAGE_ENG
+    //   : process.env.FAST2SMS_DUE_MESSAGE_HINDI;
     const dueMessage = eng
-      ? process.env.FAST2SMS_DUE_MESSAGE_ENG
-      : process.env.FAST2SMS_DUE_MESSAGE_HINDI;
+      ? process.env.WHATSAPP_DUE_MESSAGE_ENG
+      : process.env.WHATSAPP_DUE_MESSAGE_HINDI;
 
     for (const client of user) {
       const phone = String(client.phoneNumber);
@@ -140,30 +168,54 @@ export const sendDueSMS = async (
       const quantity = String(client.totalQuantity.toFixed(2));
       const date = client.updatedAt.toLocaleDateString("en-GB");
       try {
-        await sendBulkDLTSMS({
-          numbers: [phone],
-          templateId: dueMessage || "",
-          senderId: process.env.FAST2SMS_SENDER_ID || "TXTIND",
-          variables: [dueAmount, quantity, date, petrolPumpName],
-        });
+        // await sendBulkDLTSMS({
+        //   numbers: [phone],
+        //   templateId: dueMessage || "",
+        //   senderId: process.env.FAST2SMS_SENDER_ID || "TXTIND",
+        //   variables: [dueAmount, quantity, date, petrolPumpName],
+        // });
+        const response = await sendDueWhatsappMessage(
+          phone,
+          dueMessage || "",
+          eng ? "en_US" : "hi",
+          dueAmount,
+          quantity,
+          date,
+          petrolPumpName,
+        );
 
-        session.commitTransaction();
+        await SMS.create({
+          adminId: (req as any).user.id,
+          to: "+91" + phone,
+          body: dueMessage || "",
+          status: "sent",
+        });
+        await session.commitTransaction();
+        session.endSession();
+        if (response?.error) {
+          throw new Error(response.error.message || "WhatsApp API error");
+        }
+
         respo = res
           .status(200)
           .json({ message: "Due SMS sent to all clients with dues" });
       } catch (error) {
-        session.abortTransaction();
-        session.endSession();
+        await session.abortTransaction();
+        await session.endSession();
         respo = res.status(500).json({
           message: `Failed to send due SMS to ${phone}`,
           error,
         });
       }
     }
+    
     return (
       respo || res.status(200).json({ message: "No clients with dues found" })
     );
   } catch (error) {
+    await session.abortTransaction();
+    await session.endSession();
+
     return res
       .status(500)
       .json({ message: "Error sending due SMS to all clients", error });
