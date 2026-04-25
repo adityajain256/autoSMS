@@ -2,9 +2,9 @@ import Entry from "../model/Entry.ts";
 import User from "../model/User.ts";
 import express from "express";
 import mongoose from "mongoose";
-import { sendSMS } from "../config/teilio.ts";
+
 import excel from "exceljs";
-import { singleSMS } from "../config/fast2SMS.ts";
+
 import Admin from "../model/Auth.ts";
 
 export const getAllEntries = async (
@@ -81,13 +81,13 @@ export const createEntry = async (
       ],
       { session },
     );
-    const sms = await singleSMS(phone, message, [
-      parsedAmount,
-      parsedQuantity,
-      date,
-      petropumpName,
-    ]);
-    console.log("SMS Response:", sms);
+    // const sms = await singleSMS(phone, message, [
+    //   parsedAmount,
+    //   parsedQuantity,
+    //   date,
+    //   petropumpName,
+    // ]);
+    // console.log("SMS Response:", sms);
     await User.findByIdAndUpdate(
       userObjectId,
       {

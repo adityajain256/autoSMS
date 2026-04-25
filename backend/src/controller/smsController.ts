@@ -2,7 +2,7 @@ import express from "express";
 import User from "../model/User.ts";
 import mongoose from "mongoose";
 import Admin from "../model/Auth.ts";
-import { sendBulkDLTSMS } from "../config/fast2SMS.ts";
+
 import SMS from "../model/Sms.ts";
 import {
   sendDueWhatsappMessage,
@@ -19,16 +19,16 @@ export const sendSms = async (req: express.Request, res: express.Response) => {
       return res.status(404).json({ message: "Client not found" });
     }
     // const sms = await sendSMS(phoneNumber, message, (req as any).user.id);
-    const sms = await sendBulkDLTSMS({
-      numbers: [phoneNumber],
-      templateId: message,
-      senderId: process.env.FAST2SMS_SENDER_ID || "TXTIND",
-      variables: [(req as any).user.id],
-    });
+    // const sms = await sendBulkDLTSMS({
+    //   numbers: [phoneNumber],
+    //   templateId: message,
+    //   senderId: process.env.FAST2SMS_SENDER_ID || "TXTIND",
+    //   variables: [(req as any).user.id],
+    // });
 
     session.commitTransaction();
     session.endSession();
-    return res.status(200).json({ message: "SMS sent to all clients", sms });
+    // return res.status(200).json({ message: "SMS sent to all clients", sms });
   } catch (error) {
     session.abortTransaction();
     session.endSession();
@@ -208,7 +208,7 @@ export const sendDueSMS = async (
         });
       }
     }
-    
+
     return (
       respo || res.status(200).json({ message: "No clients with dues found" })
     );

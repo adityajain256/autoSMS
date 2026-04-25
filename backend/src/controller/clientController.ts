@@ -4,7 +4,7 @@ import validators from "../utils/validators.ts";
 import mongoose from "mongoose";
 import Admin from "../model/Auth.ts";
 import Entry from "../model/Entry.ts";
-import { sendSMS } from "../config/teilio.ts";
+
 import excel from "exceljs";
 
 export const getAllClients = async (
@@ -217,11 +217,11 @@ export const updateClient = async (
       client.nonPaidAmount = (client.nonPaidAmount - amount).toFixed(2) as any;
     }
     await client.save();
-    await sendSMS(
-      String(client.phoneNumber),
-      `Dear customer, we have received your payment of ₹${amount}. Your remaining due amount is ₹${client.nonPaidAmount}. Thank you!`,
-      (req as any).user.id,
-    );
+    // await sendSMS(
+    //   String(client.phoneNumber),
+    //   `Dear customer, we have received your payment of ₹${amount}. Your remaining due amount is ₹${client.nonPaidAmount}. Thank you!`,
+    //   (req as any).user.id,
+    // );
     session.commitTransaction();
     session.endSession();
 
