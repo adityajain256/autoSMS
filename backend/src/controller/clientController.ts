@@ -1,8 +1,8 @@
 import express from "express";
-import User from "../model/User.ts";
+import User from "../model/Client.ts";
 import validators from "../utils/validators.ts";
 import mongoose from "mongoose";
-import Admin from "../model/Auth.ts";
+import Admin from "../model/User.ts";
 import Entry from "../model/Entry.ts";
 
 import excel from "exceljs";

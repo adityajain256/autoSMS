@@ -1,6 +1,6 @@
 import express from "express";
 import doenv from "dotenv";
-import authRouter from "./route/authRoute.ts";
+import authRouter from "./route/userRoute.ts";
 import clientRouter from "./route/clientRouter.ts";
 import entryRouter from "./route/entryRoute.ts";
 import smsRouter from "./route/smsRoute.ts";
@@ -12,9 +12,11 @@ import { envSchema } from "./config/env.ts";
 import { pinoHttp } from "pino-http";
 import logger from "./utils/logger.ts";
 
+
 doenv.config();
 envSchema.parse(process.env);
 const app: express.Application = express();
+
 // Middleware
 app.use(pinoHttp({ logger: logger }));
 app.use(cors({ methods: ["GET", "POST", "PATCH", "DELETE"], origin: "*" }));

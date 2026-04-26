@@ -1,11 +1,11 @@
 import Entry from "../model/Entry.ts";
-import User from "../model/User.ts";
+import User from "../model/Client.ts";
 import express from "express";
 import mongoose from "mongoose";
 
 import excel from "exceljs";
 
-import Admin from "../model/Auth.ts";
+import Admin from "../model/User.ts";
 
 export const getAllEntries = async (
   req: express.Request,

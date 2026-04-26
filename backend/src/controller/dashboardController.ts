@@ -1,6 +1,6 @@
 import express from "express";
-import User from "../model/User.ts";
-import Admin from "../model/Auth.ts";
+import User from "../model/Client.ts";
+import Admin from "../model/User.ts";
 // import { fetchAllSMS } from "../config/teilio.ts";
 import SMS from "../model/Sms.ts";
 

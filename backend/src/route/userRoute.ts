@@ -1,13 +1,14 @@
-// POST   /api/auth/register         // Register CA/Staff
-// POST   /api/auth/login            // Login
-// POST   /api/auth/logout           // Logout
-// GET    /api/auth/me               // Get current user profile 
-// GET   /api/auth/get-staff         // Get all staff (admin only)
-// PATCH  /api/auth/update-profile   // Update profile (CA/Staff)
-
 import express from "express";
-import { getProfile, getStaff, loginUser, register_staff, registerAdmin, updateProfile } from "../controller/authController.ts";
+import {
+  getProfile,
+  // getStaff,
+  loginUser,
+  // register_staff,
+  registerAdmin,
+  updateProfile,
+} from "../controller/authController.ts";
 import authMiddleware from "../middleware/auth.middleware.ts";
+import { varification } from "../middleware/validateInput.middleware.ts";
 
 const authRouter = express.Router();
 
@@ -39,7 +40,7 @@ const authRouter = express.Router();
  *       401:
  *         description: Unauthorized
  */
-authRouter.get("/me",authMiddleware, getProfile);
+authRouter.get("/me", authMiddleware, getProfile);
 /**
  * @swagger
  * /api/auth/register/admin:
@@ -83,8 +84,8 @@ authRouter.get("/me",authMiddleware, getProfile);
  *       500:
  *         description: Internal server error
  */
-authRouter.post("/register/admin", registerAdmin);
-/** 
+authRouter.post("/register/admin", varification, registerAdmin);
+/**
  * @swagger
  * /api/auth/register/staff:
  *   post:
@@ -127,7 +128,12 @@ authRouter.post("/register/admin", registerAdmin);
  *       500:
  *         description: Internal server error
  */
-authRouter.post("/register/staff",authMiddleware, register_staff);
+// authRouter.post(
+//   "/register/staff",
+//   authMiddleware,
+//   varification,
+//   register_staff,
+// );
 /**
  * @swagger
  * /api/auth/login:
@@ -199,30 +205,7 @@ authRouter.post("/login", loginUser);
  *         description: Unauthorized
  *       500:
  *         description: Internal server error
-*/
-authRouter.patch("/update/profile",authMiddleware, updateProfile);
-/**
- * @swagger
- * /api/auth/get/staff:
- *   get:
- *     summary: Get all staff members
- *     tags: [Auth]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Success
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Internal server error
  */
-authRouter.get("/get/staff",authMiddleware, getStaff);
+authRouter.patch("/update/profile", authMiddleware, updateProfile);
 
 export default authRouter;

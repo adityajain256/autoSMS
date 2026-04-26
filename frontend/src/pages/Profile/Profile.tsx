@@ -37,9 +37,8 @@ export function Profile() {
         },
 
       })
-      // window.location.reload()
-
-
+      setIsLoading(false)
+      alert("Profile updated successfully!");
     } catch (error: any) {
       if (error.response.status == 401) {
         navigate("/login");
