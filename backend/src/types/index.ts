@@ -12,20 +12,20 @@ export interface IUser {
   updatedAt?: Date;
 }
 
-// interface IClient extends Document {
-//   _id: Types.ObjectId;
-//   name: string;
-//   email: string;
-//   phone: string; // +91XXXXXXXXXX format
-//   gstNumber: string;
-//   vehicleId: string;
-//   address: string;
-//   paidAmount: number;
-//   nonPaidAmount: number;
-//   quantity: number;
-//   createdAt: Date;
-//   updatedAt: Date;
-// }
+export interface IClient {
+  _id?: Types.ObjectId;
+  name?: string;
+  email?: string;
+  phone?: string; // +91XXXXXXXXXX format
+  gstNumber?: string;
+  vehicleId?: string;
+  address?: string;
+  paidAmount?: number;
+  nonPaidAmount?: number;
+  quantity?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 // interface ITaxEntry extends Document {
 //   _id: Types.ObjectId;

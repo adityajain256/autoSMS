@@ -9,6 +9,7 @@ import {
 } from "../controller/authController.ts";
 import authMiddleware from "../middleware/auth.middleware.ts";
 import { varification } from "../middleware/validateInput.middleware.ts";
+import { rateLimiter } from "../middleware/rateLimite.middleware.ts";
 
 const authRouter = express.Router();
 
@@ -173,7 +174,7 @@ authRouter.post("/register/admin", varification, registerAdmin);
  *       500:
  *         description: Internal server error
  */
-authRouter.post("/login", loginUser);
+authRouter.post("/login", rateLimiter, loginUser);
 
 /**
  * @swagger
@@ -206,6 +207,6 @@ authRouter.post("/login", loginUser);
  *       500:
  *         description: Internal server error
  */
-authRouter.patch("/update/profile", authMiddleware, updateProfile);
+authRouter.patch("/update/profile", authMiddleware, rateLimiter, updateProfile);
 
 export default authRouter;

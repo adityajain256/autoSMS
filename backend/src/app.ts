@@ -12,7 +12,6 @@ import { envSchema } from "./config/env.ts";
 import { pinoHttp } from "pino-http";
 import logger from "./utils/logger.ts";
 
-
 doenv.config();
 envSchema.parse(process.env);
 const app: express.Application = express();

@@ -1,10 +1,7 @@
-import SendmailTransport from "nodemailer/lib/sendmail-transport/index.js";
 import app from "./src/app.ts";
 import DBconnection from "./src/config/db.ts";
 import { envSchema } from "./src/config/env.ts";
-import { sendMail } from "./src/config/mail.ts";
 import logger from "./src/utils/logger.ts";
-import { otpTemplate } from "./src/utils/otpGenerator.ts";
 import redisClient from "./src/config/redis.ts";
 
 const startServer = async () => {

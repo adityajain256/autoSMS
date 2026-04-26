@@ -12,7 +12,6 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
 
     const [data, setData] = useState<any[]>([]);
 
-
       
       const displayData = data.filter((client) => {
         if (!searchTerm) return true;
@@ -36,9 +35,11 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
               }
             });
-            setData(res.data);
+            console.log("Fetched clients:", res);
+            setData(Array.isArray(res.data) ? res.data : []);
           } catch (error) {
             setIsLoading(false);
+            console.error("Error fetching clients:", error);
           } finally{
             setIsLoading(false);
           }

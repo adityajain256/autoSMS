@@ -8,12 +8,11 @@
 import express from "express";
 import authMiddleware from "../middleware/auth.middleware.ts";
 import {
+  createClient,
   getAllClients,
   getClientById,
-  createClient,
-  updateClient,
+  // updateClient,
   deleteClient,
-  createClientBulk,
   exportExcel,
 } from "../controller/clientController.ts";
 
@@ -97,151 +96,152 @@ clientRouter.get("/", getAllClients);
  *       500:
  *         description: Server error
  */
+
 clientRouter.get("/:id", getClientById);
 
-/**
- * @swagger
- * /api/clients:
- *   post:
- *     summary: Create a new client
- *     tags: [Clients]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *               phoneNumber:
- *                 type: string
- *               address:
- *                 type: string
- *               gstNumber:
- *                 type: string
- *               email:
- *                 type: string
- *               paidAmount:
- *                 type: number
- *               nonPaidAmount:
- *                 type: number
- *     responses:
- *       201:
- *         description: Client created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                   id:
- *                     type: string
- *                   username:
- *                     type: string
- *                   phoneNumber:
- *                     type: string
- *                   address:
- *                     type: string
- *                   gstNumber:
- *                     type: string
- *                   email:
- *                     type: string
- *                   totalAmount:
- *                     type: number
- *       400:
- *         description: Bad request
- *       500:
- *         description: Server error
- */
+// /**
+//  * @swagger
+//  * /api/clients:
+//  *   post:
+//  *     summary: Create a new client
+//  *     tags: [Clients]
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         application/json:
+//  *           schema:
+//  *             type: object
+//  *             properties:
+//  *               username:
+//  *                 type: string
+//  *               phoneNumber:
+//  *                 type: string
+//  *               address:
+//  *                 type: string
+//  *               gstNumber:
+//  *                 type: string
+//  *               email:
+//  *                 type: string
+//  *               paidAmount:
+//  *                 type: number
+//  *               nonPaidAmount:
+//  *                 type: number
+//  *     responses:
+//  *       201:
+//  *         description: Client created successfully
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: object
+//  *               properties:
+//  *                   id:
+//  *                     type: string
+//  *                   username:
+//  *                     type: string
+//  *                   phoneNumber:
+//  *                     type: string
+//  *                   address:
+//  *                     type: string
+//  *                   gstNumber:
+//  *                     type: string
+//  *                   email:
+//  *                     type: string
+//  *                   totalAmount:
+//  *                     type: number
+//  *       400:
+//  *         description: Bad request
+//  *       500:
+//  *         description: Server error
+//  */
 
 clientRouter.post("/", createClient);
-clientRouter.post("/create/bulk", createClientBulk);
+// clientRouter.post("/create/bulk", createClientBulk);
 
-/**
- * @swagger
- * /api/clients/{id}:
- *   patch:
- *     summary: Update a client
- *     tags: [Clients]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               id:
- *                 type: string
- *               username:
- *                 type: string
- *               phoneNumber:
- *                 type: string
- *               address:
- *                 type: string
- *               gstNumber:
- *                 type: string
- *               email:
- *                 type: string
- *               totalAmount:
- *                 type: number
- *     responses:
- *       200:
- *         description: Client updated successfully
- *       400:
- *         description: Bad request
- *       404:
- *         description: Client not found
- *       500:
- *         description: Server error
- */
-clientRouter.patch("/:id", updateClient);
+// /**
+//  * @swagger
+//  * /api/clients/{id}:
+//  *   patch:
+//  *     summary: Update a client
+//  *     tags: [Clients]
+//  *     parameters:
+//  *       - in: path
+//  *         name: id
+//  *         schema:
+//  *           type: string
+//  *         required: true
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         application/json:
+//  *           schema:
+//  *             type: object
+//  *             properties:
+//  *               id:
+//  *                 type: string
+//  *               username:
+//  *                 type: string
+//  *               phoneNumber:
+//  *                 type: string
+//  *               address:
+//  *                 type: string
+//  *               gstNumber:
+//  *                 type: string
+//  *               email:
+//  *                 type: string
+//  *               totalAmount:
+//  *                 type: number
+//  *     responses:
+//  *       200:
+//  *         description: Client updated successfully
+//  *       400:
+//  *         description: Bad request
+//  *       404:
+//  *         description: Client not found
+//  *       500:
+//  *         description: Server error
+//  */
+// clientRouter.patch("/:id", updateClient);
 
-/**
- * @swagger
- * /api/clients/{id}:
- *   delete:
- *     summary: Delete a client
- *     tags: [Clients]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *     responses:
- *       200:
- *         description: Client deleted successfully
- *       400:
- *         description: Bad request
- *       404:
- *         description: Client not found
- *       500:
- *         description: Server error
- */
+// /**
+//  * @swagger
+//  * /api/clients/{id}:
+//  *   delete:
+//  *     summary: Delete a client
+//  *     tags: [Clients]
+//  *     parameters:
+//  *       - in: path
+//  *         name: id
+//  *         schema:
+//  *           type: string
+//  *         required: true
+//  *     responses:
+//  *       200:
+//  *         description: Client deleted successfully
+//  *       400:
+//  *         description: Bad request
+//  *       404:
+//  *         description: Client not found
+//  *       500:
+//  *         description: Server error
+//  */
 clientRouter.delete("/:id", deleteClient);
 
-/** 
- * @swagger
- * /api/clients/export/excel:
- *   get:
- *     summary: Export clients data to Excel
- *     tags: [Clients]
- *     responses:
- *       200:
- *         description: Excel file generated successfully
- *         content:
- *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
- *             schema:
- *               type: string
- *               format: binary
- *       500:
- *         description: Server error  
- */
+// /**
+//  * @swagger
+//  * /api/clients/export/excel:
+//  *   get:
+//  *     summary: Export clients data to Excel
+//  *     tags: [Clients]
+//  *     responses:
+//  *       200:
+//  *         description: Excel file generated successfully
+//  *         content:
+//  *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+//  *             schema:
+//  *               type: string
+//  *               format: binary
+//  *       500:
+//  *         description: Server error
+//  */
 clientRouter.get("/export/excel", exportExcel);
 export default clientRouter;

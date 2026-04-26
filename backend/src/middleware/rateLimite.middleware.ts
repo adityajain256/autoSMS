@@ -1,21 +1,29 @@
-// import express from "express";
-// import jwt from "jsonwebtoken";
+import express from "express";
+import redisClient from "../config/redis.ts";
+import logger from "../utils/logger.ts";
 
-// export const rateLimiter = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-//     const authHeader = req.headers.authorization;
-//     if (!authHeader) {
-//       return res.status(401).json({ message: "Unauthorized: No token provided." });
-//     }
-    
-//     const token = authHeader.split(" ")[1];
+export const rateLimiter = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction,
+) => {
+  const ipAddress = req.ip;
+  try {
+    const exists = await redisClient.exists(`ip:${ipAddress}`);
+    if (!exists) {
+      await redisClient.set(`ip:${ipAddress}`, 0, { EX: 60 });
+    }
 
-//     try {
-//         const decoded = await jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
-        
-//         next();
-//     } catch (error) {
-//         res.status(403).json({
-//             message: "Forbidden: Invalid token.",
-//         });
-//     }
-// }
+    const counter = await redisClient.get(`ip:${ipAddress}`);
+    if (counter && parseInt(counter) >= 5) {
+      return res.status(429).json({
+        message: "Too many requests. Please try again later.",
+      });
+    }
+    next();
+  } catch (error) {
+    res.status(403).json({
+      message: "Forbidden: Invalid token.",
+    });
+  }
+};
