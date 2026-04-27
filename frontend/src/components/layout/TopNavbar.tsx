@@ -2,6 +2,7 @@
 import { Link, NavLink } from 'react-router-dom';
 import { Menu, Briefcase, List, User, Plus, Send, Bell } from 'lucide-react';
 import { Avatar } from '../common/Avatar';
+import logo from '../../assets/logo.png';
 import { cn } from '../../utils/cn';
 import { Button } from '../common/Button';
 
@@ -34,11 +35,13 @@ export function TopNavbar({ onMenuClick, onAddClient }: TopNavbarProps) {
           </button>
           <div className="flex items-center gap-2">
 
-            <div className="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center font-bold">
-              AS
-            </div>
+            <img
+              src={logo}
+              alt="LIGHTLEAF Logo"
+              className="w-8 h-8 rounded object-cover"
+            />
 
-            <span className="font-bold text-xl text-on-surface hidden sm:block tracking-tight">AutoSMS</span>
+            <span className="font-bold text-xl text-on-surface hidden sm:block tracking-tight">LIGHTLEAF</span>
           </div>
         </div>
 

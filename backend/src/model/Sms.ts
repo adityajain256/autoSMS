@@ -3,9 +3,9 @@ import mongoose from "mongoose";
 const smsSchema = new mongoose.Schema(
   {
     _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
-    adminId: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin",
+      ref: "User",
       required: true,
     },
     to: { type: String, required: true },

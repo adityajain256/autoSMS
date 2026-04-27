@@ -68,7 +68,7 @@ export function Sms() {
             addToast(res.data.message, "success")
 
         } catch (error) {
-            console.log(error)
+            // ...removed console.log(error)
         } finally {
             setIsLoading(false)
         }
@@ -82,10 +82,10 @@ export function Sms() {
                         "Authorization": `Bearer ${localStorage.getItem("token")}`
                     }
                 })
-                console.log(res.data)
+                // ...removed console.log(res.data)
                 setSmsData(res.data.admin)
             } catch (error) {
-                console.log(error)
+                // ...removed console.log(error)
             }
         }
         getSmsData()
@@ -122,15 +122,15 @@ export function Sms() {
                                     <button onClick={() => setSelectLanguage('english')} className={`${selectedLanguage === 'english' ? 'bg-green-500 text-error-dim' : 'bg-surface-container-high text-on-surface'} px-5 py-2 rounded-full font-semibold text-sm flex items-center gap-2 border border-error-container/30`} type="button">
                                         English
                                     </button>
-                                    <button onClick={() => setSelectLanguage('hindi')} className={`${selectedLanguage === 'hindi' ? 'bg-green-500 text-error-dim' : 'bg-surface-container-high text-on-surface'} px-5 py-2 rounded-full font-semibold text-sm flex items-center gap-2 border border-error-container/30`} type="button">
+                                    {/* <button onClick={() => setSelectLanguage('hindi')} className={`${selectedLanguage === 'hindi' ? 'bg-green-500 text-error-dim' : 'bg-surface-container-high text-on-surface'} px-5 py-2 rounded-full font-semibold text-sm flex items-center gap-2 border border-error-container/30`} type="button">
                                         Hindi
-                                    </button>
+                                    </button> */}
                                 </div>
                                 
                             </div>
 
                             {/* Message Input */}
-                            <div className={`space-y-4 ${selected === 'custom' || selected === 'due' ? 'hidden' : 'block'}`}>
+                            {/* <div className={`space-y-4 ${selected === 'custom' || selected === 'due' ? 'hidden' : 'block'}`}>
                                 <div className="flex justify-between items-center">
                                     <label className="text-sm font-semibold tracking-tight text-on-surface-variant block">Message Content</label>
                                     <span className="text-xs text-on-surface-variant/70 font-mono">{(selectedLanguage === 'english' ? smsData?.englishWelcomeSMS ?? '' : smsData?.hindiWelcomeSMS ?? '').length} / 160 characters</span>
@@ -139,12 +139,13 @@ export function Sms() {
                                 <div className="relative group">
                                     <textarea className="w-full p-6 bg-surface-container-low border-0 rounded-[1.5rem] focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm resize-none placeholder:text-on-surface-variant/40 text-on-surface" placeholder={selectedLanguage === 'english' ? smsData?.englishWelcomeSMS : smsData?.hindiWelcomeSMS} rows={6}>
                                     </textarea>
+                                    
                                     <div className="absolute bottom-4 right-4 flex flex-wrap gap-2">
                                         <span >-{smsData.petrolPumpName}</span>
                                        
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
 
                             {/* Schedule Options */}
                             <div className="space-y-4 bg-gray-100/50 p-4 rounded-lg">

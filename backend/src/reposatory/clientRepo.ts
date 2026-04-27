@@ -80,3 +80,44 @@ export const getClientsWithDuesRepo = async (id: string) => {
     return { success: false, error: error };
   }
 };
+
+export const updateClientWelcomeMessageStatusRepo = async (
+  id: string,
+  status: boolean,
+) => {
+  try {
+    const updatedClient = await Client.findByIdAndUpdate(
+      id,
+      { welcomeMessageSent: status },
+      { returnDocument: "after" },
+    );
+    if (!updatedClient) {
+      return { success: false, error: "Client not found" };
+    }
+    return { success: true, data: updatedClient };
+  } catch (error) {
+    return { success: false, error: error };
+  }
+};
+
+export const getClientsWithWelcomeMessageStatusRepo = async (
+  id: string,
+  status: boolean,
+) => {
+  try {
+    const clients = await Client.find({
+      authId: id,
+      welcomeMessageSent: status,
+    });
+    if (!clients) {
+      return {
+        success: false,
+        error:
+          "No clients with the specified welcome message status found for this user",
+      };
+    }
+    return clients;
+  } catch (error) {
+    return { success: false, error: error };
+  }
+};

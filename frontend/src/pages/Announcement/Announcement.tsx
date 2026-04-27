@@ -120,7 +120,7 @@ const Announcement: React.FC = () => {
                 setIsLoading(false);
                 
             } catch (error) {
-                console.log(error);
+                // ...removed console.log(error)
             }
         }
         topClient();
@@ -134,7 +134,7 @@ const Announcement: React.FC = () => {
             setDueData(dData);
             setIsLoading(false);
         } catch (error) {
-            console.log(error);
+            // ...removed console.log(error)
         } finally {
             setIsLoading(false);
         }

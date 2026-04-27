@@ -4,6 +4,7 @@ import { User, Phone, Mail, FileText, Map, ArrowRight, Fuel, BellRing } from 'lu
 import { cn } from '../../utils/cn';
 import { api } from '../../utils/api';
 import { useToast } from '../../contexts/ToastContext';
+import logo from '../../assets/logo.png';
 
 export function Signup() {
     const navigate = useNavigate();
@@ -51,7 +52,7 @@ export function Signup() {
             addToast("Signup successful", "success");
             navigate("/dashboard");
         } catch (error: any) {
-            console.log(error);
+            // ...removed console.log(error);
             addToast(error.response.data.message, "error");
         }
     };
@@ -74,9 +75,9 @@ export function Signup() {
                     {/* Header */}
                     <div className="flex flex-col items-center mb-10">
                         <div className="w-14 h-14 bg-[#d1f2e1] text-[#006c49] rounded-full flex items-center justify-center mb-4">
-                            <BellRing className="w-6 h-6" strokeWidth={2.5} />
+                            <img src={logo} alt="LIGHTLEAF Logo" />
                         </div>
-                        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">AUTOSMS</h1>
+                        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">LIGHTLEAF</h1>
                         <p className="text-sm font-medium text-gray-500 text-center">
                             SMS Manager: Management Solutions
                         </p>

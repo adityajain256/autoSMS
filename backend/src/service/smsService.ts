@@ -1,23 +1,28 @@
 import logger from "../utils/logger.ts";
-import { sendWhatsAppMessage } from "./whatsappService.ts";
 import {
-  getAllClientsRepo,
   getClientsWithDuesRepo,
+  getClientsWithWelcomeMessageStatusRepo,
+  updateClientWelcomeMessageStatusRepo,
 } from "../reposatory/clientRepo.ts";
 import redisClient from "../config/redis.ts";
-import { createSMSRepo } from "../reposatory/smsRepo.ts";
+import { createSMSRepo, getAllSMSRepo } from "../reposatory/smsRepo.ts";
 import {
   dueMessageTemplateForMail,
   welcomeMessageTemplateForMail,
 } from "../utils/templates.ts";
 import { sendMail } from "../config/mail.ts";
+import { setDefaultAutoSelectFamily } from "node:net";
 
 export const sendWelcomeSMSService = async (
   authId: string,
   lang: "eng" | "hin",
 ) => {
   try {
-    const clients = await getAllClientsRepo(authId);
+    const status = false;
+    const clients = await getClientsWithWelcomeMessageStatusRepo(
+      String(authId),
+      status,
+    );
     if (!Array.isArray(clients) || clients.length === 0) {
       logger.error(`User not found with ID: ${authId}`);
       return;
@@ -38,7 +43,7 @@ export const sendWelcomeSMSService = async (
       setTimeout(async () => {
         const mailBody = welcomeMessageTemplateForMail(
           petrolPumpName,
-          String(client.userName),
+          String(client.username),
           email,
           address,
         );
@@ -48,7 +53,7 @@ export const sendWelcomeSMSService = async (
           mailBody,
         );
         await createSMSRepo({
-          userId: client._id!,
+          userId: authId,
           to: String(client.phoneNumber),
           body: "Welcome message sent.",
           status: "welcomeMessage",
@@ -56,6 +61,7 @@ export const sendWelcomeSMSService = async (
         logger.info(
           `Welcome SMS sent to client ID: ${client._id} with phone number: ${client.phoneNumber} response: ${String(res) || "mail sent"}`,
         );
+        await updateClientWelcomeMessageStatusRepo(String(client._id), !status);
       }, 500);
     });
     logger.info(`Welcome SMS sending process initiated for user ID: ${authId}`);
@@ -105,7 +111,7 @@ export const sendDueSMSService = async (
           personalizedMessage,
         );
         await createSMSRepo({
-          userId: client._id!,
+          userId: authId,
           to: String(client.phoneNumber),
           body: "Due message send.",
           status: "dueMessage",
@@ -120,5 +126,22 @@ export const sendDueSMSService = async (
   } catch (error) {
     logger.error(`Error occurred while sending due SMS: ${error}`);
     return { success: false, message: "Failed to send due SMS" };
+  }
+};
+
+export const getAllSMSService = async (authId: string) => {
+  try {
+    const sms = await getAllSMSRepo(authId);
+    if (!Array.isArray(sms)) {
+      logger.error(
+        `Failed to retrieve SMS for user ID: ${authId} - ${sms.error}`,
+      );
+      return { success: false, error: sms.error || "Failed to retrieve SMS" };
+    }
+    logger.info(`SMS retrieved successfully for user ID: ${authId}`);
+    return sms;
+  } catch (error) {
+    logger.error(`Error occurred while retrieving SMS: ${error}`);
+    return { success: false, error: error };
   }
 };

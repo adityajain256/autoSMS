@@ -136,7 +136,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
             </div>
 
             {/* GST Number (Verified state shown as demo) */}
-            <div className="space-y-1.5">
+            {/* <div className="space-y-1.5">
               <label className="text-xs font-bold text-gray-800">GST Number</label>
               <div className="relative flex items-center">
                 <input
@@ -151,7 +151,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
                 </div>
               </div>
               <p className="text-[10px] font-medium text-gray-400">Format: 27AAAAA0000A1Z5</p>
-            </div>
+            </div> */}
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-gray-800">Vehicle Number</label>

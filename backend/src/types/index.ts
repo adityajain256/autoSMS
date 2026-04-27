@@ -14,7 +14,7 @@ export interface IUser {
 
 export interface IClient {
   _id?: Types.ObjectId;
-  userName?: string;
+  username?: string;
   email?: string;
   phoneNumber?: string; // +91XXXXXXXXXX format
   gstNumber?: string;
@@ -29,16 +29,15 @@ export interface IClient {
 
 export interface ISMS {
   _id?: Types.ObjectId;
-  userId: Types.ObjectId; // Reference to Client
+  userId: string; // Reference to Client
   to: string; // Phone number in +91XXXXXXXXXX format
   body: string;
   status: string;
-  whatsappMessageId?: string; // ID returned by WhatsApp API
 }
 
 export interface IEntry {
   _id?: Types.ObjectId;
-  userId: Types.ObjectId; // Reference to Client
+  userId: string; // Reference to Client
   quantity: number;
   amount: number;
   isPaid: boolean;

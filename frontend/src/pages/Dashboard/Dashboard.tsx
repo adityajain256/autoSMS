@@ -53,7 +53,7 @@ export function Dashboard() {
         });
   
       } catch (error: any) {
-        console.log(error)
+        // ...removed console.log(error)
         if (error.response.status == 401) {
           navigate("/login");
         }
@@ -107,7 +107,7 @@ export function Dashboard() {
       </div>
 
       {/* Recent Entries Table */}
-      <Card className="p-0 overflow-hidden">
+      <Card className="p-0 h-96 overflow-y-auto cursor-move">
         <div className="p-6 border-b ghost-border flex items-center justify-between">
           <h3 className="text-lg font-bold text-on-surface">Recent SMS Entries</h3>
           <button className="text-sm font-semibold text-primary hover:text-primary-container">
@@ -115,7 +115,7 @@ export function Dashboard() {
           </button>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[800px]">
+          <table className="w-full text-left border-collapse min-w-[800px] ">
             <thead>
               <tr className="bg-surface-container/30 text-xs uppercase tracking-wider text-on-surface-variant font-bold border-b ghost-border">
                 <th className="p-4">Phone</th>

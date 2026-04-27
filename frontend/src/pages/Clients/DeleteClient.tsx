@@ -38,7 +38,7 @@ export function DeleteClient() {
             });
             setData(prevData => prevData.filter(client => client._id !== id));
         } catch (error) {
-            console.error("Error deleting client:", error);
+            // ...removed console.error("Error deleting client:", error);
         } finally {
             setIsLoading(false);
         }
@@ -54,7 +54,7 @@ export function DeleteClient() {
             });
             setData(res.data);
         } catch (error) {
-            console.error("Error fetching clients:", error);
+            // ...removed console.error("Error fetching clients:", error);
         } finally {
             setIsLoading(false);
         }

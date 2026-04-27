@@ -7,7 +7,7 @@ import { Lock, Phone } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
 import { api } from '../../utils/api.ts';
 import { Loader } from '../../components/common/Loader';
-
+import logo from '../../assets/logo.png';
 
 export function Login() {
   const navigate = useNavigate();
@@ -44,7 +44,7 @@ export function Login() {
         
 
     } catch (error: any) {
-      console.log(error);
+      // ...removed console.log(error);
       addToast(error.response.data.message, "error");
     } finally {
       setIsLoading(false);
@@ -59,8 +59,8 @@ export function Login() {
 
       <Card className="w-full max-w-md relative z-10 glass-panel p-8">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded bg-primary text-on-primary flex items-center justify-center font-bold text-xl mb-4">
-            AS
+          <div className="w-12 h-12 rounded  text-on-primary flex items-center justify-center font-bold text-xl mb-4">
+            <img src={logo} alt="LIGHTLEAF Logo" />
           </div>
           <h1 className="text-2xl font-bold text-on-surface">Welcome Back</h1>
           <p className="text-on-surface-variant text-sm mt-1">Sign in to manage your SMS campaigns</p>

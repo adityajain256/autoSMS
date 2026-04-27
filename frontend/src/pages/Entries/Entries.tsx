@@ -22,7 +22,7 @@ export function Entries() {
 
         setData(res.data);
       } catch (error) {
-        console.log(error)
+        // ...removed console.log(error)
       } finally {
         setIsLoading(false);
       }

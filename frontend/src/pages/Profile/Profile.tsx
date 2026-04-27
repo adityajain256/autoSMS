@@ -4,6 +4,7 @@ import { api } from "../../utils/api";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 
+
 export function Profile() {
   const [profile, setProfile] = React.useState({
     adminName: "",
@@ -43,7 +44,7 @@ export function Profile() {
       if (error.response.status == 401) {
         navigate("/login");
       }
-      console.error("Error updating profile:", error);
+      // ...removed console.error("Error updating profile:", error);
       setIsLoading(false)
     }
     setIsLoading(false)
@@ -59,11 +60,11 @@ export function Profile() {
             "Authorization": `Bearer ${localStorage.getItem("token")}`
           }
         })
-        console.log(res.data);
+        // ...removed console.log(res.data);
         setProfile(res.data.admin);
 
       } catch (error) {
-        console.error("Error fetching profile:", error);
+        // ...removed console.error("Error fetching profile:", error);
       }
     }
     getProfile();
@@ -89,7 +90,7 @@ export function Profile() {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-on-surface">{profile?.adminName}</h3>
-                    <p className="text-sm text-on-surface-variant">{profile?.email}</p>
+                    {/* <p className="text-sm text-on-surface-variant">{profile?.email}</p> */}
                     <p className="text-sm text-on-surface-variant">{profile?.phoneNumber}</p>
                   </div>
                 </div>
@@ -103,8 +104,8 @@ export function Profile() {
                     <input className="w-full bg-surface-container-lowest border-0 border-b-2 border-outline-variant/20 focus:border-primary focus:ring-0 transition-all px-4 py-3 rounded-t-lg" placeholder="Enter pump name" type="text" value={profile.petrolPumpName} onChange={(e) => setProfile({ ...profile, petrolPumpName: e.target.value })} />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant ml-1">Role</label>
-                    <input className="w-full bg-surface-container-lowest border-0 border-b-2 border-outline-variant/20 focus:border-primary focus:ring-0 transition-all px-4 py-3 rounded-t-lg" type="email" value={profile.role} readOnly />
+                    <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant ml-1">Email</label>
+                    <input className="w-full bg-surface-container-lowest border-0 border-b-2 border-outline-variant/20 focus:border-primary focus:ring-0 transition-all px-4 py-3 rounded-t-lg" type="email" value={profile.email} readOnly />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant ml-1">Phone Number</label>
@@ -115,7 +116,7 @@ export function Profile() {
                   <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant ml-1">Address</label>
                   <input className="w-full bg-surface-container-low border-0 border-b-2 border-outline-variant/20 text-on-surface-variant px-4 py-3 rounded-t-lg" type="text" value={profile.address} onChange={(e) => setProfile({ ...profile, address: e.target.value })} />
                 </div>
-                <div className="col-span-full mt-8 mb-4 border-t border-outline-variant/10 pt-6">
+                {/* <div className="col-span-full mt-8 mb-4 border-t border-outline-variant/10 pt-6">
                   <h4 className="text-sm font-bold text-on-surface uppercase tracking-wider">Notification Messages</h4>
                   <p className="text-xs text-on-surface-variant mt-1">Set default message templates for notifications.</p>
                 </div>
@@ -129,15 +130,16 @@ export function Profile() {
                     <input className="w-full bg-surface-container-lowest border-0 border-b-2 border-outline-variant/20 focus:border-primary focus:ring-0 transition-all px-4 py-3 rounded-t-lg" placeholder="हिंदी संदेश यहाँ टाइप करें..." type="text" value={profile.hindiWelcomeSMS} onChange={(e) => setProfile({ ...profile, hindiWelcomeSMS: e.target.value })} />
                   </div>
                 </div>
+                */}
                 <div className="mt-10 flex justify-end">
                   <button onClick={() => updateProfile()} disabled={isLoading} className="px-8 py-3 bg-gradient-to-br from-primary to-primary-container text-on-primary font-semibold rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all flex items-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed">
                     {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                     {isLoading ? "Saving..." : "Save Changes"}
                   </button>
-                </div>
+                </div> 
               </section>
               {/* Security Card - Asymmetric Sidebar */}
-              <section className="md:col-span-4 bg-surface-container-low rounded-xl p-8 flex flex-col">
+              {/* <section className="md:col-span-4 bg-surface-container-low rounded-xl p-8 flex flex-col">
                 <div className="flex items-center gap-3 mb-6">
                   <span className="material-symbols-outlined text-primary">shield_lock</span>
                   <h3 className="text-lg font-semibold text-on-surface">Security</h3>
@@ -168,7 +170,7 @@ export function Profile() {
                     View Security Logs
                   </button>
                 </div>
-              </section>
+              </section> */}
             </div>
             {/* Danger Zone Footer */}
             <footer className="mt-16 pt-12 pb-12 border-t border-outline-variant/20 flex flex-col md:flex-row items-center justify-between gap-6">

@@ -61,6 +61,7 @@ const clientSchema = new mongoose.Schema(
       index: true,
     },
     entries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Entry" }],
+    welcomeMessageSent: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

@@ -36,10 +36,12 @@ export function SidebarMenu({ isOpen, onClose, onAddClient }: SidebarMenuProps) 
       >
         <div className="p-6 flex items-center justify-between border-b ghost-border">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center font-bold">
-              AS
-            </div>
-            <span className="font-bold text-xl text-on-surface tracking-tight">AutoSMS</span>
+            <img
+              src={'../../assets/logo.png'}
+              alt="LIGHTLEAF Logo"
+              className="w-8 h-8 rounded object-cover bg-primary"
+            />
+            <span className="font-bold text-xl text-on-surface tracking-tight">LIGHTLEAF</span>
           </div>
           <button onClick={onClose} className="p-2 text-on-surface-variant hover:bg-surface-container rounded">
             <X className="w-5 h-5" />

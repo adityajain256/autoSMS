@@ -50,7 +50,7 @@ export function CreateEntry() {
       window.location.reload();
     } catch (error) {
       addToast("Error updating amount", "error");
-      console.log(error);
+      // ...removed console.log(error);
     } finally {
       setIsUpdatingAmount(false);
     }
@@ -74,7 +74,7 @@ export function CreateEntry() {
       addToast("Entry created successfully", "success");
       navigate("/clients");
     } catch (error) {
-      console.log(error);
+      // ...removed console.log(error);
       addToast("Error creating entry", "error");
     } finally {
       setIsSubmitting(false);
@@ -91,7 +91,7 @@ export function CreateEntry() {
       window.location.reload();
       setData(res.data);
     } catch (error) {
-      console.log(error);
+      // ...removed console.log(error);
       addToast("Error updating entry", "error");
     }
   };
@@ -142,7 +142,7 @@ export function CreateEntry() {
 
         setData(res.data);
       } catch (error) {
-        console.log(error);
+        // ...removed console.log(error);
       }
     }
 
@@ -156,7 +156,7 @@ export function CreateEntry() {
 
         setClient(res.data);
       } catch (error) {
-        console.log(error);
+        // ...removed console.log(error);
       }
     }
 

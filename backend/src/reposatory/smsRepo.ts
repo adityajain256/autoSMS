@@ -9,3 +9,12 @@ export const createSMSRepo = async (data: ISMS) => {
     return { success: false, error: error };
   }
 };
+
+export const getAllSMSRepo = async (authId: string) => {
+  try {
+    const sms = await SMS.find({ userId: authId });
+    return sms;
+  } catch (error) {
+    return { success: false, error: error };
+  }
+};

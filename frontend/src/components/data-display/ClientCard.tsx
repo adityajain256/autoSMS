@@ -35,11 +35,11 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
               }
             });
-            console.log("Fetched clients:", res);
+            // ...removed console.log("Fetched clients:", res);
             setData(Array.isArray(res.data) ? res.data : []);
           } catch (error) {
             setIsLoading(false);
-            console.error("Error fetching clients:", error);
+            // ...removed console.error("Error fetching clients:", error);
           } finally{
             setIsLoading(false);
           }
