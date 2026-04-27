@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { User, Phone, Mail, FileText, Map, ArrowRight, Fuel, BellRing } from 'lucide-react';
+import { User, Phone, Mail, FileText, Map, ArrowRight, Fuel} from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { api } from '../../utils/api';
 import { useToast } from '../../contexts/ToastContext';

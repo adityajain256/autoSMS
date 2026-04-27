@@ -141,18 +141,14 @@ export const updateDue = async (
   const session = await mongoose.default.startSession();
   session.startTransaction();
   try {
-    const entry = await Entry.findByIdAndUpdate(
-      id,
-      {
-        isPaid: !Entry?.isPaid,
-      },
-      { session },
-    );
+    const entry = await Entry.findById(id, { session });
     if (!entry) {
       await session.abortTransaction();
       session.endSession();
       return res.status(404).json({ message: "Entry not found." });
     }
+    entry.isPaid = !entry.isPaid;
+    await entry?.save();
     const client = await Client.findById(entry.userId, null, { session });
     if (!client) {
       await session.abortTransaction();
