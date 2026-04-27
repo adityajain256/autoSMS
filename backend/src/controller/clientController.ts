@@ -1,5 +1,4 @@
 import express from "express";
-
 import excel from "exceljs";
 import {
   createClientService,
@@ -9,7 +8,6 @@ import {
 } from "../service/clientService.ts";
 import type { IClient } from "../types/index.ts";
 import logger from "../utils/logger.ts";
-import User from "../model/User.ts";
 import Client from "../model/Client.ts";
 
 export const getAllClients = async (
@@ -100,59 +98,6 @@ export const createClient = async (
     return res.status(500).json({ message: "Server error" });
   }
 };
-
-// export const updateClient = async (
-//   req: express.Request,
-//   res: express.Response,
-// ) => {
-//   const { id } = req.params;
-//   const { amount } = req.body;
-//   const session = await mongoose.default.startSession();
-//   session.startTransaction();
-
-//   try {
-//     // Only update fields that are defined\
-
-//     const client = await User.findById(id);
-//     if (!client) {
-//       return res.status(404).json({ message: "Client not found" });
-//     }
-
-//     if (amount > client.nonPaidAmount) {
-//       return res.status(400).json({
-//         message: "Amount cannot be greater than non-paid amount / due amount",
-//       });
-//     }
-//     await Entry.create({
-//       userId: id,
-//       amount: amount,
-//       type: "Payment",
-//       quantity: 0,
-//       date: new Date(),
-//       isPaid: true,
-//     });
-//     client.paidAmount += amount;
-//     if (client.nonPaidAmount - amount < 0) {
-//       client.nonPaidAmount = 0 as any;
-//     } else {
-//       client.nonPaidAmount = (client.nonPaidAmount - amount).toFixed(2) as any;
-//     }
-//     await client.save();
-//     // await sendSMS(
-//     //   String(client.phoneNumber),
-//     //   `Dear customer, we have received your payment of ₹${amount}. Your remaining due amount is ₹${client.nonPaidAmount}. Thank you!`,
-//     //   (req as any).user.id,
-//     // );
-//     session.commitTransaction();
-//     session.endSession();
-
-//     res.json({ message: "Client updated successfully", data: client });
-//   } catch (error: any) {
-//     session.abortTransaction();
-//     session.endSession();
-//     res.status(500).json({ message: "Server error", error });
-//   }
-// };
 
 export const deleteClient = async (
   req: express.Request,

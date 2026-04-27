@@ -8,6 +8,7 @@ import {
   updateUser,
 } from "../reposatory/userRepo.ts";
 import logger from "../utils/logger.ts";
+import redisClient from "../config/redis.ts";
 // import { otp, otpTemplate } from "../utils/otpGenerator.ts";
 // import { sendMail } from "../config/mail.ts";
 // import validators from "../utils/validators.ts";
@@ -54,6 +55,11 @@ export const registerUserService = async (data: IUser) => {
     const token = jwt.sign({ id: userId.toString() }, jwtSecret, {
       expiresIn: "7d",
     });
+    await redisClient.setEx(
+      `user:${userId}:petrolPumpName`,
+      7 * 24 * 60 * 60,
+      String(data?.petrolPumpName),
+    );
 
     logger.info("User registered successfully.");
     return { user: newUser, token };
@@ -92,6 +98,16 @@ export const loginUserService = async (data: IUser) => {
     const token = jwt.sign({ id: user.user._id }, jwtSecret, {
       expiresIn: "7d",
     });
+    const petrolPump = await redisClient.get(
+      `user:${user.user._id}:petrolPumpName`,
+    );
+    if (!petrolPump) {
+      await redisClient.setEx(
+        `user:${user.user._id}:petrolPumpName`,
+        2 * 60 * 60,
+        String(user.user.petrolPumpName),
+      );
+    }
 
     logger.info("User logged in successfully.");
     return { success: true, token };

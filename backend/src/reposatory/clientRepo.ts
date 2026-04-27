@@ -7,7 +7,7 @@ import Entry from "../model/Entry.ts";
 
 export const getAllClientsRepo = async (id: string) => {
   try {
-    const clients = await Client.find({ authId: id });
+    const clients: IClient[] = await Client.find({ authId: id });
     if (!clients) {
       return { success: false, error: "No clients found for this user" };
     }
@@ -64,6 +64,24 @@ export const deleteClientRepo = async (id: string) => {
     await session.abortTransaction();
     session.endSession();
     logger.error(error);
+    return { success: false, error: error };
+  }
+};
+
+export const getClientsWithDuesRepo = async (id: string) => {
+  try {
+    const clients = await Client.find({
+      authId: id,
+      nonPaidAmount: { $gt: 0 },
+    });
+    if (!clients) {
+      return {
+        success: false,
+        error: "No clients with dues found for this user",
+      };
+    }
+    return clients;
+  } catch (error) {
     return { success: false, error: error };
   }
 };

@@ -12,7 +12,10 @@ const smsSchema = new mongoose.Schema(
     body: { type: String, required: true },
     status: {
       type: String,
-      default: "pending",
+      enum: ["welcomeMessage", "dueMessage"],
+    },
+    whatsappMessageId: {
+      type: String,
     },
   },
   { timestamps: true },

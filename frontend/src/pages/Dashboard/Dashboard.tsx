@@ -8,15 +8,6 @@ import { useEffect, useState } from 'react';
 import { api } from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
 
-
-
-// const mockData = [
-//   { id: 1, client: 'Reliance Industries', name: 'Mukesh Ambani', phone: '+91 9876543210', status: 'success', date: 'Oct 23, 10:45 AM', type: 'Tax Reminder' },
-//   { id: 2, client: 'TCS', name: 'N. Chandrasekaran', phone: '+91 9876543211', status: 'pending', date: 'Oct 23, 09:30 AM', type: 'Filing Done' },
-//   { id: 3, client: 'HDFC Bank', name: 'Sashidhar Jagdishan', phone: '+91 9876543212', status: 'error', date: 'Oct 22, 04:15 PM', type: 'GST Notice' },
-//   { id: 4, client: 'Infosys', name: 'Salil Parekh', phone: '+91 9876543213', status: 'success', date: 'Oct 22, 11:20 AM', type: 'Tax Reminder' },
-// ];
-
 export function Dashboard() {
 
   const navigate = useNavigate();
@@ -48,7 +39,18 @@ export function Dashboard() {
           }
         });
 
-        setData(res.data);
+        setData(res.data || {
+          totalSMS: 0,
+          totalUser: 0,
+          totalAmount: 0,
+          totalClientInOneDay: 0,
+          listOfSMS: [{
+            _id: "",
+            to: "",
+            createdAt: "",
+            body: "",
+          }],
+        });
   
       } catch (error: any) {
         console.log(error)
@@ -122,14 +124,22 @@ export function Dashboard() {
               </tr>
             </thead>
             <tbody className="divide-y ghost-border">
-              {data.listOfSMS.map((row) => (
-                <tr key={row._id} className="hover:bg-surface-container/30 transition-colors">
+              {((data.listOfSMS) ) ? (
+                data.listOfSMS.map((row) => (
+                  <tr key={row._id || ''} className="hover:bg-surface-container/30 transition-colors">
           
-                  <td className="p-4 text-sm font-medium text-on-surface">{row.to}</td>
-                  <td className="p-4 text-sm text-on-surface-variant">{row.createdAt.toString().slice(0, 10) + " " + row.createdAt.toString().slice(11, 16)}</td>
-                  <td className="p-4 text-sm text-right text-on-surface">{row.body.slice(0, 30)}...</td>
+                    <td className="p-4 text-sm font-medium text-on-surface">{row.to|| ''}</td>
+                    <td className="p-4 text-sm text-on-surface-variant">{row.createdAt.toString().slice(0, 10) + " " + row.createdAt.toString().slice(11, 16) || ''}</td>
+                    <td className="p-4 text-sm text-right text-on-surface">{row.body.slice(0, 30)}...</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={3} className="p-4 text-center text-on-surface-variant">
+                    No recent SMS entries found.
+                  </td>
                 </tr>
-              ))}
+              )} 
             </tbody>
           </table>
         </div>

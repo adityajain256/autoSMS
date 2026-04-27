@@ -3,17 +3,12 @@
 // GET    /api/sms/status/:entryId  // Check SMS status
 
 import express from "express";
-import {
-  sendWelcomeSMS,
-  sendDueSMS,
-  sendSms,
-} from "../controller/smsController.ts";
+import { sendWelcomeSMS, sendDueSMS } from "../controller/smsController.ts";
 import authMiddleware from "../middleware/auth.middleware.ts";
+import { smsRateLimiter } from "../middleware/rateLimite.middleware.ts";
 const smsRouter = express.Router();
 
 smsRouter.use(authMiddleware);
-
-smsRouter.post("/sendSMS", sendSms);
 
 /**
  * @swagger
@@ -42,8 +37,8 @@ smsRouter.post("/sendSMS", sendSms);
  *       500:
  *         description: Error sending SMS to all clients.
  */
-smsRouter.post("/send/welcomeSMS", sendWelcomeSMS);
-smsRouter.post("/send/dueSMS", sendDueSMS);
+smsRouter.post("/send/welcomeSMS", smsRateLimiter, sendWelcomeSMS);
+smsRouter.post("/send/dueSMS", smsRateLimiter, sendDueSMS);
 // smsRouter.post("/send/monthlySms", sendMonthlySMS);
 // smsRouter.get("/status/:entryId", checkSmsStatus);
 

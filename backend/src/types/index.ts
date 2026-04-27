@@ -16,7 +16,7 @@ export interface IClient {
   _id?: Types.ObjectId;
   name?: string;
   email?: string;
-  phone?: string; // +91XXXXXXXXXX format
+  phoneNumber?: string; // +91XXXXXXXXXX format
   gstNumber?: string;
   vehicleId?: string;
   address?: string;
@@ -27,6 +27,14 @@ export interface IClient {
   updatedAt?: Date;
 }
 
+export interface ISMS {
+  _id?: Types.ObjectId;
+  userId: Types.ObjectId; // Reference to Client
+  to: string; // Phone number in +91XXXXXXXXXX format
+  body: string;
+  status: string;
+  whatsappMessageId?: string; // ID returned by WhatsApp API
+}
 // interface ITaxEntry extends Document {
 //   _id: Types.ObjectId;
 //   userId: Types.ObjectId; // Reference to Client
