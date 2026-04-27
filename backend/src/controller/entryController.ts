@@ -1,11 +1,12 @@
 import Entry from "../model/Entry.ts";
-import User from "../model/Client.ts";
+import User from "../model/User.ts";
+import Client from "../model/Client.ts";
 import express from "express";
 import mongoose from "mongoose";
 
 import excel from "exceljs";
-
-import Admin from "../model/User.ts";
+import redisClient from "../config/redis.ts";
+import logger from "../utils/logger.ts";
 
 export const getAllEntries = async (
   req: express.Request,
@@ -31,8 +32,8 @@ export const createEntry = async (
   }
 
   const clientId = rawClientId;
-  const parsedQuantity = Number(quantity).toFixed(2);
-  const parsedAmount = Number(amount).toFixed(2);
+  const parsedQuantity = Number(quantity);
+  const parsedAmount = Number(amount);
 
   // Accept 0 as valid, only null/undefined is invalid
   if (
@@ -48,39 +49,35 @@ export const createEntry = async (
     });
   }
 
-  const userObjectId = new mongoose.Types.ObjectId(clientId);
+  const ClientObjectId = new mongoose.Types.ObjectId(clientId);
 
   const session = await mongoose.default.startSession();
   session.startTransaction();
   try {
-    // Verify user exists inside transaction
+    // Verify Client exists inside transaction
     const petropumpName = String(
-      await Admin.findById((req as any).user.id).select("petrolPumpName"),
+      await redisClient.get(`user:${(req as any).user.id}:petrolPumpName`),
     );
-    const user = await User.findById(userObjectId, null, { session }).select(
-      "phoneNumber paidAmount nonPaidAmount totalQuantity",
-    );
-    if (!user) {
+    const client = await Client.findById(ClientObjectId, null, {
+      session,
+    }).select("phoneNumber paidAmount nonPaidAmount totalQuantity");
+    if (!client) {
       await session.abortTransaction();
       session.endSession();
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Client not found" });
     }
-    const phone = String(user.phoneNumber);
+    const phone = String(client.phoneNumber);
 
-    const entry: any = await Entry.create(
-      [
-        {
-          userId: userObjectId,
-          quantity: Number(parsedQuantity),
-          amount: Number(parsedAmount),
-          message,
-          isPaid,
-          type,
-          date,
-        },
-      ],
-      { session },
-    );
+    const entry = new Entry({
+      userId: String(ClientObjectId),
+      quantity: Number(parsedQuantity.toFixed(2)),
+      amount: Number(parsedAmount.toFixed(2)),
+      message,
+      isPaid,
+      type,
+      date,
+    });
+    const savedEntry = await entry.save({ session });
     // const sms = await singleSMS(phone, message, [
     //   parsedAmount,
     //   parsedQuantity,
@@ -88,15 +85,15 @@ export const createEntry = async (
     //   petropumpName,
     // ]);
     // console.log("SMS Response:", sms);
-    await User.findByIdAndUpdate(
-      userObjectId,
+    await Client.findByIdAndUpdate(
+      ClientObjectId,
       {
         $inc: {
-          paidAmount: isPaid ? parsedAmount : 0.0,
-          nonPaidAmount: isPaid ? 0.0 : parsedAmount,
-          totalQuantity: parsedQuantity,
+          paidAmount: isPaid ? Number(parsedAmount.toFixed(2)) : 0.0,
+          nonPaidAmount: isPaid ? 0.0 : Number(parsedAmount.toFixed(2)),
+          totalQuantity: Number(parsedQuantity.toFixed(2)),
         },
-        $push: { entries: entry[0]._id },
+        $push: { entries: savedEntry._id },
       },
       { session },
     );
@@ -104,7 +101,7 @@ export const createEntry = async (
     session.endSession();
     return res
       .status(201)
-      .json({ data: entry[0], message: "Entry created successfully." });
+      .json({ data: savedEntry, message: "Entry created successfully." });
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
@@ -122,9 +119,9 @@ export const getEntryByClientId = async (
     return res.status(400).json({ message: "Client ID is required" });
   }
   try {
-    const user = await User.findById(clientId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    const client = await Client.findById(clientId);
+    if (!client) {
+      return res.status(404).json({ message: "Client not found" });
     }
     const entries = (await Entry.find({ userId: clientId })).toReversed();
     return res.status(200).json(entries);
@@ -147,7 +144,7 @@ export const updateDue = async (
     const entry = await Entry.findByIdAndUpdate(
       id,
       {
-        isPaid: !Entry.isPaid,
+        isPaid: !Entry?.isPaid,
       },
       { session },
     );
@@ -156,47 +153,47 @@ export const updateDue = async (
       session.endSession();
       return res.status(404).json({ message: "Entry not found." });
     }
-    const user = await User.findById(entry.userId, null, { session });
-    if (!user) {
+    const client = await Client.findById(entry.userId, null, { session });
+    if (!client) {
       await session.abortTransaction();
       session.endSession();
-      return res.status(404).json({ message: "User not found." });
+      return res.status(404).json({ message: "Client not found." });
     }
     // Compute increment/decrement based on isPaid
-    let userUpdate;
+    let ClientUpdate;
     if (entry.isPaid) {
-      if (user.paidAmount > entry.amount) {
-        userUpdate = {
+      if (client.paidAmount > entry.amount) {
+        ClientUpdate = {
           $inc: {
             paidAmount: -entry.amount.toFixed(2),
             nonPaidAmount: entry.amount.toFixed(2),
           },
         };
       } else {
-        userUpdate = {
+        ClientUpdate = {
           $inc: {
-            paidAmount: -user.paidAmount.toFixed(2),
-            nonPaidAmount: user.paidAmount.toFixed(2),
+            paidAmount: -client.paidAmount.toFixed(2),
+            nonPaidAmount: client.paidAmount.toFixed(2),
           },
         };
       }
     } else {
-      if (user.nonPaidAmount > entry.amount) {
-        userUpdate = {
+      if (client.nonPaidAmount > entry.amount) {
+        ClientUpdate = {
           $inc: {
             paidAmount: entry.amount.toFixed(2),
             nonPaidAmount: -entry.amount.toFixed(2),
           },
         };
       } else {
-        userUpdate = {
+        ClientUpdate = {
           $inc: {
             paidAmount: entry.amount.toFixed(2),
-            nonPaidAmount: -user.nonPaidAmount.toFixed(2),
+            nonPaidAmount: -client.nonPaidAmount.toFixed(2),
           },
         };
       }
-      await User.findByIdAndUpdate(entry.userId, userUpdate, { session });
+      await Client.findByIdAndUpdate(entry.userId, ClientUpdate, { session });
 
       const updatedEntry = await Entry.findByIdAndUpdate(
         id,
@@ -226,15 +223,16 @@ export const exportClientEntriesToExcel = async (
   }
   try {
     const entries = await Entry.find({ userId: clientId }).populate("userId");
-    const user = entries[0]?.userId as any;
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    const client = entries[0]?.userId as any;
+    if (!client) {
+      logger.error(`Client with ID ${clientId} not found for entries export.`);
+      return res.status(404).json({ message: "Client not found" });
     }
 
     const workbook = new excel.Workbook();
     const worksheet = workbook.addWorksheet("Entries");
 
-    worksheet.name = `${user.name}'s Entries`;
+    worksheet.name = `${client.name}'s Entries`;
     worksheet.columns = [
       {
         header: "Date",
@@ -266,7 +264,7 @@ export const exportClientEntriesToExcel = async (
     );
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=entries_${user.name}_${Date.now()}.xlsx`,
+      `attachment; filename=entries_${client.name}_${Date.now()}.xlsx`,
     );
     await workbook.xlsx.write(res);
     res.end();

@@ -60,7 +60,16 @@ export const registerUserService = async (data: IUser) => {
       7 * 24 * 60 * 60,
       String(data?.petrolPumpName),
     );
-
+    await redisClient.setEx(
+      `user:${userId}:email`,
+      7 * 24 * 60 * 60,
+      String(data.email),
+    );
+    await redisClient.setEx(
+      `user:${userId}:address`,
+      7 * 24 * 60 * 60,
+      String(data.address),
+    );
     logger.info("User registered successfully.");
     return { user: newUser, token };
   } catch (error) {
@@ -106,6 +115,23 @@ export const loginUserService = async (data: IUser) => {
         `user:${user.user._id}:petrolPumpName`,
         2 * 60 * 60,
         String(user.user.petrolPumpName),
+      );
+    }
+    const address = await redisClient.get(`user:${user.user._id}:address`);
+    if (!address) {
+      await redisClient.setEx(
+        `user:${user.user._id}:address`,
+        2 * 60 * 60,
+        String(user.user.address),
+      );
+    }
+
+    const email = await redisClient.get(`user:${user.user._id}:email`);
+    if (!email) {
+      await redisClient.setEx(
+        `user:${user.user._id}:email`,
+        2 * 60 * 60,
+        String(user.user.email),
       );
     }
 

@@ -6,6 +6,11 @@ import {
 } from "../reposatory/clientRepo.ts";
 import redisClient from "../config/redis.ts";
 import { createSMSRepo } from "../reposatory/smsRepo.ts";
+import {
+  dueMessageTemplateForMail,
+  welcomeMessageTemplateForMail,
+} from "../utils/templates.ts";
+import { sendMail } from "../config/mail.ts";
 
 export const sendWelcomeSMSService = async (
   authId: string,
@@ -26,23 +31,33 @@ export const sendWelcomeSMSService = async (
     const petrolPumpName = String(
       await redisClient.get(`user:${authId}:petrolPumpName`),
     );
-    for (const client of clients) {
+    const email = String(await redisClient.get(`user:${authId}:email`));
+    const address = String(await redisClient.get(`user:${authId}:address`));
+
+    clients.map((client) => {
       setTimeout(async () => {
-        const res = await sendWhatsAppMessage(
-          String(client.phoneNumber),
-          welcomeMessage,
-          lang === "eng" ? "en_US" : "hi",
+        const mailBody = welcomeMessageTemplateForMail(
           petrolPumpName,
+          String(client.userName),
+          email,
+          address,
+        );
+        const res = await sendMail(
+          String(client.email),
+          "Welcome to " + petrolPumpName,
+          mailBody,
         );
         await createSMSRepo({
           userId: client._id!,
           to: String(client.phoneNumber),
           body: "Welcome message sent.",
           status: "welcomeMessage",
-          whatsappMessageId: res.id,
         });
+        logger.info(
+          `Welcome SMS sent to client ID: ${client._id} with phone number: ${client.phoneNumber} response: ${String(res) || "mail sent"}`,
+        );
       }, 500);
-    }
+    });
     return { success: true, message: "Welcome SMS sent to all clients" };
   } catch (error) {
     logger.error(`Error occurred while sending welcome SMS: ${error}`);
@@ -69,22 +84,34 @@ export const sendDueSMSService = async (
     const petrolPumpName = String(
       await redisClient.get(`user:${authId}:petrolPumpName`),
     );
+    const address = String(await redisClient.get(`user:${authId}:address`));
+    const email = String(await redisClient.get(`user:${authId}:email`));
 
     for (const client of clients) {
       setTimeout(async () => {
-        const res = await sendWhatsAppMessage(
-          String(client.phoneNumber),
-          dueMessageTemplate,
-          lang === "eng" ? "en_US" : "hi",
+        const personalizedMessage = dueMessageTemplateForMail(
           petrolPumpName,
+          String(client.nonPaidAmount),
+          String(client.totalQuantity),
+          String(client.createdAt?.toLocaleDateString() || ""),
+          String(new Date().getFullYear()),
+          email,
+          address,
+        );
+        const res = await sendMail(
+          String(client.email),
+          "Due Amount Reminder from " + petrolPumpName,
+          personalizedMessage,
         );
         await createSMSRepo({
           userId: client._id!,
           to: String(client.phoneNumber),
           body: "Due message send.",
           status: "dueMessage",
-          whatsappMessageId: res.id,
         });
+        logger.info(
+          `Due SMS sent to client ID: ${client._id} with phone number: ${client.phoneNumber} response: ${String(res) || "mail sent"}`,
+        );
       }, 500);
     }
     return { success: true, message: "Due SMS sent to all clients with dues" };

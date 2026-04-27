@@ -12,10 +12,11 @@ export function Clients() {
   const [isExporting, setIsExporting] = useState(false);
   const { addToast } = useToast();
 
-  const handleExportToExcel = async (clientId: string) => {
+  const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
-      const res = await api.get(`/clients//export/excel/${clientId}`, {
+ 
+      const res = await api.get(`/clients/export/excel`, {
         responseType: 'blob',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,

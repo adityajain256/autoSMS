@@ -14,7 +14,7 @@ export interface IUser {
 
 export interface IClient {
   _id?: Types.ObjectId;
-  name?: string;
+  userName?: string;
   email?: string;
   phoneNumber?: string; // +91XXXXXXXXXX format
   gstNumber?: string;

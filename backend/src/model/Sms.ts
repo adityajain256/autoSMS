@@ -14,9 +14,6 @@ const smsSchema = new mongoose.Schema(
       type: String,
       enum: ["welcomeMessage", "dueMessage"],
     },
-    whatsappMessageId: {
-      type: String,
-    },
   },
   { timestamps: true },
 );

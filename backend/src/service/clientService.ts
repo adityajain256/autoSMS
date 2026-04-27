@@ -44,6 +44,7 @@ export const createClientService = async (data: IClient, authId: string) => {
         error: client.error || "Failed to create client",
       };
     }
+    
     return { success: true, data: client };
   } catch (error) {
     return { success: false, error: error };

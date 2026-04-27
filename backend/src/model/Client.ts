@@ -56,7 +56,7 @@ const clientSchema = new mongoose.Schema(
     vehicle: { type: String, required: true, unique: true },
     authId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin",
+      ref: "User",
       required: true,
       index: true,
     },
