@@ -1,7 +1,9 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastProvider } from './contexts/ToastContext';
+
 import { Layout } from './components/layout/Layout';
+import Footer from './components/layout/Footer';
 
 import { Login } from './pages/Auth/Login';
 import { Signup } from './pages/Auth/Signup';
@@ -29,14 +31,15 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="clients" element={<Clients />} />
             <Route path="entries" element={<Entries />} />
-            <Route path="/create" element={<CreateEntry />} />
+            <Route path="create" element={<CreateEntry />} />
             <Route path="profile" element={<Profile />} />
             <Route path="hero" element={<Hero />} />
-            <Route path="/SMS" element={<Sms />} />
-            <Route path="/client/delete" element={<DeleteClient />} />
+            <Route path="SMS" element={<Sms />} />
+            <Route path="client/delete" element={<DeleteClient />} />
             <Route path="announcement" element={<Announcement />} />
           </Route>
         </Routes>
+        <Footer />
       </BrowserRouter>
     </ToastProvider>
   );
