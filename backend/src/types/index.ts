@@ -35,16 +35,16 @@ export interface ISMS {
   status: string;
   whatsappMessageId?: string; // ID returned by WhatsApp API
 }
-// interface ITaxEntry extends Document {
-//   _id: Types.ObjectId;
-//   userId: Types.ObjectId; // Reference to Client
-//   amount: number;
-//   entryDate: Date;
-//   totalAfterEntry: number;
-//   remark: string;
-//   smsStatus: "pending" | "sent" | "failed";
-//   smsResponse?: any;
-//   createdBy: Types.ObjectId; // Reference to CAUser
-//   createdAt: Date;
-//   updatedAt: Date;
-// }
+
+export interface IEntry {
+  _id?: Types.ObjectId;
+  userId: Types.ObjectId; // Reference to Client
+  quantity: number;
+  amount: number;
+  isPaid: boolean;
+  types?: "petrol" | "diesel" | "CNG" | "Payment";
+  message?: string;
+  date?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}

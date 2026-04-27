@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import Client from "../model/Client.ts";
 import User from "../model/User.ts";
 import type { IClient } from "../types/index.ts";
-import logger from "../utils/logger.ts";
 import Entry from "../model/Entry.ts";
 
 export const getAllClientsRepo = async (id: string) => {
@@ -13,7 +12,6 @@ export const getAllClientsRepo = async (id: string) => {
     }
     return clients;
   } catch (error) {
-    logger.error(error);
     return { success: false, error: error };
   }
 };
@@ -26,7 +24,6 @@ export const getClientByIdRepo = async (id: string) => {
     }
     return client;
   } catch (error) {
-    logger.error(error);
     return { success: false, error: error };
   }
 };
@@ -42,7 +39,6 @@ export const createClientRepo = async (data: IClient, authId: string) => {
     });
     return { success: true, data: client };
   } catch (error) {
-    logger.error(error);
     return { success: false, error: error };
   }
 };
@@ -63,7 +59,6 @@ export const deleteClientRepo = async (id: string) => {
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
-    logger.error(error);
     return { success: false, error: error };
   }
 };

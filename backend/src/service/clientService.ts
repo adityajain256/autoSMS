@@ -8,10 +8,12 @@ import type { IClient } from "../types/index.ts";
 import { deleteClientRepo } from "../reposatory/clientRepo.ts";
 import User from "../model/User.ts";
 import mongoose from "mongoose";
+import { log } from "node:console";
 
 export const getAllClientsService = async (id: string) => {
   try {
     const clients = await getAllClientsRepo(id);
+    logger.info(`All clients retrieved for user ID: ${id}`);
     return clients;
   } catch (error) {
     logger.error(error);
@@ -22,8 +24,10 @@ export const getAllClientsService = async (id: string) => {
 export const getClientByIdService = async (id: string) => {
   try {
     const client = await getClientByIdRepo(id);
+    logger.info(`Client retrieved for ID: ${id}`);
     return client;
   } catch (error) {
+    logger.error(error);
     return { success: false, error: error };
   }
 };
@@ -44,9 +48,12 @@ export const createClientService = async (data: IClient, authId: string) => {
         error: client.error || "Failed to create client",
       };
     }
-    
+
+    logger.info(`Client created for user ID: ${authId}`);
+
     return { success: true, data: client };
   } catch (error) {
+    logger.error(error);
     return { success: false, error: error };
   }
 };
@@ -58,11 +65,15 @@ export const deleteClientService = async (id: string) => {
   try {
     const result = await deleteClientRepo(id);
     await User.findOneAndUpdate({ clients: id }, { $pop: { clients: id } });
-    await session.commitTransaction();
-    session.endSession();
     if (!result.success) {
+      await session.abortTransaction();
+      session.endSession();
+      logger.error(`Failed to delete client with ID: ${id} - ${result.error}`);
       return { success: false, error: result.error };
     }
+    await session.commitTransaction();
+    session.endSession();
+    logger.info(`Client deleted for ID: ${id}`);
     return { success: true };
   } catch (error) {
     await session.abortTransaction();

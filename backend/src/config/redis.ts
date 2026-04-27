@@ -30,6 +30,7 @@ const redisClient = createClient({
 redisClient.on("error", (err: Error) => {
   logger.error(`redis error: ${err}`);
   throw err;
+  process.exit(1);
 });
 
 export default redisClient;

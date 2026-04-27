@@ -6,6 +6,6 @@ export const whatsAppCredentials = () => {
     console.error("WhatsApp API key or sender ID is not set.");
     return;
   }
-  const url = `https://graph.facebook.com/${version}/${senderId}/messages_templates`;
+  const url = `https://graph.facebook.com/${version}/${senderId}/messages`;
   return { url, apiKey };
 };

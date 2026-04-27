@@ -29,18 +29,18 @@ export const sendWhatsAppMessage = async (
           name: message,
           language: {
             code: lang,
-            components: [
-              {
-                type: "header",
-                parameters: [
-                  {
-                    type: "text",
-                    text: petrolPumpName,
-                  },
-                ],
-              },
-            ],
           },
+          components: [
+            {
+              type: "header",
+              parameters: [
+                {
+                  type: "text",
+                  text: petrolPumpName,
+                },
+              ],
+            },
+          ],
         },
       }),
     });

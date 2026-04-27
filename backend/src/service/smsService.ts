@@ -58,6 +58,7 @@ export const sendWelcomeSMSService = async (
         );
       }, 500);
     });
+    logger.info(`Welcome SMS sending process initiated for user ID: ${authId}`);
     return { success: true, message: "Welcome SMS sent to all clients" };
   } catch (error) {
     logger.error(`Error occurred while sending welcome SMS: ${error}`);
@@ -114,6 +115,7 @@ export const sendDueSMSService = async (
         );
       }, 500);
     }
+    logger.info(`Due SMS sending process initiated for user ID: ${authId}`);
     return { success: true, message: "Due SMS sent to all clients with dues" };
   } catch (error) {
     logger.error(`Error occurred while sending due SMS: ${error}`);

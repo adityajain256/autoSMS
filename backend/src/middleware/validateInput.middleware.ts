@@ -10,7 +10,7 @@ export const varification = async (
   try {
     const data = req.body;
     if (!data.email || !data.password || !data.phoneNumber) {
-      logger.error(
+      logger.warn(
         { phoneNumebr: data.phoneNumber, userMail: data.email },
         "Missing required fields.",
       );
@@ -18,18 +18,18 @@ export const varification = async (
     }
     const re: string = validators.validatePassword(data.password);
     if (re !== "OK") {
-      logger.error({ userMail: data.email }, "Not a valid Pass");
+      logger.warn({ userMail: data.email }, "Not a valid Pass");
       return res.status(400).json({ message: "invalid credentials" });
     }
     if (validators.validatePhoneNumber(String(data.phoneNumber)) === false) {
-      logger.error(
+      logger.warn(
         { phoneNumebr: data.phoneNumber, userMail: data.email },
         "Invalid phone number format.",
       );
       return res.status(400).json({ message: "invalid credentials" });
     }
     if (validators.validateEmail(String(data.email)) == false) {
-      logger.error(
+      logger.warn(
         { phoneNumebr: data.phoneNumber, userMail: data.email },
         "Invalid email format.",
       );
@@ -38,7 +38,7 @@ export const varification = async (
 
     next();
   } catch (error) {
-    logger.error({ message: "An error occurred during validation." });
+    logger.warn({ message: "An error occurred during validation." });
 
     res.status(500).json({ message: "An error occurred during validation." });
   }

@@ -13,11 +13,6 @@ import redisClient from "../config/redis.ts";
 // import { sendMail } from "../config/mail.ts";
 // import validators from "../utils/validators.ts";
 
-type IUserWithOptionalFields = IUser & {
-  id?: string;
-  password?: string;
-};
-
 export const registerUserService = async (data: IUser) => {
   try {
     // varification of email.
