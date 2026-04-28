@@ -3,9 +3,9 @@
 // GET    /api/sms/status/:entryId  // Check SMS status
 
 import express from "express";
-import { sendWelcomeSMS, sendDueSMS } from "../controller/smsController.ts";
-import authMiddleware from "../middleware/auth.middleware.ts";
-import { smsRateLimiter } from "../middleware/rateLimite.middleware.ts";
+import { sendWelcomeSMS, sendDueSMS } from "../controller/smsController";
+import authMiddleware from "../middleware/auth.middleware";
+import { smsRateLimiter } from "../middleware/rateLimite.middleware";
 const smsRouter = express.Router();
 
 smsRouter.use(authMiddleware);

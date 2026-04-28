@@ -1,12 +1,12 @@
 import express from "express";
-import authMiddleware from "../middleware/auth.middleware.ts";
+import authMiddleware from "../middleware/auth.middleware";
 import {
   createClient,
   getAllClients,
   getClientById,
   deleteClient,
   exportExcel,
-} from "../controller/clientController.ts";
+} from "../controller/clientController";
 
 const clientRouter = express.Router();
 

@@ -5,10 +5,10 @@ import {
   deleteClientService,
   getAllClientsService,
   getClientByIdService,
-} from "../service/clientService.ts";
-import type { IClient } from "../types/index.ts";
-import logger from "../utils/logger.ts";
-import Client from "../model/Client.ts";
+} from "../service/clientService";
+import type { IClient } from "../types/index";
+import logger from "../utils/logger";
+import Client from "../model/Client";
 
 export const getAllClients = async (
   req: express.Request,

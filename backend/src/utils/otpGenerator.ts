@@ -1,8 +1,8 @@
 import { randomInt } from "node:crypto";
-import client from "../config/redis.ts";
-import logger from "./logger.ts";
-import { hash, compare } from "./crypto.ts";
-import redisClient from "../config/redis.ts";
+import client from "../config/redis";
+import logger from "./logger";
+import { hash, compare } from "./crypto";
+import redisClient from "../config/redis";
 
 export const otp = (s: number) => {
   const size = s;

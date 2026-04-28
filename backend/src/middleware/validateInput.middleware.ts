@@ -1,6 +1,6 @@
 import express from "express";
-import validators from "../utils/validators.ts";
-import logger from "../utils/logger.ts";
+import validators from "../utils/validators";
+import logger from "../utils/logger";
 
 export const varification = async (
   req: express.Request,

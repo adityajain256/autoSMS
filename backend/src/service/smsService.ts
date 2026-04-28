@@ -1,15 +1,15 @@
-import logger from "../utils/logger.ts";
+import logger from "../utils/logger";
 import {
   getClientsWithStatusRepo,
   updateClientStatusRepo,
-} from "../reposatory/clientRepo.ts";
-import redisClient from "../config/redis.ts";
-import { createSMSRepo, getAllSMSRepo } from "../reposatory/smsRepo.ts";
+} from "../reposatory/clientRepo";
+import redisClient from "../config/redis";
+import { createSMSRepo, getAllSMSRepo } from "../reposatory/smsRepo";
 import {
   dueMessageTemplateForMail,
   welcomeMessageTemplateForMail,
-} from "../utils/templates.ts";
-import { sendMail } from "../config/mail.ts";
+} from "../utils/templates";
+import { sendMail } from "../config/mail";
 
 export const sendWelcomeSMSService = async (
   authId: string,

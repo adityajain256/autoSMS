@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import logger from "../utils/logger.ts";
+import logger from "../utils/logger";
 
 export const sendMail = async (
   to: string,

@@ -1,4 +1,4 @@
-import type { IUser } from "../types/index.ts";
+import type { IUser } from "../types/index";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import {
@@ -6,12 +6,12 @@ import {
   getUser,
   loginUser,
   updateUser,
-} from "../reposatory/userRepo.ts";
-import logger from "../utils/logger.ts";
-import redisClient from "../config/redis.ts";
-// import { otp, otpTemplate } from "../utils/otpGenerator.ts";
-// import { sendMail } from "../config/mail.ts";
-// import validators from "../utils/validators.ts";
+} from "../reposatory/userRepo";
+import logger from "../utils/logger";
+import redisClient from "../config/redis";
+// import { otp, otpTemplate } from "../utils/otpGenerator";
+// import { sendMail } from "../config/mail";
+// import validators from "../utils/validators";
 
 export const registerUserService = async (data: IUser) => {
   try {

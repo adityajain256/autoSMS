@@ -4,10 +4,10 @@ import {
   loginUser,
   registerAdmin,
   updateProfile,
-} from "../controller/authController.ts";
-import authMiddleware from "../middleware/auth.middleware.ts";
-import { varification } from "../middleware/validateInput.middleware.ts";
-import { rateLimiter } from "../middleware/rateLimite.middleware.ts";
+} from "../controller/authController";
+import authMiddleware from "../middleware/auth.middleware";
+import { varification } from "../middleware/validateInput.middleware";
+import { rateLimiter } from "../middleware/rateLimite.middleware";
 
 const authRouter = express.Router();
 

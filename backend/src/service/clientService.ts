@@ -2,11 +2,11 @@ import {
   createClientRepo,
   getAllClientsRepo,
   getClientByIdRepo,
-} from "../reposatory/clientRepo.ts";
-import logger from "../utils/logger.ts";
-import type { IClient } from "../types/index.ts";
-import { deleteClientRepo } from "../reposatory/clientRepo.ts";
-import User from "../model/User.ts";
+} from "../reposatory/clientRepo";
+import logger from "../utils/logger";
+import type { IClient } from "../types/index";
+import { deleteClientRepo } from "../reposatory/clientRepo";
+import User from "../model/User";
 import mongoose from "mongoose";
 
 

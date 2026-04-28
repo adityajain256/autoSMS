@@ -1,8 +1,8 @@
-import app from "./src/app.ts";
-import DBconnection from "./src/config/db.ts";
-import { envSchema } from "./src/config/env.ts";
-import logger from "./src/utils/logger.ts";
-import redisClient from "./src/config/redis.ts";
+import app from "./src/app";
+import DBconnection from "./src/config/db";
+import { envSchema } from "./src/config/env";
+import logger from "./src/utils/logger";
+import redisClient from "./src/config/redis";
 
 const startServer = async () => {
   envSchema.parse(process.env);

@@ -1,8 +1,8 @@
 import cron from "cron";
-import DBconnection from "../config/db.ts";
-import Client from "../model/Client.ts";
-import logger from "../utils/logger.ts";
-import redisClient from "../config/redis.ts";
+import DBconnection from "../config/db";
+import Client from "../model/Client";
+import logger from "../utils/logger";
+import redisClient from "../config/redis";
 
 // Connect to DB
 DBconnection()
