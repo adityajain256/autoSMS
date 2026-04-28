@@ -3,6 +3,7 @@ import { cn } from '../../utils/cn';
 import { useState } from 'react';
 import { api } from '../../utils/api';
 import { useToast } from '../../contexts/ToastContext';
+import { useNavigate } from 'react-router';
 
 
 interface AddClientProps {
@@ -15,6 +16,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
   const [formData, setFormData] = useState({ userName: "", phoneNumber: "", vehicle: "", amount: "" as string | number, totalQuantity: "" as string | number, email: "", gstNumber: "", address: "" });
   const [isPaid, setIsPaid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate(); 
   const createClient = async () => {
     try {
       const amountValue = Number(formData.amount) || 0;
@@ -34,7 +36,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
           }
         }
       );
-      window.location.reload();
+      navigate("/clients");
       addToast(response.data.message, "success")
     } catch (error) {
       addToast("Error creating client" + error, "error");

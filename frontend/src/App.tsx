@@ -16,10 +16,15 @@ import Hero from './pages/Hero/Hero';
 import { DeleteClient } from './pages/Clients/DeleteClient';
 import { Sms } from './pages/Sms/Sms';
 import Announcement from './pages/Announcement/Announcement';
+import { api } from './utils/api';
 
 
 function App() {
+  setInterval(async () => {
+    const res =  await api.get('/api/clients/');
+    console.log(res);
 
+  }, 15 * 60 * 1000); 
   return (
     <ToastProvider>
       <BrowserRouter>
