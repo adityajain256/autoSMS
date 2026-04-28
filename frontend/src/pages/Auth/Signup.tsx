@@ -51,9 +51,9 @@ export function Signup() {
             localStorage.setItem("token", response.data.token);
             addToast("Signup successful", "success");
             navigate("/dashboard");
-        } catch (error: any) {
+        } catch (error) {
             // ...removed console.log(error);
-            addToast(error.response.data.message, "error");
+            addToast((error as any).response?.data?.message || "Signup failed", "error");
         }
     };
 

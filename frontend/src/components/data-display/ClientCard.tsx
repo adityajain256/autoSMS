@@ -6,11 +6,21 @@ import { Card } from "../common/Card";
 import { useEffect, useState } from "react";
 
 
-
+interface Client {
+  _id?: string;
+  username?: string;
+  phoneNumber?: string;
+  email?: string;
+  vehicle?: string;
+  gstNumber?: string;
+  totalQuantity?: number | string;
+  paidAmount?: number | string;
+  nonPaidAmount?: number | string;
+}
 export function ClientCard({searchTerm}: {searchTerm: string}) {
   const [isLoading, setIsLoading] = useState(true);
 
-    const [data, setData] = useState<any[]>([]);
+    const [data, setData] = useState<Client[]>([]);
 
       
       const displayData = data.filter((client) => {
@@ -37,9 +47,9 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
             });
             // ...removed console.log("Fetched clients:", res);
             setData(Array.isArray(res.data) ? res.data : []);
-          } catch (error) {
+          } catch (_error) {
             setIsLoading(false);
-            // ...removed console.error("Error fetching clients:", error);
+            // ...removed console.error("Error fetching clients:", _error);
           } finally{
             setIsLoading(false);
           }
