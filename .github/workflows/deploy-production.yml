@@ -20,8 +20,7 @@ jobs:
       - name: Install dependencies (backend)
         run: |
           cd backend
-          npm ci
-          npm i
+          npm ci --omit=dev
 
       - name: Build backend
         run: |

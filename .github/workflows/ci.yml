@@ -21,8 +21,7 @@ jobs:
       - name: Install backend dependencies
         run: |
           cd backend
-          npm ci
-          npm i
+          npm ci --omit=dev 
 
 
       - name: Type check backend
