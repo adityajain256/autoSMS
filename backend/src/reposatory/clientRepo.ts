@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Client from "../model/Client.js";
 import User from "../model/User.js";
-import type { IClient } from "../types/index";
+import type { IClient } from "../types/index.js";
 import Entry from "../model/Entry.js";
 
 export const getAllClientsRepo = async (id: string) => {

@@ -6,7 +6,7 @@ import {
   getAllClientsService,
   getClientByIdService,
 } from "../service/clientService.js";
-import type { IClient } from "../types/index";
+import type { IClient } from "../types/index.js";
 import logger from "../utils/logger.js";
 import Client from "../model/Client.js";
 

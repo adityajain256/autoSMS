@@ -1,4 +1,4 @@
-import type { IUser } from "../types/index";
+import type { IUser } from "../types/index.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import {
