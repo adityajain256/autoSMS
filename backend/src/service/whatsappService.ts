@@ -1,5 +1,5 @@
-import { whatsAppCredentials } from "../config/whatsapp";
-import logger from "../utils/logger";
+import { whatsAppCredentials } from "../config/whatsapp.js";
+import logger from "../utils/logger.js";
 
 export const sendWhatsAppMessage = async (
   to: string,

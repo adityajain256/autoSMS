@@ -5,8 +5,8 @@ import express from "express";
 import {
   getStatistics,
   getTopClients,
-} from "../controller/dashboardController";
-import authMiddleware from "../middleware/auth.middleware";
+} from "../controller/dashboardController.js";
+import authMiddleware from "../middleware/auth.middleware.js";
 
 const dashboardRouter = express.Router();
 dashboardRouter.use(authMiddleware);

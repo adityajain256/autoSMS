@@ -1,4 +1,4 @@
-import User from "../model/User";
+import User from "../model/User.js";
 import type { IUser } from "../types/index.js";
 
 export const createUser = async ({

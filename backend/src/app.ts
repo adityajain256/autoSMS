@@ -1,16 +1,16 @@
 import express from "express";
 import doenv from "dotenv";
-import authRouter from "./route/userRoute";
-import clientRouter from "./route/clientRouter";
-import entryRouter from "./route/entryRoute";
-import smsRouter from "./route/smsRoute";
+import authRouter from "./route/userRoute.js";
+import clientRouter from "./route/clientRouter.js";
+import entryRouter from "./route/entryRoute.js";
+import smsRouter from "./route/smsRoute.js";
 import swaggerUi from "swagger-ui-express";
-import { specs } from "./config/swagger";
+import { specs } from "./config/swagger.js";
 import cors from "cors";
-import dashboardRouter from "./route/dashboard";
-import { envSchema } from "./config/env";
+import dashboardRouter from "./route/dashboard.js";
+import { envSchema } from "./config/env.js";
 import { pinoHttp } from "pino-http";
-import logger from "./utils/logger";
+import logger from "./utils/logger.js";
 
 doenv.config();
 envSchema.parse(process.env);

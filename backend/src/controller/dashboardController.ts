@@ -1,10 +1,10 @@
 import express from "express";
-import User from "../model/User";
+import User from "../model/User.js";
 
-import SMS from "../model/Sms";
-import { getAllClientsService } from "../service/clientService";
-import { getAllSMSService } from "../service/smsService";
-import Client from "../model/Client";
+import SMS from "../model/Sms.js";
+import { getAllClientsService } from "../service/clientService.js";
+import { getAllSMSService } from "../service/smsService.js";
+import Client from "../model/Client.js";
 
 export const getStatistics = async (
   req: express.Request,

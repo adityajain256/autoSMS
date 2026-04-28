@@ -1,4 +1,4 @@
-import Entry from "../model/Entry";
+import Entry from "../model/Entry.js";
 import type { IEntry } from "../types/index";
 
 export const getAllEntriesRepo = async (id: string) => {};

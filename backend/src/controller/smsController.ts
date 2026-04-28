@@ -2,8 +2,8 @@ import express from "express";
 import {
   sendDueSMSService,
   sendWelcomeSMSService,
-} from "../service/smsService";
-import logger from "../utils/logger";
+} from "../service/smsService.js";
+import logger from "../utils/logger.js";
 
 export const sendWelcomeSMS = async (
   req: express.Request,

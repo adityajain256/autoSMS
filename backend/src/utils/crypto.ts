@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
-import logger from "./logger";
-import redisClient from "../config/redis";
+import logger from "./logger.js";
+import redisClient from "../config/redis.js";
 
 export const hash = async (data: string) => {
   try {

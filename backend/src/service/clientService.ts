@@ -2,11 +2,11 @@ import {
   createClientRepo,
   getAllClientsRepo,
   getClientByIdRepo,
-} from "../reposatory/clientRepo";
-import logger from "../utils/logger";
+} from "../reposatory/clientRepo.js";
+import logger from "../utils/logger.js";
 import type { IClient } from "../types/index";
-import { deleteClientRepo } from "../reposatory/clientRepo";
-import User from "../model/User";
+import { deleteClientRepo } from "../reposatory/clientRepo.js";
+import User from "../model/User.js";
 import mongoose from "mongoose";
 
 

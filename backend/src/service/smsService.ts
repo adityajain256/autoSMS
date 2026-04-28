@@ -1,15 +1,15 @@
-import logger from "../utils/logger";
+import logger from "../utils/logger.js";
 import {
   getClientsWithStatusRepo,
   updateClientStatusRepo,
-} from "../reposatory/clientRepo";
-import redisClient from "../config/redis";
-import { createSMSRepo, getAllSMSRepo } from "../reposatory/smsRepo";
+} from "../reposatory/clientRepo.js";
+import redisClient from "../config/redis.js";
+import { createSMSRepo, getAllSMSRepo } from "../reposatory/smsRepo.js";
 import {
   dueMessageTemplateForMail,
   welcomeMessageTemplateForMail,
-} from "../utils/templates";
-import { sendMail } from "../config/mail";
+} from "../utils/templates.js";
+import { sendMail } from "../config/mail.js";
 
 export const sendWelcomeSMSService = async (
   authId: string,

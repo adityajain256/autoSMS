@@ -1,12 +1,12 @@
-import Entry from "../model/Entry";
-import User from "../model/User";
-import Client from "../model/Client";
+import Entry from "../model/Entry.js";
+import User from "../model/User.js";
+import Client from "../model/Client.js";
 import express from "express";
 import mongoose from "mongoose";
 
 import excel from "exceljs";
-import redisClient from "../config/redis";
-import logger from "../utils/logger";
+import redisClient from "../config/redis.js";
+import logger from "../utils/logger.js";
 
 export const getAllEntries = async (
   req: express.Request,

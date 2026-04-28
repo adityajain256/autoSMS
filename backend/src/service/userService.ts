@@ -6,12 +6,12 @@ import {
   getUser,
   loginUser,
   updateUser,
-} from "../reposatory/userRepo";
-import logger from "../utils/logger";
-import redisClient from "../config/redis";
-// import { otp, otpTemplate } from "../utils/otpGenerator";
-// import { sendMail } from "../config/mail";
-// import validators from "../utils/validators";
+} from "../reposatory/userRepo.js";
+import logger from "../utils/logger.js";
+import redisClient from "../config/redis.js";
+// import { otp, otpTemplate } from "../utils/otpGenerator.js";
+// import { sendMail } from "../config/mail.js";
+// import validators from "../utils/validators.js";
 
 export const registerUserService = async (data: IUser) => {
   try {

@@ -4,7 +4,7 @@ import {
   loginUserService,
   registerUserService,
   updateUserService,
-} from "../service/userService";
+} from "../service/userService.js";
 import type { IUser } from "../types/index.js";
 
 export const registerAdmin = async (

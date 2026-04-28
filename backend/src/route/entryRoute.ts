@@ -7,14 +7,14 @@
 // DELETE /api/entries/:id          // Delete entry
 
 import express from "express";
-import authMiddleware from "../middleware/auth.middleware";
+import authMiddleware from "../middleware/auth.middleware.js";
 import {
   getAllEntries,
   createEntry,
   getEntryByClientId,
   updateDue,
   exportClientEntriesToExcel,
-} from "../controller/entryController";
+} from "../controller/entryController.js";
 
 const entryRouter = express.Router();
 

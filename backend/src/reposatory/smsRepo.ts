@@ -1,4 +1,4 @@
-import SMS from "../model/Sms";
+import SMS from "../model/Sms.js";
 import type { ISMS } from "../types/index";
 
 export const createSMSRepo = async (data: ISMS) => {

@@ -1,5 +1,5 @@
 // src/config/redis.ts
-import logger from "../utils/logger";
+import logger from "../utils/logger.js";
 import { createClient } from "redis";
 import doenv from "dotenv";
 doenv.config();

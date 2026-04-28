@@ -1,6 +1,6 @@
 import express from "express";
-import redisClient from "../config/redis";
-import logger from "../utils/logger";
+import redisClient from "../config/redis.js";
+import logger from "../utils/logger.js";
 
 export const rateLimiter = async (
   req: express.Request,
