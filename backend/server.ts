@@ -27,7 +27,7 @@ const startServer = async () => {
       "Failed to connect to the database. Server will not start.",
       (error as Error).message,
     );
-    process.exit(1);
+    throw error;
   }
 };
 
@@ -44,5 +44,5 @@ startServer()
       "Error during server startup:",
       (error as Error).message,
     );
-    process.exit(1);
+    throw error;
   });

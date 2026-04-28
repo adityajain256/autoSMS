@@ -21,6 +21,7 @@ jobs:
         run: |
           cd backend
           npm ci
+          npm i
 
       - name: Build backend
         run: |
