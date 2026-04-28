@@ -51,13 +51,11 @@ export const sendDueSMS = async (
     }
     if (result?.success || result?.message) {
       logger.info(`Due SMS sent successfully for user ID: ${authId}`);
-      return res
-        .status(200)
-        .json({
-          message:
-            result?.message ||
-            "Due SMS have been already sent to all clients with dues",
-        });
+      return res.status(200).json({
+        message:
+          result?.message ||
+          "Due SMS have been already sent to all clients with dues",
+      });
     }
     logger.info(`Due SMS sent successfully for user ID: ${authId}`);
     return res

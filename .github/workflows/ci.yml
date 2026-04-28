@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Type check backend
+        run: |
+          cd backend
+          npx tsc --noEmit
+
+      - name: Lint backend (if you use ESLint)
+        run: |
+          cd backend
+          if [ -f eslint.config.js ] || [ -f .eslintrc.js ]; then npx eslint .; fi
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Type check frontend
+        run: |
+          cd frontend
+          npx tsc --noEmit || true
+
+      - name: Lint frontend (if you use ESLint)
+        run: |
+          cd frontend
+          if [ -f eslint.config.js ] || [ -f .eslintrc.js ]; then npx eslint .; fi

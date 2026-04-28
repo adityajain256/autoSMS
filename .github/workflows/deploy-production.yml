@@ -1,0 +1,45 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies (backend)
+        run: |
+          cd backend
+          npm ci
+
+      - name: Build backend
+        run: |
+          cd backend
+          npm run build
+
+      - name: Install dependencies (frontend)
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+
+      # Add deployment step below as per your hosting (example: SSH, rsync, or cloud provider CLI)
+      # - name: Deploy to server
+      #   run: |
+      #     scp -r backend/dist user@your-server:/path/to/app/backend/dist
+      #     scp -r frontend/dist user@your-server:/path/to/app/frontend/dist
+      #     ssh user@your-server 'pm2 restart all' # or your process manager
