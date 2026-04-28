@@ -62,6 +62,7 @@ const clientSchema = new mongoose.Schema(
     },
     entries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Entry" }],
     welcomeMessageSent: { type: Boolean, default: false },
+    paymentReminderSent: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

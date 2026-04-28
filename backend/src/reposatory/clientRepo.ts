@@ -81,14 +81,15 @@ export const getClientsWithDuesRepo = async (id: string) => {
   }
 };
 
-export const updateClientWelcomeMessageStatusRepo = async (
+export const updateClientStatusRepo = async (
   id: string,
   status: boolean,
+  type: "welcomeMessageSent" | "paymentReminderSent",
 ) => {
   try {
     const updatedClient = await Client.findByIdAndUpdate(
       id,
-      { welcomeMessageSent: status },
+      { [type]: status },
       { returnDocument: "after" },
     );
     if (!updatedClient) {
@@ -100,20 +101,21 @@ export const updateClientWelcomeMessageStatusRepo = async (
   }
 };
 
-export const getClientsWithWelcomeMessageStatusRepo = async (
+export const getClientsWithStatusRepo = async (
   id: string,
   status: boolean,
+  type: "welcomeMessageSent" | "paymentReminderSent",
 ) => {
   try {
-    const clients = await Client.find({
-      authId: id,
-      welcomeMessageSent: status,
-    });
+    const data =
+      type === "paymentReminderSent"
+        ? { authId: id, [type]: status, nonPaidAmount: { $gt: 0 } }
+        : { authId: id, [type]: status };
+    const clients = await Client.find(data);
     if (!clients) {
       return {
         success: false,
-        error:
-          "No clients with the specified welcome message status found for this user",
+        error: "No clients with the specified status found for this user",
       };
     }
     return clients;

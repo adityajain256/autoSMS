@@ -8,7 +8,7 @@ import type { IClient } from "../types/index.ts";
 import { deleteClientRepo } from "../reposatory/clientRepo.ts";
 import User from "../model/User.ts";
 import mongoose from "mongoose";
-import { log } from "node:console";
+
 
 export const getAllClientsService = async (id: string) => {
   try {

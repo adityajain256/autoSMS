@@ -13,6 +13,13 @@ export const sendWelcomeSMS = async (
   const authId = (req as any).user.id;
   try {
     const result = await sendWelcomeSMSService(authId, eng ? "eng" : "hin");
+    if (result?.success || result?.message) {
+      return res.status(200).json({
+        message:
+          result?.message ||
+          "Every client has alreday received the welcome message",
+      });
+    }
     if (!result?.success) {
       return res
         .status(501)
@@ -41,6 +48,16 @@ export const sendDueSMS = async (
       return res
         .status(501)
         .json({ message: result?.message || "Failed to send due SMS" });
+    }
+    if (result?.success || result?.message) {
+      logger.info(`Due SMS sent successfully for user ID: ${authId}`);
+      return res
+        .status(200)
+        .json({
+          message:
+            result?.message ||
+            "Due SMS have been already sent to all clients with dues",
+        });
     }
     logger.info(`Due SMS sent successfully for user ID: ${authId}`);
     return res

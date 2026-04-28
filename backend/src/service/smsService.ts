@@ -1,8 +1,7 @@
 import logger from "../utils/logger.ts";
 import {
-  getClientsWithDuesRepo,
-  getClientsWithWelcomeMessageStatusRepo,
-  updateClientWelcomeMessageStatusRepo,
+  getClientsWithStatusRepo,
+  updateClientStatusRepo,
 } from "../reposatory/clientRepo.ts";
 import redisClient from "../config/redis.ts";
 import { createSMSRepo, getAllSMSRepo } from "../reposatory/smsRepo.ts";
@@ -11,7 +10,6 @@ import {
   welcomeMessageTemplateForMail,
 } from "../utils/templates.ts";
 import { sendMail } from "../config/mail.ts";
-import { setDefaultAutoSelectFamily } from "node:net";
 
 export const sendWelcomeSMSService = async (
   authId: string,
@@ -19,13 +17,17 @@ export const sendWelcomeSMSService = async (
 ) => {
   try {
     const status = false;
-    const clients = await getClientsWithWelcomeMessageStatusRepo(
+    const clients = await getClientsWithStatusRepo(
       String(authId),
       status,
+      "welcomeMessageSent",
     );
     if (!Array.isArray(clients) || clients.length === 0) {
       logger.error(`User not found with ID: ${authId}`);
-      return;
+      return {
+        success: true,
+        message: "Every client has already received the welcome message",
+      };
     }
 
     const welcomeMessage = String(
@@ -61,7 +63,11 @@ export const sendWelcomeSMSService = async (
         logger.info(
           `Welcome SMS sent to client ID: ${client._id} with phone number: ${client.phoneNumber} response: ${String(res) || "mail sent"}`,
         );
-        await updateClientWelcomeMessageStatusRepo(String(client._id), !status);
+        await updateClientStatusRepo(
+          String(client._id),
+          !status,
+          "welcomeMessageSent",
+        );
       }, 500);
     });
     logger.info(`Welcome SMS sending process initiated for user ID: ${authId}`);
@@ -77,7 +83,12 @@ export const sendDueSMSService = async (
   lang: "eng" | "hin",
 ) => {
   try {
-    const clients = await getClientsWithDuesRepo(authId);
+    const status = false;
+    const clients = await getClientsWithStatusRepo(
+      authId,
+      status,
+      "paymentReminderSent",
+    );
     if (!Array.isArray(clients) || clients.length === 0) {
       logger.info(`No clients with dues found for user ID: ${authId}`);
       return { success: true, message: "No clients with dues to send SMS" };
@@ -118,6 +129,11 @@ export const sendDueSMSService = async (
         });
         logger.info(
           `Due SMS sent to client ID: ${client._id} with phone number: ${client.phoneNumber} response: ${String(res) || "mail sent"}`,
+        );
+        await updateClientStatusRepo(
+          String(client._id),
+          !status,
+          "paymentReminderSent",
         );
       }, 500);
     }

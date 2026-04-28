@@ -108,7 +108,7 @@ export const loginUserService = async (data: IUser) => {
     if (!petrolPump) {
       await redisClient.setEx(
         `user:${user.user._id}:petrolPumpName`,
-        2 * 60 * 60,
+        7 * 24 * 60 * 60,
         String(user.user.petrolPumpName),
       );
     }
@@ -116,7 +116,7 @@ export const loginUserService = async (data: IUser) => {
     if (!address) {
       await redisClient.setEx(
         `user:${user.user._id}:address`,
-        2 * 60 * 60,
+        7 * 24 * 60 * 60,
         String(user.user.address),
       );
     }
@@ -125,7 +125,7 @@ export const loginUserService = async (data: IUser) => {
     if (!email) {
       await redisClient.setEx(
         `user:${user.user._id}:email`,
-        2 * 60 * 60,
+        7 * 24 * 60 * 60,
         String(user.user.email),
       );
     }

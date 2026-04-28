@@ -168,10 +168,10 @@ export const welcomeMessageTemplateForMail = (
                       <tr>
                         <td width="50%" style="vertical-align:top;padding-right:10px;">
                           <div style="font-size:11px;color:#9ca3af;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Address</div>
-                          <div style="font-size:13px;color:#374151;line-height:1.6;">NH-58, Near Highway Chowk,<br/>${address || "Uttar Pradesh"}</div>
+                          <div style="font-size:13px;color:#374151;line-height:1.6;"><br/>${address || "Uttar Pradesh"}</div>
                         </td>
                         <td width="50%" style="vertical-align:top;padding-left:10px;">
-                          <div style="font-size:13px;color:#374151;line-height:1.6;">📞 +91 98765 43210<br/>✉️ ${email}</div>
+                          <div style="font-size:13px;color:#374151;line-height:1.6;"><br/>✉️ ${email}</div>
                         </td>
                       </tr>
                     </table>
@@ -288,10 +288,10 @@ export const dueMessageTemplateForMail = (
                       <tr>
                         <td width="50%" style="vertical-align:top;padding-right:10px;">
                           <div style="font-size:11px;color:#9ca3af;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Address</div>
-                          <div style="font-size:13px;color:#374151;line-height:1.6;">NH-58, Near Highway Chowk,<br/>${address || "Uttar Pradesh"}</div>
+                          <div style="font-size:13px;color:#374151;line-height:1.6;"><br/>${address || "Uttar Pradesh"}</div>
                         </td>
                         <td width="50%" style="vertical-align:top;padding-left:10px;">
-                          <div style="font-size:13px;color:#374151;line-height:1.6;">📞 +91 98765 43210<br/>✉️ ${email}</div>
+                          <div style="font-size:13px;color:#374151;line-height:1.6;"><br/>✉️ ${email}</div>
                         </td>
                       </tr>
                     </table>
