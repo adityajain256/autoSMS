@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "npx nodemon server.ts",
-    "build": "tsc && node scripts/replace-ts-imports.js",
+    "build": "npm install && tsc && node scripts/replace-ts-imports.js",
     "start": "node dist/server.js"
   },
   "keywords": [],
