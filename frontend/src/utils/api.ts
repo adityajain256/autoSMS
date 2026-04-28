@@ -1,12 +1,12 @@
 import axios from "axios";
 
-const baseApi = "http://localhost:8000/api";
+const baseApi = "https://autosms.onrender.com/api";
 
 export const api = axios.create({
-    baseURL: baseApi,
-    headers: {
-        "Content-Type": "application/json",
-    },
+  baseURL: baseApi,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 // api.interceptors.response.use(
