@@ -6,10 +6,15 @@ import { api } from '../../utils/api';
 import { useToast } from '../../contexts/ToastContext';
 import { Button } from '../../components/common/Button';
 
-
 export function CreateEntry() {
   const [remark, setRemark] = useState('');
-  const [data, setData] = useState<any []>([]);
+  const [data, setData] = useState([{
+    _id: "",
+    date: "",
+    type: "",
+    amount: 0,
+    isPaid: false,
+  }]);
   const { addToast } = useToast();
   const navigate = useNavigate();
 
@@ -50,7 +55,7 @@ export function CreateEntry() {
       window.location.reload();
     } catch (error) {
       addToast("Error updating amount", "error");
-      // ...removed console.log(error);
+      console.log(error);
     } finally {
       setIsUpdatingAmount(false);
     }
@@ -74,7 +79,7 @@ export function CreateEntry() {
       addToast("Entry created successfully", "success");
       navigate("/clients");
     } catch (error) {
-      // ...removed console.log(error);
+      console.log(error);
       addToast("Error creating entry", "error");
     } finally {
       setIsSubmitting(false);
@@ -91,7 +96,7 @@ export function CreateEntry() {
       window.location.reload();
       setData(res.data);
     } catch (error) {
-      // ...removed console.log(error);
+      console.log(error);
       addToast("Error updating entry", "error");
     }
   };
@@ -119,6 +124,7 @@ export function CreateEntry() {
       addToast("Entries exported successfully!", "success");
     } catch (error) {
       setIsFetching(false);
+      console.log(error)
       addToast("Failed to export entries. Please try again.", "error");
     } finally{
       setIsFetching(false);
@@ -142,7 +148,8 @@ export function CreateEntry() {
 
         setData(res.data);
       } catch (error) {
-        // ...removed console.log(error);
+        
+         console.log(error);
       }
     }
 
@@ -155,8 +162,8 @@ export function CreateEntry() {
         })
 
         setClient(res.data);
-      } catch (error) {
-        // ...removed console.log(error);
+      } catch (e) {
+        console.log(e);
       }
     }
 

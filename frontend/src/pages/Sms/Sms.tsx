@@ -29,6 +29,7 @@ export function Sms() {
             )
             addToast(res.data.message, "success")
         } catch (error) {
+            console.error(error);
             addToast("Failed to send SMS.", "error")
         } finally {
             setIsLoading(false)
@@ -48,6 +49,7 @@ export function Sms() {
             addToast(res.data.message, "success")
 
         } catch (error) {
+            console.error(error);
             addToast("Failed to send due SMS.", "error")
         } finally {
             setIsLoading(false)
@@ -68,7 +70,8 @@ export function Sms() {
             addToast(res.data.message, "success")
 
         } catch (error) {
-            // ...removed console.log(error)
+            console.error(error);
+            addToast("Failed to send custom SMS.", "error")
         } finally {
             setIsLoading(false)
         }
@@ -85,7 +88,7 @@ export function Sms() {
                 // ...removed console.log(res.data)
                 setSmsData(res.data.admin)
             } catch (error) {
-                // ...removed console.log(error)
+                console.log(error)
             }
         }
         getSmsData()

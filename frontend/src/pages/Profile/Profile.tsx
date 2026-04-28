@@ -40,10 +40,10 @@ export function Profile() {
       })
       setIsLoading(false)
       alert("Profile updated successfully!");
-    } catch (error: any) {
-      if (error.response.status == 401) {
-        navigate("/login");
-      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      navigate("/login");
+
       // ...removed console.error("Error updating profile:", error);
       setIsLoading(false)
     }
@@ -64,7 +64,7 @@ export function Profile() {
         setProfile(res.data.admin);
 
       } catch (error) {
-        // ...removed console.error("Error fetching profile:", error);
+        console.error("Error fetching profile:", error);
       }
     }
     getProfile();

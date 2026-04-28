@@ -52,17 +52,15 @@ export function Dashboard() {
           }],
         });
   
-      } catch (error: any) {
-        // ...removed console.log(error)
-        if (error.response.status == 401) {
-          navigate("/login");
-        }
+      } catch (error) {
+        console.error(error);
+        navigate("/login");
       } finally {
         setIsLoading(false);
       }
     };
     fetchDashboardData();
-  }, []);
+  }, [navigate]);
   if(isLoading){
     <Loader2 className="w-8 h-8 animate-spin" />
   }

@@ -49,7 +49,7 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
             setData(Array.isArray(res.data) ? res.data : []);
           } catch (_error) {
             setIsLoading(false);
-            // ...removed console.error("Error fetching clients:", _error);
+            console.error("Error fetching clients:", _error);
           } finally{
             setIsLoading(false);
           }
@@ -120,15 +120,15 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
               <div className='flex flex-row justify-between gap-4 mt-4'>
                 <div className="flex items-center text-sm text-green-500">
                   <IndianRupee className="w-4 h-4 mr-3 text-green-500" />
-                  {client.paidAmount?.toFixed(2)}
+                  {Number(client.paidAmount).toFixed(2)}
                 </div>
                 <div className="flex items-center text-sm text-red-500">
                   <IndianRupee className="w-4 h-4 mr-3 text-red-500" />
-                  {client.nonPaidAmount?.toFixed(2)}
+                  {Number(client.nonPaidAmount).toFixed(2)}
                 </div>
                 <div className="flex items-center text-sm text-on-surface">
                   <FuelIcon className="w-4 h-4 mr-3 text-on-surface-variant" />
-                  {client.totalQuantity?.toFixed(2)} Ltr
+                  {Number(client.totalQuantity).toFixed(2)} Ltr
                 </div>
               </div>
             </Link>

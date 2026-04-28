@@ -53,7 +53,7 @@ export function Signup() {
             navigate("/dashboard");
         } catch (error) {
             // ...removed console.log(error);
-            addToast((error as any).response?.data?.message || "Signup failed", "error");
+            addToast((error as Error).message || "Signup failed", "error");
         }
     };
 

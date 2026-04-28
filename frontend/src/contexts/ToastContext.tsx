@@ -1,4 +1,4 @@
-import { type ReactNode, createContext, useContext, useState } from 'react';
+import { type ReactNode, createContext, useContext, useState, useRef } from 'react';
 import { cn } from '../utils/cn';
 import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
 
@@ -63,7 +63,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useToast() {
+// eslint-disable-next-line react-refresh/only-export-components
+export const useToast = () => {
   const context = useContext(ToastContext);
   if (context === undefined) {
     throw new Error('useToast must be used within a ToastProvider');

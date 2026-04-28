@@ -9,7 +9,18 @@ import { api } from '../../utils/api';
 
 export function Entries() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState([{
+    _id: "",
+    userId: {
+      username: "",
+      phoneNumber: "",
+      vehicle: "",
+    },
+    date: "",
+    quantity: 0,
+    amount: 0,
+    isPaid: false,
+  }]);
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     const fetchEntries = async () => {
@@ -22,7 +33,7 @@ export function Entries() {
 
         setData(res.data);
       } catch (error) {
-        // ...removed console.log(error)
+       console.error(error)
       } finally {
         setIsLoading(false);
       }

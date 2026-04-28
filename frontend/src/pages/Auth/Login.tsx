@@ -43,9 +43,9 @@ export function Login() {
       navigate("/dashboard");
         
 
-    } catch (error) {
+    } catch (err: unknown) {
       // ...removed console.log(error);
-      addToast((error as any).response?.data?.message || "Login failed", "error");
+      addToast((err as Error).message || "Login failed", "error");
     } finally {
       setIsLoading(false);
     }
