@@ -46,12 +46,13 @@ export function CreateEntry() {
   const handleUpdateAmount = async () => {
     try {
       setIsUpdatingAmount(true);
-      await api.patch(`/clients/${clientId}`, {amount: inAmount.toFixed(2)}, {
+      await api.patch(`/clients/${clientId}`, {amount: Number(inAmount.toFixed(2))}, {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`
         }
       }) 
-      
+      setIsUpdatingAmount(false);
+      addToast("Amount updated successfully", "success");
       window.location.reload();
     } catch (error) {
       addToast("Error updating amount", "error");

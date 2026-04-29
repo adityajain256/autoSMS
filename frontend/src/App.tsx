@@ -24,7 +24,7 @@ function App() {
     const res =  await api.get('/api/clients/');
     console.log(res);
 
-  }, 15 * 60 * 1000); 
+  }, 10 * 60 * 1000); 
   return (
     <ToastProvider>
       <BrowserRouter>

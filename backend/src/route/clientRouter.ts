@@ -6,6 +6,7 @@ import {
   getClientById,
   deleteClient,
   exportExcel,
+  updateAmount,
 } from "../controller/clientController.js";
 
 const clientRouter = express.Router();
@@ -190,4 +191,7 @@ clientRouter.delete("/:id", deleteClient);
  *         description: Server error
  */
 clientRouter.get("/export/excel", exportExcel);
+
+clientRouter.patch("/:id", updateAmount);
+
 export default clientRouter;

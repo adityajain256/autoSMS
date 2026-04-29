@@ -2,13 +2,14 @@ import {
   createClientRepo,
   getAllClientsRepo,
   getClientByIdRepo,
+  updateClientAmountRepo,
 } from "../reposatory/clientRepo.js";
 import logger from "../utils/logger.js";
 import type { IClient } from "../types/index.js";
 import { deleteClientRepo } from "../reposatory/clientRepo.js";
 import User from "../model/User.js";
 import mongoose from "mongoose";
-
+import { createEntryRepo } from "../reposatory/entryRepo.js";
 
 export const getAllClientsService = async (id: string) => {
   try {
@@ -78,6 +79,35 @@ export const deleteClientService = async (id: string) => {
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
+    logger.error(error);
+    return { success: false, error: error };
+  }
+};
+
+export const updateClientAmountService = async (id: string, amount: number) => {
+  try {
+    const updateClientAmount = await updateClientAmountRepo(id, amount);
+    if (!updateClientAmount.success) {
+      logger.error(
+        `Failed to update client amount for ID: ${id} - ${updateClientAmount.error}`,
+      );
+      return { success: false, error: updateClientAmount.error };
+    }
+    const createEntry = await createEntryRepo({
+      userId: id,
+      amount: amount,
+      type: "Payment",
+      quantity: 0,
+    } as any);
+    if (!createEntry.success) {
+      logger.error(
+        `Failed to create entry for client ID: ${id} - ${createEntry.error}`,
+      );
+      return { success: false, error: createEntry.error };
+    }
+    logger.info(`Client amount updated for ID: ${id}`);
+    return { success: true, data: updateClientAmount.data };
+  } catch (error) {
     logger.error(error);
     return { success: false, error: error };
   }

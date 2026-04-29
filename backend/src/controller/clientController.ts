@@ -5,6 +5,7 @@ import {
   deleteClientService,
   getAllClientsService,
   getClientByIdService,
+  updateClientAmountService,
 } from "../service/clientService.js";
 import type { IClient } from "../types/index.js";
 import logger from "../utils/logger.js";
@@ -166,6 +167,33 @@ export const exportExcel = async (
     res.end();
   } catch (error) {
     console.error("Error exporting Excel:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const updateAmount = async (
+  req: express.Request,
+  res: express.Response,
+) => {
+  const { id } = req.params;
+  const { amount } = req.body;
+
+  if (!id) {
+    logger.error("Client ID is required for updating amount.");
+    return res.status(400).json({ message: "Client ID is required" });
+  }
+  if (!amount) {
+    logger.error("Amount is required for updating amount.");
+    return res.status(400).json({ message: "Amount is required" });
+  }
+  try {
+    const result = await updateClientAmountService(String(id), Number(amount));
+    if (!result.success) {
+      return res.status(400).json({ message: result.error });
+    }
+    res.json({ message: "Amount updated successfully", data: result });
+  } catch (error) {
+    logger.error(`Error updating amount: ${error}`);
     res.status(500).json({ message: "Server error" });
   }
 };

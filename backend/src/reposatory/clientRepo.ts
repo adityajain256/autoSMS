@@ -123,3 +123,19 @@ export const getClientsWithStatusRepo = async (
     return { success: false, error: error };
   }
 };
+
+export const updateClientAmountRepo = async (id: string, amount: number) => {
+  try {
+    const updatedClient = await Client.findByIdAndUpdate(
+      id,
+      { $inc: { paidAmount: +amount, nonPaidAmount: -amount } },
+      { returnDocument: "after" },
+    );
+    if (!updatedClient) {
+      return { success: false, error: "Client not found" };
+    }
+    return { success: true, data: updatedClient };
+  } catch (error) {
+    return { success: false, error: error };
+  }
+};
