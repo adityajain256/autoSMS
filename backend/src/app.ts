@@ -22,8 +22,8 @@ app.use(
   cors({
     methods: ["GET", "POST", "PATCH", "DELETE"],
     origin: [
-      "https://lightleaf.vercel.app/*",
-      "https://autosms.onrender.com/*",
+      "https://lightleaf.vercel.app",
+      "https://autosms.onrender.com",
     ],
   }),
 );
