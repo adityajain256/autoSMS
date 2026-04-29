@@ -6,7 +6,10 @@ import Entry from "../model/Entry.js";
 
 export const getAllClientsRepo = async (id: string) => {
   try {
-    const clients: IClient[] = await Client.find({ authId: id });
+    const clients: IClient[] = await Client.find(
+      { authId: id },
+      { createdAt: -1 },
+    );
     if (!clients) {
       return { success: false, error: "No clients found for this user" };
     }
