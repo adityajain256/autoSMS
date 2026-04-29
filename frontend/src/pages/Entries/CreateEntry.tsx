@@ -358,10 +358,10 @@ export function CreateEntry() {
               <div className="space-y-3">
             <label className="text-[11px] font-extrabold text-gray-500 uppercase tracking-[0.15em] ml-2">Quantity</label>
             <div className="relative flex items-center">
-              <span className="absolute left-6 font-bold text-gray-500 text-xl">₹</span>
+              <span className="absolute left-6 font-bold text-gray-500 text-xl"></span>
               <input
                 type="date"
-                placeholder="0.00"
+                placeholder={new Date().toLocaleDateString('en-GB')}
                 value={formData.date}
                 onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                 className="w-full h-[72px] pl-12 pr-6 bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white rounded-[2rem] text-2xl font-bold text-gray-900 border border-transparent focus:border-primary/30 outline-none transition-all focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)]"
