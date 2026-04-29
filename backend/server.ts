@@ -3,7 +3,6 @@ import DBconnection from "./src/config/db.js";
 import { envSchema } from "./src/config/env.js";
 import logger from "./src/utils/logger.js";
 import redisClient from "./src/config/redis.js";
-
 const startServer = async () => {
   envSchema.parse(process.env);
   try {
@@ -21,6 +20,22 @@ const startServer = async () => {
         `Server is running on port ${process.env.PORT || 3000}`,
       );
     });
+
+    setInterval(
+      async () => {
+        try {
+          await fetch("https://autosms.onrender.com/api/health");
+          logger.debug({ userName: "aditya" }, "Health check successful");
+        } catch (error) {
+          logger.error(
+            { userName: "aditya" },
+            "Health check failed:",
+            (error as Error).message,
+          );
+        }
+      },
+      10 * 60 * 1000,
+    );
   } catch (error) {
     logger.error(
       { userName: "aditya" },

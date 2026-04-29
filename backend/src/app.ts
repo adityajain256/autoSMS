@@ -18,7 +18,15 @@ const app: express.Application = express();
 
 // Middleware
 app.use(pinoHttp({ logger: logger }));
-app.use(cors({ methods: ["GET", "POST", "PATCH", "DELETE"], origin: "*" }));
+app.use(
+  cors({
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    origin: [
+      "https://lightleaf.vercel.app/*",
+      "https://autosms.onrender.com/*",
+    ],
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRouter);
@@ -28,4 +36,7 @@ app.use("/api/sms", smsRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
+// app.get("/", (req, res) => {
+//   res.status(404).send({ success: false, error: "Endpoint not found" });
+// });
 export default app;
