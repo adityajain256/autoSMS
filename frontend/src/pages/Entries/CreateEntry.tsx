@@ -98,7 +98,12 @@ export function CreateEntry() {
       setData(res.data);
     } catch (error) {
       console.log(error);
-      addToast("Error updating entry", "error");
+      const errorMessage = String(error);
+      if(errorMessage.includes("429")){
+        addToast("Too many requests. Try after 60 sec.", "error");
+      } else {
+      addToast("Can not update entry", "error");
+    }
     }
   };
   const downloadEntriesToExcel = async () => {

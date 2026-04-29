@@ -12,9 +12,10 @@ import {
   getAllEntries,
   createEntry,
   getEntryByClientId,
-  updateDue,
   exportClientEntriesToExcel,
+  updateStatusEntry,
 } from "../controller/entryController.js";
+import { smsRateLimiter } from "../middleware/rateLimite.middleware.js";
 
 const entryRouter = express.Router();
 
@@ -194,7 +195,7 @@ entryRouter.post("/:clientId", createEntry);
  *       500:
  *         description: Server error
  */
-entryRouter.patch("/:id", updateDue);
+entryRouter.patch("/:id", smsRateLimiter, updateStatusEntry);
 
 /**
  * @swagger

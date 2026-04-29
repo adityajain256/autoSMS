@@ -1,5 +1,4 @@
 import Entry from "../model/Entry.js";
-import User from "../model/User.js";
 import Client from "../model/Client.js";
 import express from "express";
 import mongoose from "mongoose";
@@ -7,7 +6,10 @@ import mongoose from "mongoose";
 import excel from "exceljs";
 import redisClient from "../config/redis.js";
 import logger from "../utils/logger.js";
-import { getAllEntriesService } from "../service/entryService.js";
+import {
+  getAllEntriesService,
+  updateStatusEntryService,
+} from "../service/entryService.js";
 
 export const getAllEntries = async (
   req: express.Request,
@@ -36,7 +38,7 @@ export const createEntry = async (
   if (Array.isArray(rawClientId) || rawClientId == null) {
     return res.status(400).json({ message: "Client ID is required" });
   }
-
+  const authId = String((req as any).user.id);
   const clientId = rawClientId;
   const parsedQuantity = Number(quantity);
   const parsedAmount = Number(amount);
@@ -75,6 +77,7 @@ export const createEntry = async (
     const phone = String(client.phoneNumber);
 
     const entry = new Entry({
+      authId: authId,
       userId: String(ClientObjectId),
       quantity: Number(parsedQuantity.toFixed(2)),
       amount: Number(parsedAmount.toFixed(2)),
@@ -136,7 +139,86 @@ export const getEntryByClientId = async (
   }
 };
 
-export const updateDue = async (
+// export const updateDue = async (
+//   req: express.Request,
+//   res: express.Response,
+// ) => {
+//   const { id } = req.params;
+//   if (!id) {
+//     return res.status(400).json({ message: "no id provided." });
+//   }
+//   const session = await mongoose.default.startSession();
+//   session.startTransaction();
+//   try {
+//     const entry = await Entry.findById(id, { session });
+//     if (!entry) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return res.status(404).json({ message: "Entry not found." });
+//     }
+//     entry.isPaid = !entry.isPaid;
+//     await entry?.save();
+//     const client = await Client.findById(entry.userId, null, { session });
+//     if (!client) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return res.status(404).json({ message: "Client not found." });
+//     }
+//     // Compute increment/decrement based on isPaid
+//     let ClientUpdate;
+//     if (entry.isPaid) {
+//       if (client.paidAmount > entry.amount) {
+//         ClientUpdate = {
+//           $inc: {
+//             paidAmount: -entry.amount.toFixed(2),
+//             nonPaidAmount: entry.amount.toFixed(2),
+//           },
+//         };
+//       } else {
+//         ClientUpdate = {
+//           $inc: {
+//             paidAmount: -client.paidAmount.toFixed(2),
+//             nonPaidAmount: client.paidAmount.toFixed(2),
+//           },
+//         };
+//       }
+//     } else {
+//       if (client.nonPaidAmount > entry.amount) {
+//         ClientUpdate = {
+//           $inc: {
+//             paidAmount: entry.amount.toFixed(2),
+//             nonPaidAmount: -entry.amount.toFixed(2),
+//           },
+//         };
+//       } else {
+//         ClientUpdate = {
+//           $inc: {
+//             paidAmount: entry.amount.toFixed(2),
+//             nonPaidAmount: -client.nonPaidAmount.toFixed(2),
+//           },
+//         };
+//       }
+//       await Client.findByIdAndUpdate(entry.userId, ClientUpdate, { session });
+
+//       const updatedEntry = await Entry.findByIdAndUpdate(
+//         id,
+//         { isPaid: !entry.isPaid },
+//         { session, returnDocument: "after" },
+//       );
+//       await session.commitTransaction();
+//       session.endSession();
+//       return res
+//         .status(200)
+//         .json({ message: "Due updated successfully.", data: updatedEntry });
+//     }
+//   } catch (error) {
+//     await session.abortTransaction();
+//     session.endSession();
+//     return res.status(500).json({ message: "Server error" });
+//   }
+// };
+
+export const updateStatusEntry = async (
   req: express.Request,
   res: express.Response,
 ) => {
@@ -144,77 +226,23 @@ export const updateDue = async (
   if (!id) {
     return res.status(400).json({ message: "no id provided." });
   }
-  const session = await mongoose.default.startSession();
-  session.startTransaction();
   try {
-    const entry = await Entry.findById(id, { session });
-    if (!entry) {
-      await session.abortTransaction();
-      session.endSession();
+    const updateStatusEntry = await updateStatusEntryService(String(id));
+    if (!updateStatusEntry.success) {
+      logger.warn(
+        `Failed to update entry status for entry with id: ${id}. Error: ${updateStatusEntry.error}`,
+      );
       return res.status(404).json({ message: "Entry not found." });
     }
-    entry.isPaid = !entry.isPaid;
-    await entry?.save();
-    const client = await Client.findById(entry.userId, null, { session });
-    if (!client) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(404).json({ message: "Client not found." });
-    }
-    // Compute increment/decrement based on isPaid
-    let ClientUpdate;
-    if (entry.isPaid) {
-      if (client.paidAmount > entry.amount) {
-        ClientUpdate = {
-          $inc: {
-            paidAmount: -entry.amount.toFixed(2),
-            nonPaidAmount: entry.amount.toFixed(2),
-          },
-        };
-      } else {
-        ClientUpdate = {
-          $inc: {
-            paidAmount: -client.paidAmount.toFixed(2),
-            nonPaidAmount: client.paidAmount.toFixed(2),
-          },
-        };
-      }
-    } else {
-      if (client.nonPaidAmount > entry.amount) {
-        ClientUpdate = {
-          $inc: {
-            paidAmount: entry.amount.toFixed(2),
-            nonPaidAmount: -entry.amount.toFixed(2),
-          },
-        };
-      } else {
-        ClientUpdate = {
-          $inc: {
-            paidAmount: entry.amount.toFixed(2),
-            nonPaidAmount: -client.nonPaidAmount.toFixed(2),
-          },
-        };
-      }
-      await Client.findByIdAndUpdate(entry.userId, ClientUpdate, { session });
-
-      const updatedEntry = await Entry.findByIdAndUpdate(
-        id,
-        { isPaid: !entry.isPaid },
-        { session, returnDocument: "after" },
-      );
-      await session.commitTransaction();
-      session.endSession();
-      return res
-        .status(200)
-        .json({ message: "Due updated successfully.", data: updatedEntry });
-    }
+    return res.status(200).json({
+      message: "Entry status updated successfully.",
+      data: updateStatusEntry.data,
+    });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
+    logger.error(`Error in updateStatusEntry: ${error}`);
     return res.status(500).json({ message: "Server error" });
   }
 };
-
 export const exportClientEntriesToExcel = async (
   req: express.Request,
   res: express.Response,

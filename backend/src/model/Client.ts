@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const clientSchema = new mongoose.Schema(
   {
     _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
-    username: { type: String, required: true, unique: true },
+    username: { type: String, required: true },
     email: {
       type: String,
       match: [/^\S+@\S+\.\S+$/, "Please use a valid email address."],

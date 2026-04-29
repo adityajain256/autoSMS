@@ -4,6 +4,7 @@ import { Avatar } from "../../components/common/Avatar";
 import { api } from "../../utils/api";
 import { Button } from "../../components/common/Button";
 import { InputField } from "../../components/common/InputField";
+import { useToast } from "../../contexts/ToastContext";
 
 // import { Avatar } from "@/components/Avatar"; // keep your existing Avatar import
 
@@ -27,7 +28,7 @@ export function DeleteClient() {
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [data, setData] = useState<ClientRow[]>([]);
-
+    const { addToast } = useToast();
     const handleDelete = async (id: string) => {
         try {
             setIsLoading(true);
@@ -37,7 +38,9 @@ export function DeleteClient() {
                 }
             });
             setData(prevData => prevData.filter(client => client._id !== id));
+            addToast("Client deleted successfully", "success");
         } catch (error) {
+            addToast("Error deleting client", "error");
             console.error("Error deleting client:", error);
         } finally {
             setIsLoading(false);
@@ -54,7 +57,7 @@ export function DeleteClient() {
             });
             setData(res.data);
         } catch (error) {
-           console.error("Error fetching clients:", error);
+            console.error("Error fetching clients:", error);
         } finally {
             setIsLoading(false);
         }

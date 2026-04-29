@@ -21,6 +21,7 @@ export function Entries() {
     amount: 0,
     isPaid: false,
   }]);
+  console.log(data);
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     const fetchEntries = async () => {

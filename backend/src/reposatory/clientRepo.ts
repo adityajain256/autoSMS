@@ -126,9 +126,13 @@ export const getClientsWithStatusRepo = async (
 
 export const updateClientAmountRepo = async (id: string, amount: number) => {
   try {
+    const updateData =
+      amount > 0
+        ? { paidAmount: amount, nonPaidAmount: -amount }
+        : { nonPaidAmount: -amount, paidAmount: amount };
     const updatedClient = await Client.findByIdAndUpdate(
       id,
-      { $inc: { paidAmount: +amount, nonPaidAmount: -amount } },
+      { $inc: updateData },
       { returnDocument: "after" },
     );
     if (!updatedClient) {
