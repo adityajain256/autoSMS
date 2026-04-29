@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { ref } from "node:process";
 
 const entrySchema = new mongoose.Schema(
   {
@@ -6,6 +7,11 @@ const entrySchema = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Client",
+      required: true,
+    },
+    authId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
     quantity: {

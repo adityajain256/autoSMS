@@ -7,15 +7,21 @@ import mongoose from "mongoose";
 import excel from "exceljs";
 import redisClient from "../config/redis.js";
 import logger from "../utils/logger.js";
+import { getAllEntriesService } from "../service/entryService.js";
 
 export const getAllEntries = async (
   req: express.Request,
   res: express.Response,
 ) => {
   try {
-    const entries = (await Entry.find().populate("userId")).toReversed();
-    return res.status(200).json(entries);
+    const entries = await getAllEntriesService(String((req as any).user.id));
+    if (!entries.success) {
+      logger.warn(`No entries found for user with id: ${(req as any).user.id}`);
+      return res.status(404).json({ message: "No entries found" });
+    }
+    return res.status(200).json(entries.data);
   } catch (error) {
+    logger.error(`Error in getAllEntries: ${error}`);
     return res.status(500).json({ message: "Server error" });
   }
 };

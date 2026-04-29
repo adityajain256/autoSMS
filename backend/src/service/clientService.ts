@@ -14,7 +14,11 @@ import { createEntryRepo } from "../reposatory/entryRepo.js";
 export const getAllClientsService = async (id: string) => {
   try {
     const clients = await getAllClientsRepo(id);
-    logger.info(`All clients retrieved for user ID: ${id}`);
+    if (!clients) {
+      logger.warn(`No clients found for user with id: ${id}`);
+      return { success: false, error: "No clients found" };
+    }
+    logger.info(`Clients retrieved for user ID: ${id}`);
     return clients;
   } catch (error) {
     logger.error(error);
