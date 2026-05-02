@@ -99,7 +99,6 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
               </div>
             <Link to={"/create"} state={{ client: client._id }}>
 
-
               <div className="space-y-2 mt-4 flex-1">
                 <div className="flex items-center text-sm text-on-surface">
                   <Phone className="w-4 h-4 mr-3 text-on-surface-variant" />

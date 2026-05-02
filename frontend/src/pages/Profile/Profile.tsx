@@ -138,41 +138,7 @@ export function Profile() {
                   </button>
                 </div> 
               </section>
-              {/* Security Card - Asymmetric Sidebar */}
-              {/* <section className="md:col-span-4 bg-surface-container-low rounded-xl p-8 flex flex-col">
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="material-symbols-outlined text-primary">shield_lock</span>
-                  <h3 className="text-lg font-semibold text-on-surface">Security</h3>
-                </div>
-                <div className="space-y-6 flex-1">
-                  <div className="p-4 bg-surface-container-lowest rounded-xl">
-                    <p className="text-sm font-medium text-on-surface">Password</p>
-                    <p className="text-xs text-on-surface-variant mt-1">Last changed 3 months ago</p>
-                    <button className="mt-4 text-emerald-600 hover:text-emerald-700 text-sm font-bold flex items-center gap-2">
-                      Update Password <span className="material-symbols-outlined text-sm">chevron_right</span>
-                    </button>
-                  </div>
-                  <div className="p-4 bg-surface-container-lowest rounded-xl">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-on-surface">Two-Factor Auth</p>
-                        <p className="text-[11px] text-primary font-bold uppercase mt-1">Highly Recommended</p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input checked={true} className="sr-only peer" type="checkbox" readOnly />
-                        <div className="w-11 h-6 bg-outline-variant/30 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-8 pt-6 border-t border-outline-variant/10">
-                  <button className="w-full py-3 border border-emerald-600/30 text-emerald-700 rounded-full font-semibold hover:bg-emerald-50 transition-colors">
-                    View Security Logs
-                  </button>
-                </div>
-              </section> */}
             </div>
-            {/* Danger Zone Footer */}
             <footer className="mt-16 pt-12 pb-12 border-t border-outline-variant/20 flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
                 <h4 className="text-tertiary font-bold">Close Account</h4>
@@ -185,25 +151,6 @@ export function Profile() {
           </div>
         </main>
       </div>
-      {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex justify-around items-center h-16 z-50 px-4">
-        <button className="flex flex-col items-center gap-1 text-slate-400">
-          <span className="material-symbols-outlined">dashboard</span>
-          <span className="text-[10px]">Overview</span>
-        </button>
-        <button className="flex flex-col items-center gap-1 text-slate-400">
-          <span className="material-symbols-outlined">sms</span>
-          <span className="text-[10px]">SMS</span>
-        </button>
-        <button className="flex flex-col items-center gap-1 text-emerald-600">
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: '"FILL" 1' }}>settings</span>
-          <span className="text-[10px]">Settings</span>
-        </button>
-        <button className="flex flex-col items-center gap-1 text-slate-400">
-          <span className="material-symbols-outlined">person</span>
-          <span className="text-[10px]">Profile</span>
-        </button>
-      </nav>
     </div>
   );
 }

@@ -1,9 +1,9 @@
 import { X, Mail, Phone, CheckCircle2, UserPlus, IndianRupee, Loader } from 'lucide-react';
 import { cn } from '../../utils/cn';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../../utils/api';
 import { useToast } from '../../contexts/ToastContext';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 
 interface AddClientProps {
@@ -16,7 +16,9 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
   const [formData, setFormData] = useState({ userName: "", phoneNumber: "", vehicle: "", amount: "" as string | number, totalQuantity: "" as string | number, email: "", gstNumber: "", address: "" });
   const [isPaid, setIsPaid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate(); 
+  const [clientExist, setClientExist] = useState(false);
+  const navigate = useNavigate();
+ 
   const createClient = async () => {
     try {
       const amountValue = Number(formData.amount) || 0;
@@ -44,10 +46,50 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
       setIsLoading(false);
     }
   }
-
+  
   const handleCreation = () => {
     createClient();
   }
+
+
+  useEffect(() => {
+   
+const handleSearch = async (email: string, phoneNumber: string, vehicle: string) => {
+ try {
+   const res = await api.get("/clients/search", {
+     params: {
+       phoneNumber,
+       vehicle,
+       email
+     },
+     headers: {
+       "Content-Type": "application/json",
+       "Authorization": `Bearer ${localStorage.getItem("token")}`
+     }
+   })
+   if(!res.data._id){
+    setClientExist(false);
+   } 
+   console.log("Search result:", res.data);
+    // setClient(res.data._id);
+    setClientExist(true);
+   
+  }catch (error) {
+    setClientExist(false);
+   console.log(error)
+
+ }
+}
+
+    const timer = setTimeout(() => {
+    if (formData.phoneNumber || formData.vehicle || formData.email) {
+      handleSearch(formData.email, formData.phoneNumber, formData.vehicle);
+    }}, 500) // Debounce search by 500ms
+
+    return () => clearTimeout(timer);
+    
+  }, [formData.email, formData.phoneNumber, formData.vehicle])
+  
 
   return (
     <>
@@ -114,9 +156,12 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
                   placeholder="contact@client.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full h-12 pl-11 pr-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
+                  className={` w-full h-12 pl-11 pr-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none`}
                 />
               </div>
+              <p className={`${clientExist ? 'border-red-500' : "hidden" } text-[10px] font-medium text-red-400`}>
+                Client already exists with this email. Please check the details and navigate to the client profile to update information or add entries.
+              </p>
             </div>
 
             {/* Phone Number */}
@@ -135,25 +180,10 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
                   className="w-full h-12 pl-20 pr-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none relative"
                 />
               </div>
+              <p className={`${clientExist ? 'border-red-500' : "hidden" } text-[10px] font-medium text-red-400`}>
+                Client already exists with this email. Please check the details and navigate to the client profile to update information or add entries.
+              </p>
             </div>
-
-            {/* GST Number (Verified state shown as demo) */}
-            {/* <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-800">GST Number</label>
-              <div className="relative flex items-center">
-                <input
-                  type="text"
-                  placeholder="27AAAAA0000A1Z5"
-                  value={formData.gstNumber}
-                  onChange={(e) => setFormData({ ...formData, gstNumber: e.target.value })}
-                  className="w-full h-12 pl-4 pr-11 rounded-xl bg-[#ebfcf3] text-[#006c49] text-sm font-bold border border-transparent focus:border-primary/30 transition-all outline-none"
-                />
-                <div className="absolute right-4 text-[#00a86b]">
-                  <CheckCircle2 className="w-5 h-5 fill-current text-white" />
-                </div>
-              </div>
-              <p className="text-[10px] font-medium text-gray-400">Format: 27AAAAA0000A1Z5</p>
-            </div> */}
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-gray-800">Vehicle Number</label>
@@ -194,7 +224,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
                     <input
                       type="number"
                       placeholder="0.00"
-
+                      min="0"
                       step="0.01"
                       value={formData.amount}
                       onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })}
@@ -216,6 +246,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
                   type="number"
                   step="0.01"
                   placeholder="0.00"
+                  min="0"
                   value={formData.totalQuantity}
                   onChange={(e) => setFormData({ ...formData, totalQuantity: parseFloat(e.target.value) || 0 })}
                   className="no-spin-buttons w-full h-12 pl-11 pr-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none"
@@ -234,33 +265,7 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
                 className="w-full min-h-[100px] p-4 rounded-xl bg-[#f4f7fa] hover:bg-[#eef2f6] focus:bg-white text-sm font-medium text-gray-800 placeholder-gray-400 border border-transparent focus:border-primary/30 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)] transition-all outline-none resize-none"
               />
             </div>
-
-
           </div>
-
-          {/* <div className="flex items-center gap-4 mt-2">
-            <span className="bg-[#eef2f6] text-[#6b7280] text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider">
-              Optional Preferences
-            </span>
-            <div className="flex-1 h-px bg-gray-100" />
-          </div> */}
-
-          {/* <div className="bg-[#f8faff] rounded-xl p-4 flex items-center justify-between border border-gray-100">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-[#006c49]">
-                <Bell className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-gray-900">SMS Notifications</h4>
-                <p className="text-xs font-medium text-gray-500">Auto-send updates to this client</p>
-              </div>
-            </div>
-            {/* Toggle Switch Simple Mock */}
-          {/* <div className="w-11 h-6 bg-[#006c49] rounded-full relative cursor-pointer">
-              <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full transition-all" />
-            </div>
-          </div>  */}
-
         </div>
 
         {/* Footer */}
@@ -271,10 +276,20 @@ export function AddClient({ isOpen, onClose }: AddClientProps) {
           >
             Cancel
           </button>
+          {(!clientExist)?
           <button onClick={handleCreation} disabled={isLoading} className="w-full h-12 rounded-xl bg-[#009262] hover:bg-[#007b53] text-white font-bold flex items-center justify-center gap-2 transition-all shadow-[0_4px_12px_rgba(0,146,98,0.25)] disabled:opacity-75 disabled:cursor-not-allowed">
             {isLoading ? <Loader className="w-5 h-5 animate-spin" /> : <UserPlus className="w-5 h-5" strokeWidth={2.5} />}
             {isLoading ? 'Saving...' : 'Save Client'}
-          </button>
+          </button>  
+          :
+          <Link to={"/clients"}>
+          <button onClick={handleCreation} disabled={isLoading} className="w-full h-12 rounded-xl bg-[#009262] hover:bg-[#007b53] text-white font-bold flex items-center justify-center gap-2 transition-all shadow-[0_4px_12px_rgba(0,146,98,0.25)] disabled:opacity-75 disabled:cursor-not-allowed">
+            {isLoading ? <Loader className="w-5 h-5 animate-spin" /> : <UserPlus className="w-5 h-5" strokeWidth={2.5} />}
+            {isLoading ? 'Searching client...' : 'Navigate to client'}
+          </button> 
+          </Link>
+          }
+          
         </div>
       </div>
     </>

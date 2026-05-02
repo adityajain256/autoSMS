@@ -5,6 +5,7 @@ import {
   deleteClientService,
   getAllClientsService,
   getClientByIdService,
+  getClientService,
   updateClientAmountService,
 } from "../service/clientService.js";
 import type { IClient } from "../types/index.js";
@@ -15,9 +16,12 @@ export const getAllClients = async (
   req: express.Request,
   res: express.Response,
 ) => {
+  const limit = parseInt(req.query.limit as string) || 10;
+  const page = parseInt(req.query.page as string) || 1;
+  const skip = (page - 1) * limit;
   try {
     const authId = (req as any).user.id;
-    const clients = await getAllClientsService(authId);
+    const clients = await getAllClientsService(authId, skip, limit);
     return res.status(200).json(clients);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
@@ -195,5 +199,31 @@ export const updateAmount = async (
   } catch (error) {
     logger.error(`Error updating amount: ${error}`);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getClient = async (
+  req: express.Request,
+  res: express.Response,
+) => {
+  const { phoneNumber, vehicleId, email } = req.query;
+  console.log("Received query parameters:", { phoneNumber, vehicleId, email });
+  try {
+    logger.info({
+      message: "Fetching client information",
+      query: { phoneNumber, vehicleId, email },
+    });
+    const clientId = await getClientService(
+      String(phoneNumber) || "",
+      String(vehicleId) || "",
+      String(email) || "",
+    );
+    if (!clientId.success) {
+      return res.status(404).json({ message: clientId.error });
+    }
+
+    res.status(200).json(clientId.data);
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
   }
 };

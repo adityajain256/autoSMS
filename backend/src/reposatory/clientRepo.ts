@@ -4,11 +4,18 @@ import User from "../model/User.js";
 import type { IClient } from "../types/index.js";
 import Entry from "../model/Entry.js";
 
-export const getAllClientsRepo = async (id: string) => {
+export const getAllClientsRepo = async (
+  id: string,
+  skip: number,
+  limit: number,
+) => {
   try {
-    const clients = await Client.find({ authId: id }).sort({
-      createdAt: -1,
-    });
+    const clients = await Client.find({ authId: id })
+      .sort({
+        createdAt: -1,
+      })
+      .skip(skip)
+      .limit(limit);
     if (!clients) {
       return { success: false, error: "No clients found for this user" };
     }
@@ -143,5 +150,78 @@ export const updateClientAmountRepo = async (id: string, amount: number) => {
     return { success: true, data: updatedClient };
   } catch (error) {
     return { success: false, error: error };
+  }
+};
+
+export const getClientRepo = async (
+  phoneNumber: string,
+  vehicleId: string,
+  email: string,
+) => {
+  try {
+    const conditions = [];
+
+    if (phoneNumber) conditions.push({ phoneNumber: phoneNumber });
+    if (vehicleId) conditions.push({ vehicle: vehicleId });
+    if (email) conditions.push({ email: email });
+
+    const client = await Client.findOne({
+      $or: conditions,
+    });
+
+    if (!client) {
+      return { success: false, error: "Client not found" };
+    }
+
+    return { success: true, data: client };
+  } catch (error) {
+    return {
+      success: false,
+      error: `Error occurred while fetching client: ${error}`,
+    };
+  }
+};
+
+export const getClientInfoRepo = async (id: string) => {
+  try {
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    const totalClients = await Client.countDocuments({ authId: id });
+    const totalNonPaidAmountAgg = await Client.aggregate([
+      { $match: { authId: new mongoose.Types.ObjectId(id) } },
+      { $group: { _id: null, totalNonPaidAmount: { $sum: "$nonPaidAmount" } } },
+    ]);
+    const totalNonPaidAmount =
+      totalNonPaidAmountAgg[0]?.totalNonPaidAmount || 0;
+
+    const clientsCreatedToday = await Client.countDocuments({
+      authId: id,
+      createdAt: { $gte: oneDayAgo },
+    });
+
+    if (!totalClients && !totalNonPaidAmount && !clientsCreatedToday) {
+      return {
+        success: false,
+        data: {
+          totalUser: 0,
+          totalNonPaidAmount: 0,
+          clientsCreatedToday: 0,
+        },
+      };
+    }
+
+    return {
+      success: true,
+      data: {
+        totalUser: totalClients,
+        totalNonPaidAmount,
+        clientsCreatedToday,
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: `Error occurred while fetching client info: ${error}`,
+    };
   }
 };

@@ -7,6 +7,7 @@ import {
   deleteClient,
   exportExcel,
   updateAmount,
+  getClient,
 } from "../controller/clientController.js";
 
 const clientRouter = express.Router();
@@ -89,6 +90,9 @@ clientRouter.get("/", getAllClients);
  *       500:
  *         description: Server error
  */
+
+// Move `/search` above `/:id` so the literal path isn't captured as an :id param
+clientRouter.get("/search", getClient);
 
 clientRouter.get("/:id", getClientById);
 
@@ -193,5 +197,7 @@ clientRouter.delete("/:id", deleteClient);
 clientRouter.get("/export/excel", exportExcel);
 
 clientRouter.patch("/:id", updateAmount);
+
+// (previously moved above)
 
 export default clientRouter;

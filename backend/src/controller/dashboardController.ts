@@ -5,6 +5,9 @@ import SMS from "../model/Sms.js";
 import { getAllClientsService } from "../service/clientService.js";
 import { getAllSMSService } from "../service/smsService.js";
 import Client from "../model/Client.js";
+import { getClientInfoRepo } from "../reposatory/clientRepo.js";
+import logger from "../utils/logger.js";
+import redisClient from "../config/redis.js";
 
 export const getStatistics = async (
   req: express.Request,
@@ -12,45 +15,39 @@ export const getStatistics = async (
 ) => {
   try {
     const authId = (req as any).user.id;
-    const user: any = await getAllClientsService(authId);
-    const totalUser: number = user.length;
-    if (totalUser === 0) {
-      return res.status(200).json({
-        totalUser: 0,
-        totalEntries: 0,
-        totalAmount: 0,
-        totalQuantity: 0,
-      });
+    const userInfo = await redisClient.get(`userInfo:${authId}`);
+    if (userInfo) {
+      logger.info(`User info retrieved from Redis for user ID: ${authId}`);
+      return res.status(200).json(JSON.parse(userInfo));
     }
-
-    const totalDueAmount: Number = user.reduce(
-      (acc: any, ele: any) => acc + ele.nonPaidAmount,
-      0,
+    const user = await getClientInfoRepo(authId);
+    logger.info(
+      `Statistics retrieved for user ID: ${authId}, ${JSON.stringify(user.data)}`,
     );
 
     const totalSMS = await getAllSMSService(authId);
     const smsCount = await SMS.find({
       userId: authId,
     }).countDocuments();
-
-    const totalClientInOneDay: any = user.reduce((acc: any, ele: any) => {
-      const createdAt = new Date(ele.createdAt);
-      const today = new Date();
-      createdAt.setHours(0, 0, 0, 0);
-      today.setHours(0, 0, 0, 0);
-      if (createdAt.getTime() === today.getTime()) {
-        return acc + 1;
-      }
-      return acc;
-    }, 0);
-
+    await redisClient.set(
+      `userInfo:${authId}`,
+      JSON.stringify({
+        totalUser: user.data?.totalUser || 0,
+        totalAmount: user.data?.totalNonPaidAmount || 0,
+        totalSMS: smsCount || 0,
+        totalClientInOneDay: user.data?.clientsCreatedToday || 0,
+        listOfSMS: totalSMS || [],
+      }),
+      {
+        EX: 3600,
+      },
+    ); // Cache for 1 hour
     return res.status(200).json({
-      totalUser: totalUser || 0,
-      totalAmount: totalDueAmount || 0,
+      totalUser: user.data?.totalUser || 0,
+      totalAmount: user.data?.totalNonPaidAmount || 0,
       totalSMS: smsCount || 0,
-      totalClientInOneDay: totalClientInOneDay || 0,
+      totalClientInOneDay: user.data?.clientsCreatedToday || 0,
       listOfSMS: totalSMS || [],
-      user,
     });
   } catch (error) {
     return res.status(500).json({ message: "server error" });
@@ -63,9 +60,11 @@ export const getTopClients = async (
 ) => {
   const { period } = req.query;
   try {
-    const topClients = await Client.find({ authId: (req as any).user.id }).sort({
-      paidAmount: -1,
-    });
+    const topClients = await Client.find({ authId: (req as any).user.id }).sort(
+      {
+        paidAmount: -1,
+      },
+    );
     return res.status(200).json({ topClients });
   } catch (error) {
     return res.status(500).json({ message: "server error" });

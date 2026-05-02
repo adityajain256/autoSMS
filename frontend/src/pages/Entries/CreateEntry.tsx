@@ -78,7 +78,7 @@ export function CreateEntry() {
 
       setData(res.data);
       addToast("Entry created successfully", "success");
-      navigate("/clients");
+      window.location.reload();
     } catch (error) {
       console.log(error);
       addToast("Error creating entry", "error");
@@ -139,11 +139,7 @@ export function CreateEntry() {
 
 
   useEffect(() => {
-    if (!clientId) {
-      navigate('/clients');
-      return;
-    }
-
+    console.log("Client ID from location state:", clientId);
     const fetchEntry = async () => {
       try {
         const res = await api.get(`/entries/client/${clientId}`, {
