@@ -19,20 +19,13 @@ export const getAllClientsService = async (
   limit: number,
 ) => {
   try {
-    const clientsFromRedis = await redisClient.get(`allClient:${id}`);
-    if (clientsFromRedis) {
-      logger.info(`Clients retrieved from Redis for user ID: ${id}`);
-      return JSON.parse(clientsFromRedis);
-    }
     const clients = await getAllClientsRepo(id, skip, limit);
     if (!clients) {
       logger.warn(`No clients found for user with id: ${id}`);
       return { success: false, error: "No clients found" };
     }
     logger.info(`Clients retrieved for user ID: ${id}`);
-    await redisClient.set(`allClient:${id}`, JSON.stringify(clients), {
-      EX: 3600,
-    }); // Cache for 1 hour
+
     return clients;
   } catch (error) {
     logger.error(error);
@@ -77,12 +70,13 @@ export const createClientService = async (data: IClient, authId: string) => {
   }
 };
 
-export const deleteClientService = async (id: string) => {
+export const deleteClientService = async (id: string, authId: string) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
     const result = await deleteClientRepo(id);
+    await redisClient.del(`allClient:${authId}`);
     if (!result.success) {
       await session.abortTransaction();
       session.endSession();

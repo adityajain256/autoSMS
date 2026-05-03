@@ -112,7 +112,10 @@ export const deleteClient = async (
   if (!id) {
     return res.status(400).json({ message: "Client ID is required" });
   }
-  const result = await deleteClientService(String(id));
+  const result = await deleteClientService(
+    String(id),
+    String((req as any).user.id),
+  );
   if (!result.success) {
     return res.status(404).json({ message: result.error });
   }
