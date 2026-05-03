@@ -282,8 +282,8 @@ const handleSearch = async (email: string, phoneNumber: string, vehicle: string)
             {isLoading ? 'Saving...' : 'Save Client'}
           </button>  
           :
-          <Link to={"/clients"}>
-          <button onClick={handleCreation} disabled={isLoading} className="w-full h-12 rounded-xl bg-[#009262] hover:bg-[#007b53] text-white font-bold flex items-center justify-center gap-2 transition-all shadow-[0_4px_12px_rgba(0,146,98,0.25)] disabled:opacity-75 disabled:cursor-not-allowed">
+          <Link to={"/clients"} onClick={onClose}>
+          <button disabled={isLoading} className="w-full h-12 rounded-xl bg-[#009262] hover:bg-[#007b53] text-white font-bold flex items-center justify-center gap-2 transition-all shadow-[0_4px_12px_rgba(0,146,98,0.25)] disabled:opacity-75 disabled:cursor-not-allowed">
             {isLoading ? <Loader className="w-5 h-5 animate-spin" /> : <UserPlus className="w-5 h-5" strokeWidth={2.5} />}
             {isLoading ? 'Searching client...' : 'Navigate to client'}
           </button> 

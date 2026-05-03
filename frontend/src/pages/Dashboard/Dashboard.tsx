@@ -141,6 +141,7 @@ export function Dashboard() {
             </tbody>
           </table>
         </div>
+        
       </Card>
     </div>
   );

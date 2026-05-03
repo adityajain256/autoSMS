@@ -121,7 +121,7 @@ const Announcement: React.FC = () => {
         {/* Podium Section */}
         {/* <Podium /> */}
         {/* List View */}
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
     <div className="flex items-center px-10 py-2 text-label-md uppercase font-bold text-on-surface-variant tracking-widest text-[11px]">
       <div className="w-12">Rank</div>
       <div className="flex-1">Customer Name</div>
@@ -158,7 +158,36 @@ const Announcement: React.FC = () => {
       </div>
     ))}
     
-  </div>
+  </div> */}
+  <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[800px] ">
+            <thead>
+              <tr className="bg-surface-container/30 text-xs uppercase tracking-wider text-on-surface-variant font-bold border-b ghost-border">
+                <th className="p-4">Rank</th>
+                <th className="p-4">Costumer Name</th>
+                <th className="p-4 text-right">Total Quantity</th>
+                <th className="p-4 text-right">Total Paid Amount (₹)</th>
+                <th className="p-4 text-right">Dues (₹)</th>
+                <th className="p-4 text-right">Vehicle </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y ghost-border">
+                  {((onlyDue)? dueData : data).map((item, index) => (
+                  <tr key={item._id || ''} className="hover:bg-surface-container/30 transition-colors">
+                    <td className="p-4 text-sm font-medium text-on-surface">{index + 1}</td>
+                    <td className="p-4 text-sm font-medium text-on-surface">{item?.username || 'NA'}</td>
+                    <td className="p-4 text-sm text-on-surface-variant">{item?.phoneNumber || 'NA'}</td>
+                    <td className="p-4 text-sm text-right text-on-surface">{item?.totalQuantity || 0}</td>
+                    <td className="p-4 text-sm text-right text-on-surface">{item?.paidAmount || 0}</td>
+                    <td className={`p-4 text-sm text-right ${(item?.nonPaidAmount || 0) > 0 ? 'text-error' : 'text-success'}`}>{item?.nonPaidAmount || 0}</td>
+                    <td className="p-4 text-sm text-right text-on-surface">{item?.vehicle || 'NA'}</td>
+                  </tr>
+                ))
+}
+                
+            </tbody>
+          </table>
+        </div>
       </main>
     </div>
   );

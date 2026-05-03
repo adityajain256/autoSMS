@@ -100,7 +100,7 @@ export function Profile() {
                     <input className="w-full bg-surface-container-lowest border-0 border-b-2 border-outline-variant/20 focus:border-primary focus:ring-0 transition-all px-4 py-3 rounded-t-lg" type="text" value={profile.adminName} onChange={(e) => setProfile({ ...profile, adminName: e.target.value })} />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant ml-1">Petrol Pump Name</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant ml-1">Company Name</label>
                     <input className="w-full bg-surface-container-lowest border-0 border-b-2 border-outline-variant/20 focus:border-primary focus:ring-0 transition-all px-4 py-3 rounded-t-lg" placeholder="Enter pump name" type="text" value={profile.petrolPumpName} onChange={(e) => setProfile({ ...profile, petrolPumpName: e.target.value })} />
                   </div>
                   <div className="space-y-2">

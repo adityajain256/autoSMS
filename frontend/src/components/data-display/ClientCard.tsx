@@ -45,7 +45,6 @@ export function ClientCard({searchTerm}: {searchTerm: string}) {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
               }
             });
-            // ...removed console.log("Fetched clients:", res);
             setData(Array.isArray(res.data) ? res.data : []);
           } catch (_error) {
             setIsLoading(false);
