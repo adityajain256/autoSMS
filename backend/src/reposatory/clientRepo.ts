@@ -10,12 +10,9 @@ export const getAllClientsRepo = async (
   limit: number,
 ) => {
   try {
-    const clients = await Client.find({ authId: id })
-      .sort({
-        createdAt: -1,
-      })
-      .skip(skip)
-      .limit(limit);
+    const clients = await Client.find({ authId: id }).sort({
+      createdAt: -1,
+    });
     if (!clients) {
       return { success: false, error: "No clients found for this user" };
     }
