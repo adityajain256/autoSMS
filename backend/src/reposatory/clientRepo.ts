@@ -48,6 +48,7 @@ export const createClientRepo = async (data: IClient, authId: string) => {
     return { success: false, error: error };
   }
 };
+
 export const deleteClientRepo = async (id: string) => {
   const session = await mongoose.startSession();
   session.startTransaction();

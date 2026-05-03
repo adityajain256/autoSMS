@@ -16,7 +16,7 @@ export const getAllClients = async (
   req: express.Request,
   res: express.Response,
 ) => {
-  const limit = parseInt(req.query.limit as string) || 10;
+  const limit = parseInt(req.query.limit as string) || 12;
   const page = parseInt(req.query.page as string) || 1;
   const skip = (page - 1) * limit;
   try {

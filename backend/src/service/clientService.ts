@@ -83,7 +83,6 @@ export const deleteClientService = async (id: string) => {
 
   try {
     const result = await deleteClientRepo(id);
-    await User.findOneAndUpdate({ clients: id }, { $pop: { clients: id } });
     if (!result.success) {
       await session.abortTransaction();
       session.endSession();
