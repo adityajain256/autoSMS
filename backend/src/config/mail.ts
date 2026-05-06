@@ -63,7 +63,7 @@ export const sendMail = async (
     logger.info(`Status:, ${response.status}`);
     logger.info(`Status Text:, ${response.statusText}`);
 
-    const rawText = await response.text(); // use .text() instead of .json()
+    const rawText = await response.json();
     logger.info("Raw Response: " + rawText);
     if (!response.ok) {
       const err = await response.json();
