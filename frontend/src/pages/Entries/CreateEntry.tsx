@@ -354,7 +354,7 @@ export function CreateEntry() {
           </div>
 
               <div className="space-y-3">
-            <label className="text-[11px] font-extrabold text-gray-500 uppercase tracking-[0.15em] ml-2">Quantity</label>
+            <label className="text-[11px] font-extrabold text-gray-500 uppercase tracking-[0.15em] ml-2">Date</label>
             <div className="relative flex items-center">
               <span className="absolute left-6 font-bold text-gray-500 text-xl"></span>
               <input

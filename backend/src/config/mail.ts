@@ -1,5 +1,8 @@
 import nodemailer from "nodemailer";
 import logger from "../utils/logger.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const sendMail = async (
   to: string,
@@ -14,6 +17,9 @@ export const sendMail = async (
       user: process.env.SMTP_USER!,
       pass: process.env.SMTP_PASS!,
     },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
   };
 
   const transporter = nodemailer.createTransport(transportOptions);

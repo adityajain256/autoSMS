@@ -112,9 +112,6 @@ export const sendDueSMSService = async (
     );
     const address = String(await redisClient.get(`user:${authId}:address`));
     const email = String(await redisClient.get(`user:${authId}:email`));
-    logger.warn(`Failed to send mail for ${email}`);
-    logger.warn(`Failed to send mail for ${petrolPumpName}`);
-    logger.warn(`Failed to send address for ${address}`);
 
     for (const client of clients) {
       logger.warn(`Failed to send mail for ${client.email}`);
