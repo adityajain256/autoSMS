@@ -60,7 +60,11 @@ export const sendMail = async (
         htmlContent: template,
       }),
     });
+    logger.info(`Status:, ${response.status}`);
+    logger.info(`Status Text:, ${response.statusText}`);
 
+    const rawText = await response.text(); // use .text() instead of .json()
+    logger.info("Raw Response: " + rawText);
     if (!response.ok) {
       const err = await response.json();
       logger.error("Brevo API error:", err);
