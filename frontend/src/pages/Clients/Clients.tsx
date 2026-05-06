@@ -1,8 +1,8 @@
 import { Button } from '../../components/common/Button';
 import { InputField } from '../../components/common/InputField';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Loader2 } from 'lucide-react';
 import { ClientCard } from '../../components/data-display/ClientCard';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useToast } from '../../contexts/ToastContext';
 import { api } from '../../utils/api';
 
@@ -11,7 +11,52 @@ export function Clients() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isExporting, setIsExporting] = useState(false);
   const { addToast } = useToast();
+  const [data, setData] = useState([{
+    _id: "",
+    username: "",
+    phoneNumber: "",
+    email: "",
+    vehicle: "",
+    gstNumber: "",
+    totalQuantity: 0,
+    paidAmount: 0,
+    nonPaidAmount: 0,
+  }]);
+  const [isLoading, setIsLoading] = useState(true);
+  const page = 1;
+  const limit = 12;
+ 
+  useEffect(() => {
+  const fetchClients = async () => {
+          try {
+            setIsLoading(true);
+            const res = await api.get("/clients", {
+              headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+              },
+              params: {
+                page: String(page),
+                limit: String(limit)
+              }
+            });
+            setData(Array.isArray(res.data) ? res.data : []);
+          } catch (_error) {
+            setIsLoading(false);
+            console.error("Error fetching clients:", _error);
+          } finally{
+            setIsLoading(false);
+          }
+        };
 
+        fetchClients();
+  },[]);
+   if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
   const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
@@ -41,6 +86,7 @@ export function Clients() {
       setIsExporting(false);
     }
   }
+
 
 
   return (
@@ -73,8 +119,9 @@ export function Clients() {
         </Button>
       </div>
       <div>
-        <ClientCard searchTerm={searchTerm} />
+        <ClientCard dataClient={data}/>
       </div>
+      <Button>Load More...</Button>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import Client from "../model/Client.js";
 import User from "../model/User.js";
 import type { IClient } from "../types/index.js";
 import Entry from "../model/Entry.js";
+import redisClient from "../config/redis.js";
 
 export const getAllClientsRepo = async (
   id: string,

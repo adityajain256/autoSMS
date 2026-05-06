@@ -1,9 +1,8 @@
-import { Delete, FuelIcon, IndianRupee, Loader2, Mail, Phone } from "lucide-react";
-import { api } from "../../utils/api";
+import { Delete, FuelIcon, IndianRupee, Mail, Phone } from "lucide-react";
 import { Avatar } from "../common/Avatar";
 import { Link } from "react-router-dom";
 import { Card } from "../common/Card";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 
 interface Client {
@@ -17,65 +16,59 @@ interface Client {
   paidAmount?: number | string;
   nonPaidAmount?: number | string;
 }
-export function ClientCard({searchTerm}: {searchTerm: string}) {
-  const [isLoading, setIsLoading] = useState(true);
+export function ClientCard({dataClient}: {dataClient: Client[]}) {
+  
 
-    const [data, setData] = useState<Client[]>([]);
+    const [data] = useState<Client[]>(dataClient || []);
 
       
-      const displayData = data.filter((client) => {
-        if (!searchTerm) return true;
-        const term = searchTerm.toLowerCase();
-        return (
-          client.username?.toLowerCase().includes(term) ||
-          client.phoneNumber?.toLowerCase().includes(term) ||
-          client.email?.toLowerCase().includes(term) ||
-          client.gstNumber?.toLowerCase().includes(term) ||
-          client.vehicle?.toLowerCase().includes(term)
-        );
-      });
+      // const displayData = data.filter((client) => {
+      //   if (!searchTerm) return true;
+      //   const term = searchTerm.toLowerCase();
+      //   return (
+      //     client.username?.toLowerCase().includes(term) ||
+      //     client.phoneNumber?.toLowerCase().includes(term) ||
+      //     client.email?.toLowerCase().includes(term) ||
+      //     client.gstNumber?.toLowerCase().includes(term) ||
+      //     client.vehicle?.toLowerCase().includes(term)
+      //   );
+      // });
 
 
-      useEffect(() => {
-        const fetchClients = async () => {
-          try {
-            setIsLoading(true);
-            const res = await api.get("/clients", {
-              headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-              }
-            });
-            setData(Array.isArray(res.data) ? res.data : []);
-          } catch (_error) {
-            setIsLoading(false);
-            console.error("Error fetching clients:", _error);
-          } finally{
-            setIsLoading(false);
-          }
-        };
+      // useEffect(() => {
+      //   const fetchClients = async () => {
+      //     try {
+      //       setIsLoading(true);
+      //       const res = await api.get("/clients", {
+      //         headers: {
+      //           "Authorization": `Bearer ${localStorage.getItem("token")}`
+      //         }
+      //       });
+      //       setData(Array.isArray(res.data) ? res.data : []);
+      //     } catch (_error) {
+      //       setIsLoading(false);
+      //       console.error("Error fetching clients:", _error);
+      //     } finally{
+      //       setIsLoading(false);
+      //     }
+      //   };
 
-        fetchClients();
-      }, []);
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+      //   fetchClients();
+      // }, []);
+  
 
-  if (displayData.length === 0) {
-    return (
-      <div className="flex justify-center py-20 text-on-surface-variant font-medium">
-        No clients found.
-      </div>
-    );
-  }
+  // if (displayData.length === 0) {
+  //   return (
+  //     <div className="flex justify-center py-20 text-on-surface-variant font-medium">
+  //       No clients found.
+  //     </div>
+  //   );
+  // }
 
   return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {displayData.map((client) => (
-          <Card key={client._id} className="flex flex-col group cursor-pointer hover:border-primary/30 transition-all">
+        {data.map((client) => (
+          <Card key={client._id } className="flex flex-col group cursor-pointer hover:border-primary/30 transition-all">
 
 
 

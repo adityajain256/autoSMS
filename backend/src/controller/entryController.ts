@@ -10,6 +10,7 @@ import {
   getAllEntriesService,
   updateStatusEntryService,
 } from "../service/entryService.js";
+import { updateClientStatusRepo } from "../reposatory/clientRepo.js";
 
 export const getAllEntries = async (
   req: express.Request,
@@ -87,13 +88,7 @@ export const createEntry = async (
       date,
     });
     const savedEntry = await entry.save({ session });
-    // const sms = await singleSMS(phone, message, [
-    //   parsedAmount,
-    //   parsedQuantity,
-    //   date,
-    //   petropumpName,
-    // ]);
-    // console.log("SMS Response:", sms);
+
     await Client.findByIdAndUpdate(
       ClientObjectId,
       {
@@ -108,6 +103,11 @@ export const createEntry = async (
     );
     await session.commitTransaction();
     session.endSession();
+    await updateClientStatusRepo(
+      String(ClientObjectId),
+      false,
+      "paymentReminderSent",
+    );
     return res
       .status(201)
       .json({ data: savedEntry, message: "Entry created successfully." });

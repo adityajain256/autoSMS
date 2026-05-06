@@ -49,24 +49,31 @@ export const sendWelcomeSMSService = async (
           email,
           address,
         );
-        const res = await sendMail(
+        const res = sendMail(
           String(client.email),
           "Welcome to " + petrolPumpName,
           mailBody,
         );
-        await createSMSRepo({
-          userId: authId,
-          to: String(client.phoneNumber),
-          body: "Welcome message sent.",
-          status: "welcomeMessage",
-        });
+        if (!(res == undefined)) {
+          await Promise.all([
+            createSMSRepo({
+              userId: authId,
+              to: String(client.phoneNumber),
+              body: "Welcome message sent.",
+              status: "welcomeMessage",
+            }),
+            updateClientStatusRepo(
+              String(client._id),
+              !status,
+              "welcomeMessageSent",
+            ),
+          ]);
+          logger.info(
+            `Welcome SMS sent to client ID: ${client._id} with phone number: ${client.phoneNumber} response: ${String(res) || "mail sent"}`,
+          );
+        }
         logger.info(
-          `Welcome SMS sent to client ID: ${client._id} with phone number: ${client.phoneNumber} response: ${String(res) || "mail sent"}`,
-        );
-        await updateClientStatusRepo(
-          String(client._id),
-          !status,
-          "welcomeMessageSent",
+          `Failed to send Welcome SMS client: ${client.username} with phone number: ${client.phoneNumber} response: ${String(res) || "mail sent"}`,
         );
       }, 500);
     });
@@ -99,13 +106,18 @@ export const sendDueSMSService = async (
         ? process.env.WHATSAPP_DUE_MESSAGE_ENG
         : process.env.WHATSAPP_DUE_MESSAGE_HIN,
     );
+
     const petrolPumpName = String(
       await redisClient.get(`user:${authId}:petrolPumpName`),
     );
     const address = String(await redisClient.get(`user:${authId}:address`));
     const email = String(await redisClient.get(`user:${authId}:email`));
+    logger.warn(`Failed to send mail for ${email}`);
+    logger.warn(`Failed to send mail for ${petrolPumpName}`);
+    logger.warn(`Failed to send address for ${address}`);
 
     for (const client of clients) {
+      logger.warn(`Failed to send mail for ${client.email}`);
       setTimeout(async () => {
         const personalizedMessage = dueMessageTemplateForMail(
           petrolPumpName,
@@ -116,27 +128,35 @@ export const sendDueSMSService = async (
           email,
           address,
         );
-        const res = await sendMail(
+        const res = sendMail(
           String(client.email),
           "Due Amount Reminder from " + petrolPumpName,
           personalizedMessage,
         );
-        await createSMSRepo({
-          userId: authId,
-          to: String(client.phoneNumber),
-          body: "Due message send.",
-          status: "dueMessage",
-        });
-        logger.info(
-          `Due SMS sent to client ID: ${client._id} with phone number: ${client.phoneNumber} response: ${String(res) || "mail sent"}`,
-        );
-        await updateClientStatusRepo(
-          String(client._id),
-          !status,
-          "paymentReminderSent",
-        );
+        if (!(res == undefined)) {
+          await Promise.all([
+            createSMSRepo({
+              userId: authId,
+              to: String(client.phoneNumber),
+              body: "Due message send.",
+              status: "dueMessage",
+            }),
+            updateClientStatusRepo(
+              String(client._id),
+              !status,
+              "paymentReminderSent",
+            ),
+          ]);
+          logger.info(
+            `Due SMS sent to client ID: ${client._id} with phone number: ${client.phoneNumber} response: ${String(res) || "mail sent"}`,
+          );
+          if (res == undefined) {
+            logger.warn(`Failed to send mail for ${email}`);
+          }
+        }
       }, 500);
     }
+
     logger.info(`Due SMS sending process initiated for user ID: ${authId}`);
     return { success: true, message: "Due SMS sent to all clients with dues" };
   } catch (error) {
