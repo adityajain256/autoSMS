@@ -21,6 +21,7 @@ export function Clients() {
     totalQuantity: 0,
     paidAmount: 0,
     nonPaidAmount: 0,
+    welcomeMessageSent: false,
   }]);
   const [isLoading, setIsLoading] = useState(true);
   const page = 1;

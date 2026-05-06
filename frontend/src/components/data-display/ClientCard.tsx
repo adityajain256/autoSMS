@@ -15,13 +15,13 @@ interface Client {
   totalQuantity?: number | string;
   paidAmount?: number | string;
   nonPaidAmount?: number | string;
+  welcomeMessageSent?: boolean ;
 }
 export function ClientCard({dataClient}: {dataClient: Client[]}) {
   
 
     const [data] = useState<Client[]>(dataClient || []);
 
-      
       // const displayData = data.filter((client) => {
       //   if (!searchTerm) return true;
       //   const term = searchTerm.toLowerCase();
@@ -99,6 +99,10 @@ export function ClientCard({dataClient}: {dataClient: Client[]}) {
                 <div className="flex items-center text-sm text-on-surface">
                   <Mail className="w-4 h-4 mr-3 text-on-surface-variant" />
                   {client.email}
+                </div>
+                <div className="flex items-center text-sm text-on-surface">
+                  {(client.welcomeMessageSent)?<p className="text-primary">Welcome SMS Sent. </p>:  <p className="text-red-500">Welcome SMS not Sent. </p>}
+                  
                 </div>
               </div>
               <div className='w-full h-0.5 mt-4 bg-on-surface-variant opacity-50' />
