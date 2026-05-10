@@ -3,6 +3,8 @@ import {
   getUserService,
   loginUserService,
   registerUserService,
+  requestResetPasswordService,
+  resetPasswordService,
   updateUserService,
 } from "../service/userService.js";
 import type { IUser } from "../types/index.js";
@@ -124,5 +126,60 @@ export const getProfile = async (
     return res
       .status(500)
       .json({ message: "An error occurred while fetching the profile." });
+  }
+};
+
+export const requestResetPassword = async (
+  req: express.Request,
+  res: express.Response,
+) => {
+  const { email } = req.body ?? {};
+  if (!email) {
+    return res.status(400).json({ message: "Email is missing." });
+  }
+  try {
+    const user = await requestResetPasswordService(email);
+    if (!user.success || !user.message) {
+      return res
+        .status(400)
+        .json({ message: user.error || "Failed to request password reset." });
+    }
+    return res.status(200).json({ message: user.message });
+  } catch (error) {
+    return res.status(500).json({ message: `server error: ${error}` });
+  }
+};
+
+export const resetPassword = async (
+  req: express.Request,
+  res: express.Response,
+) => {
+  const { userId, token } = req.query;
+  const { password } = req.body ?? {};
+  console.log(userId + "  " + token);
+  if (!userId || !token) {
+    return res.status(400).json({ message: "All params are not available." });
+  }
+
+  if (!password) {
+    return res.status(400).json({ message: "All Fields are not available." });
+  }
+  try {
+    const resp = await resetPasswordService(
+      String(userId),
+      String(token),
+      password,
+    );
+    if (!resp.success) {
+      return res.status(400).json({ message: resp.message });
+    }
+
+    if (resp.error) {
+      return res.status(400).json({ message: resp.error });
+    }
+
+    return res.status(200).json(resp.message);
+  } catch (error) {
+    return res.status(500).json({ message: "server side error" });
   }
 };

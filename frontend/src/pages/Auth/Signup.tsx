@@ -254,8 +254,8 @@ export function Signup() {
 
             {/* Footer */}
             <footer className="w-full p-6 sm:px-12 z-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-gray-500">
-                <span className="text-gray-800 font-bold">Emerald Ledger</span>
-                <span className="text-center text-[#006c49]/70">© 2024 Emerald Ledger CA Solutions. Organic Precision for Tax Management.</span>
+                <span className="text-gray-800 font-bold">LIGHTLEAF</span>
+                <span className="text-center text-[#006c49]/70">© 2026 LIGHTLEAF. Business management platform.</span>
                 <div className="flex gap-6">
                     <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
                     <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>

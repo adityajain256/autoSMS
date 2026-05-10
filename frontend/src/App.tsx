@@ -16,7 +16,8 @@ import Hero from './pages/Hero/Hero';
 import { DeleteClient } from './pages/Clients/DeleteClient';
 import { Sms } from './pages/Sms/Sms';
 import Announcement from './pages/Announcement/Announcement';
-
+import { RequestResetWithEmail } from './pages/Auth/RequestResetWithEmail';
+import { ResetPassword } from './pages/Auth/ResetPassword';
 
 
 function App() {
@@ -27,6 +28,9 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="requestReset" element={<RequestResetWithEmail />} />
+          <Route path="reset-password" element={<ResetPassword />} />
+
           <Route path="/" element={<Layout />}>
             <Route index element={<Navigate to="/hero" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
@@ -38,6 +42,7 @@ function App() {
             <Route path="SMS" element={<Sms />} />
             <Route path="client/delete" element={<DeleteClient />} />
             <Route path="announcement" element={<Announcement />} />
+            
           </Route>
         </Routes>
         <Footer />

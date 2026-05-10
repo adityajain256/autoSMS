@@ -320,3 +320,50 @@ export const dueMessageTemplateForMail = (
 </body>
 </html>`;
 };
+
+export const generateOtpTemplateForMail = (
+  otp: string,
+  petrolPumpName: string,
+) => {};
+
+export const generatePasswordResetTemplateForMail = (resetLink: string) => {
+  return `
+  <!doctype html>
+  <html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Reset your password</title>
+    <style>
+      body { background:#f6f8fb; margin:0; padding:0; font-family:Arial,Helvetica,sans-serif; }
+      .container { max-width:600px; margin:24px auto; background:#ffffff; border-radius:8px; overflow:hidden; }
+      .header { background:#006d4a; color:#fff; padding:20px; text-align:center; }
+      .content { padding:24px; color:#111827; }
+      .btn { display:inline-block; background:#006d4a; color:#fff; text-decoration:none; padding:12px 18px; border-radius:6px; font-weight:600; }
+      .muted { color:#6b7280; font-size:13px; }
+      .footer { padding:16px; text-align:center; font-size:12px; color:#9ca3af; }
+    </style>
+  </head>
+  <body>
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+      <tr>
+        <td align="center">
+          <div class="container">
+            <div class="header">
+              <h1 style="margin:0;font-size:20px;">Reset your password</h1>
+            </div>
+            <div class="content">
+              <p style="margin:0 0 12px 0;">We received a request to reset your password. Click the button below to set a new password. This link will expire in 60 minutes.</p>
+              <p style="text-align:center;margin:20px 0;">
+                <a href="${resetLink}" class="btn" target="_blank" rel="noopener">Reset Password</a>
+              </p>
+              <p class="muted">If you did not request a password reset, you can safely ignore this email.</p>
+            </div>
+            <div class="footer">© ${new Date().getFullYear()} LIGHTLEAF. All rights reserved.</div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </body>
+  </html>`;
+};

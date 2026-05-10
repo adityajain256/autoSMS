@@ -4,11 +4,16 @@ import bcrypt from "bcryptjs";
 import {
   createUser,
   getUser,
+  getUserByMail,
   loginUser,
   updateUser,
 } from "../reposatory/userRepo.js";
 import logger from "../utils/logger.js";
 import redisClient from "../config/redis.js";
+import { sendMail } from "../config/mail.js";
+import { generatePasswordResetTemplateForMail } from "../utils/templates.js";
+import { success } from "zod";
+
 // import { otp, otpTemplate } from "../utils/otpGenerator.js";
 // import { sendMail } from "../config/mail.js";
 // import validators from "../utils/validators.js";
@@ -166,6 +171,75 @@ export const updateUserService = async (data: IUser, userId: string) => {
     return {
       success: false,
       error: "An error occurred while updating the user.",
+    };
+  }
+};
+
+export const requestResetPasswordService = async (email: string) => {
+  try {
+    const user = await getUserByMail(email);
+    if (!user.success || !user.data) {
+      return { success: false, error: user.error || "No user found." };
+    }
+    const secret = String(process.env.JWT_SECRET) + user.data.password;
+    const payload = {
+      userId: user.data._id,
+    };
+    const uniqueToken = jwt.sign(payload, secret, {
+      expiresIn: 3600,
+    });
+    await updateUser(
+      { resetToken: uniqueToken } as IUser,
+      String(user.data._id),
+    );
+    const url: string = `${String(process.env.FRONTEND_URL)}/reset-password?token=${uniqueToken}&id=${user.data._id}`;
+    const mailBody = generatePasswordResetTemplateForMail(url);
+    const res = sendMail(
+      String(user.data.email),
+      "Password Reset LIGHTLEAF",
+      mailBody,
+    );
+    if (res == undefined) {
+      logger.info(`Password reset email sent to ${user.data.email}`);
+    } else {
+      logger.error(
+        `Failed to send password reset email to ${user.data.email} response: ${String(res)}`,
+      );
+    }
+    return { success: true, message: "Password reset email sent." };
+  } catch (error) {
+    return {
+      success: false,
+      error: "An error occurred while requesting password reset in service.",
+    };
+  }
+};
+
+export const resetPasswordService = async (
+  userId: string,
+  token: string,
+  password: string,
+) => {
+  try {
+    const user = await getUser(userId);
+    if (!user) {
+      return { success: false, message: "User not found" };
+    }
+    const secret = String(process.env.JWT_SECRET) + user.data?.password;
+    const isVerified = jwt.verify(String(token), secret);
+
+    if (!isVerified) {
+      return { success: false, message: "token expired" };
+    }
+    const hashedPass = await bcrypt.hash(password, 10);
+
+    await updateUser({ password: hashedPass }, userId);
+
+    return { success: true, message: "Password updated successfully." };
+  } catch (error) {
+    return {
+      success: false,
+      error: "An error occurred while requesting password reset in service.",
     };
   }
 };

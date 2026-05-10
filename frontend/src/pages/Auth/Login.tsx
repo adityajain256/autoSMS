@@ -93,7 +93,8 @@ export function Login() {
               <input type="checkbox" className="rounded text-primary focus:ring-primary h-4 w-4" />
               <span className="text-on-surface-variant font-medium">Remember me</span>
             </label>
-            <a href="#" className="font-semibold text-primary hover:text-primary-container">
+
+            <a href="/requestReset" className="font-semibold text-primary hover:text-primary-container">
               Forgot password?
             </a>
           </div>

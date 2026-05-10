@@ -25,7 +25,7 @@ export const createUser = async ({
 };
 
 export const updateUser = async (
-  { name, email, password, address, phoneNumber, petrolPumpName }: IUser,
+  { name, email, password, address, phoneNumber, petrolPumpName, resetToken }: IUser,
   id: string,
 ) => {
   try {
@@ -38,6 +38,7 @@ export const updateUser = async (
         address: address,
         phoneNumber,
         petrolPumpName,
+        resetToken,
       },
       {
         returnDocument: "after",
@@ -66,6 +67,18 @@ export const loginUser = async (phoneNumber: string) => {
 export const getUser = async (id: string) => {
   try {
     const user = await User.findById(id);
+    if (!user) {
+      return { success: false, error: "No User Found" };
+    }
+    return { success: true, data: user };
+  } catch (error) {
+    return { success: false, error: error };
+  }
+};
+
+export const getUserByMail = async (email: string) => {
+  try {
+    const user = await User.findOne({ email: email });
     if (!user) {
       return { success: false, error: "No User Found" };
     }

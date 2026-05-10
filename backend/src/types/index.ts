@@ -6,6 +6,7 @@ export interface IUser {
   email?: string;
   password?: string;
   address?: string;
+  resetToken?: string;
   phoneNumber?: string;
   petrolPumpName?: string;
   createdAt?: Date;
