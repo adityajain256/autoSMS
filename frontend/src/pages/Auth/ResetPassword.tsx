@@ -31,7 +31,7 @@ export function ResetPassword() {
     }
     try {
       const query = new URLSearchParams(window.location.search);
-      const userId = query.get('userId');
+      const userId = query.get('id');
       const token = query.get('token');
       setIsLoading(true);
       const response = await api.post(
