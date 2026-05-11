@@ -243,7 +243,7 @@ export function Signup() {
                         {/* Login Link */}
                         <div className="text-center mt-2">
                             <span className="text-sm font-medium text-gray-600">Already have an account? </span>
-                            <Link to="/otp-verification" className="text-sm font-bold text-[#006c49] hover:underline underline-offset-4 decoration-2">
+                            <Link to="/login" className="text-sm font-bold text-[#006c49] hover:underline underline-offset-4 decoration-2">
                                 Sign In
                             </Link>
                         </div>
