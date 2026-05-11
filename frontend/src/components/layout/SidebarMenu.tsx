@@ -2,7 +2,7 @@
 import {  NavLink } from 'react-router-dom';
 import { X, Briefcase, List, User, Plus, Bell, Send } from 'lucide-react';
 import { cn } from '../../utils/cn';
-
+import logo from '/logo.png';
 
 interface SidebarMenuProps {
   isOpen: boolean;
@@ -37,9 +37,9 @@ export function SidebarMenu({ isOpen, onClose, onAddClient }: SidebarMenuProps) 
         <div className="p-6 flex items-center justify-between border-b ghost-border">
           <div className="flex items-center gap-2">
             <img
-              src={'../../assets/logo.png'}
+              src={logo}
               alt="LIGHTLEAF Logo"
-              className="w-8 h-8 rounded object-cover bg-primary"
+              className="w-8 h-8 rounded object-cover="
             />
             <span className="font-bold text-xl text-on-surface tracking-tight">LIGHTLEAF</span>
           </div>

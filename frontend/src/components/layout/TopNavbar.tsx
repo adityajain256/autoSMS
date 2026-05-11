@@ -2,7 +2,7 @@
 import { Link, NavLink } from 'react-router-dom';
 import { Menu, Briefcase, List, User, Plus, Send, Bell } from 'lucide-react';
 import { Avatar } from '../common/Avatar';
-import logo from '/public/logo.png';
+import logo from '/logo.png';
 import { cn } from '../../utils/cn';
 import { Button } from '../common/Button';
 
