@@ -6,6 +6,8 @@ import {
   requestResetPassword,
   updateProfile,
   resetPassword,
+  verifyOTP,
+  generateOTP,
 } from "../controller/authController.js";
 import authMiddleware from "../middleware/auth.middleware.js";
 import { varification } from "../middleware/validateInput.middleware.js";
@@ -125,6 +127,10 @@ authRouter.post("/register/admin", varification, rateLimiter, registerAdmin);
  *       500:
  *         description: Internal server error
  */
+authRouter.post("/request-reset-password", requestResetPassword);
+authRouter.post("/reset-pass", resetPassword);
+authRouter.post("/verify-email", generateOTP);
+authRouter.post("/verify-otp", verifyOTP);
 authRouter.post("/login", rateLimiter, loginUser);
 
 /**
@@ -158,8 +164,7 @@ authRouter.post("/login", rateLimiter, loginUser);
  *       500:
  *         description: Internal server error
  */
-authRouter.post("/request-reset-password", requestResetPassword);
-authRouter.post("/reset-pass", resetPassword);
+
 authRouter.patch(
   "/update/profile",
   authMiddleware,

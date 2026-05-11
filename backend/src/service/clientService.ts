@@ -12,6 +12,7 @@ import User from "../model/User.js";
 import mongoose from "mongoose";
 import { createEntryRepo } from "../reposatory/entryRepo.js";
 import redisClient from "../config/redis.js";
+import { deleteClient } from "../reposatory/userRepo.js";
 
 export const getAllClientsService = async (
   id: string,
@@ -82,6 +83,15 @@ export const deleteClientService = async (id: string, authId: string) => {
       session.endSession();
       logger.error(`Failed to delete client with ID: ${id} - ${result.error}`);
       return { success: false, error: result.error };
+    }
+    const deleteClientResult = await deleteClient(id, authId);
+    if (!deleteClientResult.success) {
+      await session.abortTransaction();
+      session.endSession();
+      logger.error(
+        `Failed to delete client with ID: ${id} - ${deleteClientResult.error}`,
+      );
+      return { success: false, error: deleteClientResult.error };
     }
     await session.commitTransaction();
     session.endSession();

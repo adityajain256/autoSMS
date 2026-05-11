@@ -60,6 +60,9 @@ export function Profile() {
             "Authorization": `Bearer ${localStorage.getItem("token")}`
           }
         })
+        if(res.status == 403){
+          navigate("/requestReset", { state: { agenda: "verify" } });
+        }
         // ...removed console.log(res.data);
         setProfile(res.data.admin);
 
@@ -68,7 +71,15 @@ export function Profile() {
       }
     }
     getProfile();
-  }, [])
+  }, [navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen  bg-surface text-on-surface font-['Inter']">

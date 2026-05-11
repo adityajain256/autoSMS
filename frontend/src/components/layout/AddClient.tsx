@@ -67,6 +67,9 @@ const handleSearch = async (email: string, phoneNumber: string, vehicle: string)
        "Authorization": `Bearer ${localStorage.getItem("token")}`
      }
    })
+    if(res.status == 403){
+      navigate("/requestReset", { state: { agenda: "verify" } });
+    }
    if(!res.data._id){
     setClientExist(false);
    } 
@@ -88,7 +91,7 @@ const handleSearch = async (email: string, phoneNumber: string, vehicle: string)
 
     return () => clearTimeout(timer);
     
-  }, [formData.email, formData.phoneNumber, formData.vehicle])
+  }, [formData.email, formData.phoneNumber, formData.vehicle, navigate]);
   
 
   return (

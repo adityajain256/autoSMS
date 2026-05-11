@@ -7,21 +7,26 @@ import { useToast } from '../../contexts/ToastContext.tsx';
 import { api } from '../../utils/api.ts';
 import { Loader } from '../../components/common/Loader.tsx';
 import logo from '../../assets/logo.png';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export function RequestResetWithEmail() {
 
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const location = useLocation();
+  const agenda = location.state?.agenda as "reset" | "verify" | undefined;
 
   if(isLoading){
     return(
       <Loader />
     )
   }
+
   const sendRequestResetPassword = async () => {
     if (formData.email.length === 0) {
       addToast("Email is required to reset password", "error");
@@ -38,6 +43,23 @@ export function RequestResetWithEmail() {
     }
   }
 
+  const verifyEmail = async () => {
+    if (formData.email.length === 0) {
+      addToast("Email is required to verify email", "error");
+      return;
+    }
+    try {
+      setIsLoading(true);
+      const response = await api.post("/auth/verify-email", { email: formData.email });
+      navigate('/otp-verification', { state: { email: formData.email } });
+      addToast(response.data?.message || "Verification email sent", "success");
+    } catch (err: unknown) {
+      addToast((err as Error).message || "Failed to send verification email", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background relative overflow-hidden">
 
@@ -46,11 +68,17 @@ export function RequestResetWithEmail() {
           <div className="w-12 h-12 rounded  text-on-primary flex items-center justify-center font-bold text-xl mb-4">
             <img src={logo} alt="LIGHTLEAF Logo" />
           </div>
-          <h1 className="text-2xl font-bold text-on-surface">Reset Password</h1>
-          <p className="text-on-surface-variant text-sm mt-1">Enter your email to receive a password reset link</p>
+          <h1 className="text-2xl font-bold text-on-surface">{agenda === "reset" ? "Reset Password" : "Verify Email"}</h1>
+          <p className="text-on-surface-variant text-sm mt-1">Enter your email to receive a {agenda === "reset" ? "password reset link" : "verification email"} </p>
         </div>
 
-        <form onSubmit={sendRequestResetPassword} className="flex flex-col gap-5">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            (agenda === "reset" ? sendRequestResetPassword : verifyEmail)();
+          }}
+          className="flex flex-col gap-5"
+        >
           <InputField
             label="Email"
             type="email"
@@ -62,8 +90,8 @@ export function RequestResetWithEmail() {
           />
           <p className="text-red-600 text-sm mt-1">{(formData.email.length < 1) ? "Enter your email" : ""}</p>
           
-          <Button type="submit" variant="primary" size="lg" isLoading={isLoading} onClick={sendRequestResetPassword} className="w-full">
-            Send Reset Link
+          <Button type="submit" variant="primary" size="lg" isLoading={isLoading} className="w-full">
+            Send
           </Button>
         </form>
       </Card>

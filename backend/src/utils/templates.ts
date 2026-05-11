@@ -321,10 +321,128 @@ export const dueMessageTemplateForMail = (
 </html>`;
 };
 
-export const generateOtpTemplateForMail = (
-  otp: string,
-  petrolPumpName: string,
-) => {};
+export const generateOtpTemplateForMail = (otp: string) => {
+  return `
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title></title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: #333;
+      background-color: #fff; 
+    }
+
+    .container {
+      margin: 0 auto;
+      width: 100%;
+      max-width: 600px;
+      padding: 0 0px;
+      padding-bottom: 10px;
+      border-radius: 5px;
+      line-height: 1.8;
+    }
+
+    .header {
+      border-bottom: 1px solid #eee;
+    }
+
+    .header a {
+      font-size: 1.4em;
+      color: #000;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .content {
+      min-width: 700px;
+      overflow: auto;
+      line-height: 2;
+    }
+
+    .otp {
+      background: linear-gradient(to right, #00bc69 0, #00bc88 50%, #00bca8 100%);
+      margin: 0 auto;
+      width: max-content;
+      padding: 0 10px;
+      color: #fff;
+      border-radius: 4px;
+    }
+
+    .footer {
+      color: #aaa;
+      font-size: 0.8em;
+      line-height: 1;
+      font-weight: 300;
+    }
+
+    .email-info {
+      color: #666666;
+      font-weight: 400;
+      font-size: 13px;
+      line-height: 18px;
+      padding-bottom: 6px;
+    }
+
+    .email-info a {
+      text-decoration: none;
+      color: #00bc69;
+    }
+  </style>
+</head>
+
+<body>
+  <!--Subject: Verify your email address-->
+  <div class="container">
+    <div class="header">
+      <a>Verify your email address</a>
+    </div>
+    <br />
+    <strong>Hello,</strong>
+    <p>
+      Thank you for signing up with ${"LIGHTLEAF"}. To complete your email verification, please use the
+      following One-Time Password (OTP).
+      <br />
+      <b>Your email verification OTP is:</b>
+    </p>
+    <h2 class="otp">${otp}</h2>
+    <p style="font-size: 0.9em">
+      <strong>One-Time Password (OTP) is valid for 3 minutes.</strong>
+      <br />
+      <br />
+      If you did not request this verification, please disregard this
+      message. Please ensure the confidentiality of your OTP and do not share
+      it with anyone.<br />
+      <strong>Do not forward or give this code to anyone.</strong>
+      <br />
+      <br />
+      <strong>Thank you for choosing ${"LIGHTLEAF"}.</strong>
+      <br />
+      <br />
+      Best regards,
+      <br />
+      <strong>${"LIGHTLEAF"}</strong>
+    </p>
+
+    <hr style="border: none; border-top: 0.5px solid #131111" />
+    <div class="footer">
+      <p>This email can't receive replies.</p>
+      <p>
+        For more information, visit
+        <strong>${"https://www.thelightleaf.co.in"}</strong>
+      </p>
+    </div>
+  </div>
+  <div style="text-align: center">
+    <div class="email-info">&copy; ${new Date().getFullYear()} ${"LIGHTLEAF"}. All rights reserved.</div>
+  </div>
+</body>
+</html>`;
+};
 
 export const generatePasswordResetTemplateForMail = (resetLink: string) => {
   return `
@@ -355,7 +473,7 @@ export const generatePasswordResetTemplateForMail = (resetLink: string) => {
             <div class="content">
               <p style="margin:0 0 12px 0;">We received a request to reset your password. Click the button below to set a new password. This link will expire in 60 minutes.</p>
               <p style="text-align:center;margin:20px 0;">
-                <a href="${resetLink}" class="btn" target="_blank" rel="noopener">Reset Password</a>
+                <a href="${resetLink}" class="btn" style="color: white; text-decoration: underline; font-weight: bold;" target="_blank" rel="noopener">Reset Password</a>
               </p>
               <p class="muted">If you did not request a password reset, you can safely ignore this email.</p>
             </div>

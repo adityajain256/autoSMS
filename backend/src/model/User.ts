@@ -16,6 +16,11 @@ const userSchema = new mongoose.Schema(
     petrolPumpName: { type: String },
     clients: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     resetToken: { type: String, expires: "1h" },
+    otp: {
+      type: String,
+      expires: "10m",
+    },
+    verified: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

@@ -9,6 +9,8 @@ export interface IUser {
   resetToken?: string;
   phoneNumber?: string;
   petrolPumpName?: string;
+  verified?: boolean;
+  otp?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

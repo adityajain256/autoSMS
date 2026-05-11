@@ -50,7 +50,7 @@ export function Signup() {
             const response = await api.post("/auth/register/admin", formData);
             localStorage.setItem("token", response.data.token);
             addToast("Signup successful", "success");
-            navigate("/dashboard");
+            navigate("/otp-verification", { state: { email: formData.email } });
         } catch (error) {
             // ...removed console.log(error);
             addToast((error as Error).message || "Signup failed", "error");
@@ -243,7 +243,7 @@ export function Signup() {
                         {/* Login Link */}
                         <div className="text-center mt-2">
                             <span className="text-sm font-medium text-gray-600">Already have an account? </span>
-                            <Link to="/login" className="text-sm font-bold text-[#006c49] hover:underline underline-offset-4 decoration-2">
+                            <Link to="/otp-verification" className="text-sm font-bold text-[#006c49] hover:underline underline-offset-4 decoration-2">
                                 Sign In
                             </Link>
                         </div>

@@ -11,7 +11,10 @@ import {
 import logger from "../utils/logger.js";
 import redisClient from "../config/redis.js";
 import { sendMail } from "../config/mail.js";
-import { generatePasswordResetTemplateForMail } from "../utils/templates.js";
+import {
+  generateOtpTemplateForMail,
+  generatePasswordResetTemplateForMail,
+} from "../utils/templates.js";
 import { success } from "zod";
 
 // import { otp, otpTemplate } from "../utils/otpGenerator.js";
@@ -47,7 +50,7 @@ export const registerUserService = async (data: IUser) => {
         error: newUser.error || "Failed to create user",
       };
     }
-    const userId = newUser.data?._id;
+    const userId: string = String(newUser.data?._id);
     if (!userId) {
       throw new Error("User ID is missing after user creation");
     }
@@ -70,6 +73,18 @@ export const registerUserService = async (data: IUser) => {
       7 * 24 * 60 * 60,
       String(data.address),
     );
+    const otp: string = String(
+      Math.floor(
+        Math.random() * (Math.pow(10, 6) - 1 - Math.pow(10, 5)) +
+          Math.pow(10, 5),
+      ),
+    );
+    await updateUser({ otp: otp }, userId);
+    await sendMail(
+      String(data.email),
+      "Welcome to LIGHTLEAF",
+      generateOtpTemplateForMail(otp),
+    );
     logger.info("User registered successfully.");
     return { user: newUser, token };
   } catch (error) {
@@ -77,6 +92,57 @@ export const registerUserService = async (data: IUser) => {
     return {
       success: false,
       error: "An error occurred while registering the user.",
+    };
+  }
+};
+
+export const verifyUserByOTPServices = async (otp: string, email: string) => {
+  try {
+    const user = await getUserByMail(email as string);
+    if (!user.success || !user.data) {
+      return { success: false, error: user.error || "Invalid OTP" };
+    }
+    if (user.data.otp !== otp) {
+      return { success: false, message: "OTP doesn't match." };
+    }
+    await updateUser(
+      { verified: true, otp: "" } as IUser,
+      String(user.data._id),
+    );
+    return { success: true, message: "OTP verified successfully." };
+  } catch (error) {
+    return {
+      success: false,
+      error: "An error occurred while registering the user.",
+    };
+  }
+};
+
+export const generateOTPService = async (email: string) => {
+  try {
+    const user = await getUserByMail(email);
+    if (!user.success || !user.data) {
+      return { success: false, error: user.error || "No user found." };
+    }
+    const otp: string = String(
+      Math.floor(
+        Math.random() * (Math.pow(10, 6) - 1 - Math.pow(10, 5)) +
+          Math.pow(10, 5),
+      ),
+    );
+    await updateUser({ otp: otp } as IUser, String(user.data._id));
+    await sendMail(
+      String(user.data.email),
+      "Your OTP for LIGHTLEAF",
+      generateOtpTemplateForMail(otp),
+    );
+    logger.info(`OTP generated and sent to ${user.data.email} OTP: ${otp}`);
+    return { success: true, message: "OTP sent successfully." };
+  } catch (error) {
+    logger.error(error);
+    return {
+      success: false,
+      error: "An error occurred while generating the OTP.",
     };
   }
 };

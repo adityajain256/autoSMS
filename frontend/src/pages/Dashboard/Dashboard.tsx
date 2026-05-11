@@ -38,6 +38,9 @@ export function Dashboard() {
             "Authorization": `Bearer ${localStorage.getItem("token")}`
           }
         });
+        if(res.status == 403){
+          navigate("/requestReset", { state: { agenda: "verify" } });
+        }
 
         setData(res.data || {
           totalSMS: 0,
@@ -51,6 +54,7 @@ export function Dashboard() {
             body: "",
           }],
         });
+        
   
       } catch (error) {
         console.error(error);

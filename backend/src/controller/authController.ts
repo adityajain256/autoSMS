@@ -1,11 +1,13 @@
 import express from "express";
 import {
+  generateOTPService,
   getUserService,
   loginUserService,
   registerUserService,
   requestResetPasswordService,
   resetPasswordService,
   updateUserService,
+  verifyUserByOTPServices,
 } from "../service/userService.js";
 import type { IUser } from "../types/index.js";
 
@@ -40,6 +42,49 @@ export const registerAdmin = async (
     return res
       .status(500)
       .json({ message: "An error occurred while registering the admin." });
+  }
+};
+
+export const generateOTP = async (
+  req: express.Request,
+  res: express.Response,
+) => {
+  const { email } = req.body;
+  try {
+    const result = await generateOTPService(email);
+    if (result.success) {
+      return res.status(200).json({ message: "OTP sent successfully." });
+    } else {
+      return res
+        .status(400)
+        .json({ message: result.error || "Failed to generate OTP." });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "An error occurred while generating the OTP." });
+  }
+};
+
+export const verifyOTP = async (
+  req: express.Request,
+  res: express.Response,
+) => {
+  const { otp, email } = req.body;
+  if (!otp || !email) {
+    return res.status(400).json({ message: "OTP and email are required." });
+  }
+  try {
+    const result = await verifyUserByOTPServices(otp, email);
+    if (result.success) {
+      return res.status(200).json({ message: "OTP verified successfully." });
+    } else {
+      return res.status(400).json({ message: result.error || "Invalid OTP." });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "An error occurred while verifying the OTP." });
   }
 };
 

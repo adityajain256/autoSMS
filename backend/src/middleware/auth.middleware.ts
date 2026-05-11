@@ -26,6 +26,11 @@ const authMiddleware = (
     }
     const decoded = jwt.verify(token, secretKey);
     (req as any).user = decoded; // Attach user info to request object
+
+    if ((req as any).user.verified === false) {
+      logger.error("User email is not verified.");
+      return res.status(403).json({ message: "Forbidden: Email not verified" });
+    }
     next();
   } catch (error) {
     logger.error("Invalid token.");

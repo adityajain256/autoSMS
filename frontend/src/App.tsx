@@ -18,6 +18,7 @@ import { Sms } from './pages/Sms/Sms';
 import Announcement from './pages/Announcement/Announcement';
 import { RequestResetWithEmail } from './pages/Auth/RequestResetWithEmail';
 import { ResetPassword } from './pages/Auth/ResetPassword';
+import OtpVerification from './pages/Auth/OtpVerification';
 
 
 function App() {
@@ -28,9 +29,9 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="requestReset" element={<RequestResetWithEmail />} />
+          <Route path="requestReset" element={<RequestResetWithEmail/>} />
           <Route path="reset-password" element={<ResetPassword />} />
-
+          <Route path="otp-verification" element={<OtpVerification />} />
           <Route path="/" element={<Layout />}>
             <Route index element={<Navigate to="/hero" replace />} />
             <Route path="dashboard" element={<Dashboard />} />

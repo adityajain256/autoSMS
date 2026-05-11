@@ -5,7 +5,7 @@ import { ClientCard } from '../../components/data-display/ClientCard';
 import { useEffect, useState } from 'react';
 import { useToast } from '../../contexts/ToastContext';
 import { api } from '../../utils/api';
-
+import { useNavigate } from 'react-router-dom';
 
 export function Clients() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,9 +24,11 @@ export function Clients() {
     welcomeMessageSent: false,
   }]);
   const [isLoading, setIsLoading] = useState(true);
-  const page = 1;
+  
+  const [page, setPage] = useState(1);
   const limit = 12;
  
+  const navigate = useNavigate();
   useEffect(() => {
   const fetchClients = async () => {
           try {
@@ -40,6 +42,9 @@ export function Clients() {
                 limit: String(limit)
               }
             });
+            if(res.status == 403){
+          navigate("/requestReset", { state: { agenda: "verify" } });
+        }
             setData(Array.isArray(res.data) ? res.data : []);
           } catch (_error) {
             setIsLoading(false);
@@ -50,7 +55,7 @@ export function Clients() {
         };
 
         fetchClients();
-  },[]);
+  },[page, navigate]);
    if (isLoading) {
     return (
       <div className="flex justify-center items-center py-20">
@@ -122,7 +127,7 @@ export function Clients() {
       <div>
         <ClientCard dataClient={data}/>
       </div>
-      <Button>Load More...</Button>
+      <Button onClick={() => setPage(page + 1)}>Load More...</Button>
     </div>
   );
 }

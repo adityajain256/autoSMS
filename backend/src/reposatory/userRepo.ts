@@ -25,7 +25,17 @@ export const createUser = async ({
 };
 
 export const updateUser = async (
-  { name, email, password, address, phoneNumber, petrolPumpName, resetToken }: IUser,
+  {
+    name,
+    email,
+    password,
+    address,
+    phoneNumber,
+    petrolPumpName,
+    resetToken,
+    verified,
+    otp,
+  }: IUser,
   id: string,
 ) => {
   try {
@@ -39,6 +49,8 @@ export const updateUser = async (
         phoneNumber,
         petrolPumpName,
         resetToken,
+        otp,
+        verified,
       },
       {
         returnDocument: "after",
@@ -83,6 +95,15 @@ export const getUserByMail = async (email: string) => {
       return { success: false, error: "No User Found" };
     }
     return { success: true, data: user };
+  } catch (error) {
+    return { success: false, error: error };
+  }
+};
+
+export const deleteClient = async (clientId: string, authId: string) => {
+  try {
+    await User.findByIdAndUpdate(authId, { $pull: { clients: clientId } });
+    return { success: true };
   } catch (error) {
     return { success: false, error: error };
   }
