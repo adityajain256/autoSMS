@@ -124,6 +124,9 @@ export const generateOTPService = async (email: string) => {
     if (!user.success || !user.data) {
       return { success: false, error: user.error || "No user found." };
     }
+    if (user.data.verified === true) {
+      return { success: false, message: "User already verified." };
+    }
     const otp: string = String(
       Math.floor(
         Math.random() * (Math.pow(10, 6) - 1 - Math.pow(10, 5)) +

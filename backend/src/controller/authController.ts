@@ -55,9 +55,9 @@ export const generateOTP = async (
     if (result.success) {
       return res.status(200).json({ message: "OTP sent successfully." });
     } else {
-      return res
-        .status(400)
-        .json({ message: result.error || "Failed to generate OTP." });
+      return res.status(400).json({
+        message: result.error || result.message || "Failed to generate OTP.",
+      });
     }
   } catch (error) {
     return res
@@ -79,7 +79,9 @@ export const verifyOTP = async (
     if (result.success) {
       return res.status(200).json({ message: "OTP verified successfully." });
     } else {
-      return res.status(400).json({ message: result.error || "Invalid OTP." });
+      return res
+        .status(400)
+        .json({ message: result.error || result.message || "Invalid OTP." });
     }
   } catch (error) {
     return res
