@@ -270,8 +270,8 @@ export function CreateEntry() {
             </p>
           </div>
 
-        <div className="overflow-hidden w-full rounded-2xl mt-4">
-          <table className="w-full text-left border-collapse min-w-[800px]">
+        <div className="overflow-hidden overflow-x-auto w-full rounded-2xl mt-4">
+          <table className="w-full text-left overflow-x-auto border-collapse min-w-[800px]">
             <thead>
               <tr className="bg-surface-container/30 text-xs uppercase tracking-wider text-on-surface-variant font-bold border-b ghost-border">
                 <th className="p-2">Index</th>
