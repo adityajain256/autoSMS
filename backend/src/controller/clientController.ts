@@ -196,7 +196,11 @@ export const updateAmount = async (
     return res.status(400).json({ message: "Amount is required" });
   }
   try {
-    const result = await updateClientAmountService(String(id), Number(amount));
+    const result = await updateClientAmountService(
+      String(id),
+      Number(amount),
+      String((req as any).user.id),
+    );
     if (!result.success) {
       return res.status(400).json({ message: result.error });
     }

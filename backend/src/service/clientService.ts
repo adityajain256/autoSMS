@@ -69,7 +69,10 @@ export const createClientService = async (data: IClient, authId: string) => {
         error: client.error || "Failed to create client",
       };
     }
-
+    await redisClient.append(
+      `allClient:${authId}`,
+      JSON.stringify(client.data),
+    );
     logger.info(`Client created for user ID: ${authId}`);
     sendMail(
       String(client.data?.email),
@@ -82,6 +85,7 @@ export const createClientService = async (data: IClient, authId: string) => {
         String(await redisClient.get(`user:${authId}:address`)),
       ),
     );
+
     return { success: true, data: client };
   } catch (error) {
     logger.error(error);
@@ -111,6 +115,7 @@ export const deleteClientService = async (id: string, authId: string) => {
       );
       return { success: false, error: deleteClientResult.error };
     }
+    await redisClient.del(`allClient:${authId}`);
     await session.commitTransaction();
     session.endSession();
     logger.info(`Client deleted for ID: ${id}`);
@@ -123,7 +128,11 @@ export const deleteClientService = async (id: string, authId: string) => {
   }
 };
 
-export const updateClientAmountService = async (id: string, amount: number) => {
+export const updateClientAmountService = async (
+  id: string,
+  amount: number,
+  authId: string,
+) => {
   try {
     const updateClientAmount = await updateClientAmountRepo(id, amount);
     if (!updateClientAmount.success) {
@@ -144,6 +153,8 @@ export const updateClientAmountService = async (id: string, amount: number) => {
       );
       return { success: false, error: createEntry.error };
     }
+
+    await redisClient.del(`allClient:${authId}`);
     logger.info(`Client amount updated for ID: ${id}`);
     return { success: true, data: updateClientAmount.data };
   } catch (error) {
