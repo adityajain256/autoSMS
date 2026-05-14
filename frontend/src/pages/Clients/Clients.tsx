@@ -10,7 +10,9 @@ import { useNavigate } from 'react-router-dom';
 export function Clients() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isExporting, setIsExporting] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const { addToast } = useToast();
+  const [searchedData, setSearchedData] = useState([]);
   const [data, setData] = useState([{
     _id: "",
     username: "",
@@ -56,13 +58,47 @@ export function Clients() {
 
         fetchClients();
   },[page, navigate]);
-   if (isLoading) {
+  useEffect(() => {
+
+    const fetchSearchResults = async () => {
+      try {
+        setIsSearching(true);
+        const res = await api.get("/clients/find", {
+          headers: { 
+            "Authorization": `Bearer ${localStorage.getItem("token")}` 
+          },
+          params: { searchTerm }
+        });
+        setSearchedData(res.data || []);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (error) {
+        console.error("Error fetching search results:", error);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+    
+    const delayDebounceFn = setTimeout(() => {
+      if (searchTerm.trim() !== "") {
+        fetchSearchResults();
+      } else {
+        setSearchedData([]);
+        setPage(1); // Reset to first page when search term is cleared
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+
+  }, [searchTerm]);
+
+  if (isLoading && searchTerm.trim().length === 0) {
     return (
       <div className="flex justify-center items-center py-20">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
+
   const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
@@ -125,9 +161,21 @@ export function Clients() {
         </Button>
       </div>
       <div>
-        <ClientCard dataClient={data}/>
+        {searchTerm.trim().length > 0 ? (
+          isSearching ? (
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <ClientCard dataClient={searchedData} />
+          )
+        ) : (
+          <ClientCard dataClient={data} />
+        )}
       </div>
-      <Button onClick={() => setPage(page + 1)}>Load More...</Button>
+      <Button onClick={() => setPage(page + 1)} >
+        Load More...
+      </Button>
     </div>
   );
 }

@@ -49,7 +49,7 @@ export const sendWelcomeSMSService = async (
           email,
           address,
         );
-        const res = sendMail(
+        const res = await sendMail(
           String(client.email),
           "Welcome to " + petrolPumpName,
           mailBody,

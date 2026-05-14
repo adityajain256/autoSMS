@@ -3,16 +3,19 @@ import {
   getAllClientsRepo,
   getClientByIdRepo,
   getClientRepo,
+  getClientsRepo,
   updateClientAmountRepo,
 } from "../reposatory/clientRepo.js";
 import logger from "../utils/logger.js";
 import type { IClient } from "../types/index.js";
 import { deleteClientRepo } from "../reposatory/clientRepo.js";
-import User from "../model/User.js";
 import mongoose from "mongoose";
 import { createEntryRepo } from "../reposatory/entryRepo.js";
 import redisClient from "../config/redis.js";
 import { deleteClient } from "../reposatory/userRepo.js";
+import { sendMail } from "../config/mail.js";
+import { welcomeMessageTemplateForMail } from "../utils/templates.js";
+import { parseJsonText } from "typescript";
 
 export const getAllClientsService = async (
   id: string,
@@ -20,6 +23,11 @@ export const getAllClientsService = async (
   limit: number,
 ) => {
   try {
+    const cachedClients = await redisClient.get(`allClient:${id}`);
+    if (cachedClients) {
+      logger.info(`Clients retrieved from cache for user ID: ${id}`);
+      return JSON.parse(cachedClients);
+    }
     const clients = await getAllClientsRepo(id, skip, limit);
     if (!clients) {
       logger.warn(`No clients found for user with id: ${id}`);
@@ -63,7 +71,17 @@ export const createClientService = async (data: IClient, authId: string) => {
     }
 
     logger.info(`Client created for user ID: ${authId}`);
-
+    sendMail(
+      String(client.data?.email),
+      "Welcome to " +
+        String(await redisClient.get(`user:${authId}:petrolPumpName`)),
+      welcomeMessageTemplateForMail(
+        String(await redisClient.get(`user:${authId}:petrolPumpName`)),
+        String(client.data?.username),
+        String(await redisClient.get(`user:${authId}:email`)),
+        String(await redisClient.get(`user:${authId}:address`)),
+      ),
+    );
     return { success: true, data: client };
   } catch (error) {
     logger.error(error);
@@ -138,6 +156,7 @@ export const getClientService = async (
   phoneNumber: string,
   vehicleId: string,
   email: string,
+  id: string,
 ) => {
   try {
     const phoneNumberWithCountryCode = String(phoneNumber).startsWith("+91")
@@ -145,7 +164,7 @@ export const getClientService = async (
       : `+91${String(phoneNumber)}`;
     phoneNumber = phoneNumberWithCountryCode;
 
-    const client = await getClientRepo(phoneNumber, vehicleId, email);
+    const client = await getClientRepo(phoneNumber, vehicleId, email, id);
     if (!client.success) {
       logger.warn(
         `Client not found with phoneNumber: ${phoneNumber}, vehicleId: ${vehicleId}, email: ${email} - ${client.error}`,
@@ -164,5 +183,50 @@ export const getClientService = async (
       success: false,
       error: `Error occurred while fetching client in services: ${error}`,
     };
+  }
+};
+
+export const searchClientsService = async (searchTerm: string, id: string) => {
+  try {
+    logger.info(
+      `Searching clients with searchTerm: ${searchTerm} for user ID: ${id}`,
+    );
+    const phoneNumber = String(searchTerm).startsWith("+91")
+      ? searchTerm
+      : undefined;
+    const vehicleId = searchTerm.match(/^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}$/)
+      ? searchTerm
+      : undefined;
+    const email = String(searchTerm).includes("@") ? searchTerm : undefined;
+    const username =
+      !phoneNumber && !vehicleId && !email ? searchTerm : undefined;
+    const clients = await redisClient.get(`allClient:${id}`);
+
+    const search = {
+      type: username
+        ? "username"
+        : phoneNumber
+          ? "phoneNumber"
+          : vehicleId
+            ? "vehicle"
+            : "email",
+      value: searchTerm,
+    };
+
+    if (clients) {
+      const filteredClients = JSON.parse(clients).filter(
+        (client: any) =>
+          client[search.type] &&
+          String(client[search.type])
+            .toLowerCase()
+            .includes(String(search.value).toLowerCase()),
+      );
+
+      return { success: true, data: filteredClients };
+    }
+    const clientsFromDB = await getClientsRepo(search);
+    return { success: true, data: clientsFromDB.data };
+  } catch (error) {
+    return { success: false, error: error };
   }
 };

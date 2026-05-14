@@ -6,11 +6,13 @@ import {
   getAllClientsService,
   getClientByIdService,
   getClientService,
+  searchClientsService,
   updateClientAmountService,
 } from "../service/clientService.js";
 import type { IClient } from "../types/index.js";
 import logger from "../utils/logger.js";
 import Client from "../model/Client.js";
+import redisClient from "../config/redis.js";
 
 export const getAllClients = async (
   req: express.Request,
@@ -220,6 +222,7 @@ export const getClient = async (
       String(phoneNumber) || "",
       String(vehicleId) || "",
       String(email) || "",
+      String((req as any).user.id),
     );
     if (!clientId.success) {
       return res.status(404).json({ message: clientId.error });
@@ -228,5 +231,26 @@ export const getClient = async (
     res.status(200).json(clientId.data);
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const searchClients = async (
+  req: express.Request,
+  res: express.Response,
+) => {
+  const { searchTerm } = req.query || req.params;
+  try {
+    const authId = (req as any).user.id;
+    const clients = await searchClientsService(
+      String(searchTerm),
+      String(authId),
+    );
+    if (!clients.success) {
+      return res.status(404).json({ message: clients.error });
+    }
+
+    res.status(200).json(clients.data);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
   }
 };

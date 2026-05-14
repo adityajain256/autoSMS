@@ -8,11 +8,13 @@ import {
   exportExcel,
   updateAmount,
   getClient,
+  searchClients,
 } from "../controller/clientController.js";
 
 const clientRouter = express.Router();
 
 clientRouter.use(authMiddleware);
+clientRouter.get("/find", searchClients);
 
 /**
  * @swagger
